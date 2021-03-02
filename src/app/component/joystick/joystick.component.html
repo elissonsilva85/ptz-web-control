@@ -1,0 +1,22 @@
+<div class="joystick noselect">
+    <span style="position: absolute; top: 3px; left: 3px; color: #ccc;">
+        &uarr;&larr; {{ this.joystickData.speed["LeftUp"] }}
+    </span>
+    <span style="position: absolute; bottom: 3px; left: 3px; color: #ccc;">
+        &darr;&larr; {{ this.joystickData.speed["LeftDown"] }}
+    </span>
+    <span style="position: absolute; top: 3px; right: 3px; color: #ccc;">
+        &uarr;&rarr; {{ this.joystickData.speed["RightUp"] }}
+    </span>
+    <span style="position: absolute; bottom: 3px; right: 3px; color: #ccc;">
+        &darr;&rarr; {{ this.joystickData.speed["RightDown"] }}
+    </span>
+    <span class="placeholder"><img src="assets/joystick.png" /></span>
+    <div class="zone">
+    <ngx-joystick #dynamicJoystick 
+        [options]="joysctickOptions" 
+        (start)="onStart()"
+        (end)="onEnd()"
+        (move)="onMoveDynamic($event)"></ngx-joystick>
+    </div>
+</div>

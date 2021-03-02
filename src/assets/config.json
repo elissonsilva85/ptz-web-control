@@ -1,0 +1,22 @@
+{
+    "urlBase": "http://localhost/app/",
+    "ptzCodes": [
+        "PTZ1",
+        "PTZ2"
+    ],
+    "PTZ1": {
+        "ip": "<ip>",
+        "user": "<username>",
+        "password": "<password>"
+    },
+    "PTZ2": {
+        "ip": "<ip>",
+        "user": "<username>",
+        "password": "<password>"
+    },
+    "PTZ3": {
+        "ip": "<ip>",
+        "user": "<username>",
+        "password": "<password>"
+    }
+}

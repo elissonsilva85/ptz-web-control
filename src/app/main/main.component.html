@@ -1,0 +1,85 @@
+<div class="progress-bar" [style.visibility]="progressBarShow ? 'visible' : 'hidden'">
+    <div class="progress-bar-spinner">
+    <mat-spinner style="margin:0 auto;"></mat-spinner>
+    <span>{{ progressBatStatus }}</span>
+    </div>
+</div>
+<div class="ptzBox" *ngFor="let ptz of rcp.ptzCodes">
+    <div class="timelineExecution" *ngIf="stepByStepService.isTimelineRunning(ptz)">
+        <button mat-raised-button color="warn" (click)="stopTimeline(ptz)">INTERROMPER</button>
+        <mat-list>
+            <mat-list-item 
+                *ngFor="let action of stepByStepService.getTimelineCurrentAction(ptz); let i = index;" 
+                [ngClass]="getClasses(ptz, action)">
+                <div mat-line class="title">{{ action.getTitle() }}</div>
+                <div mat-line class="subhead">{{ action.getParamsToString() }}</div>
+                <div class="time">
+                    Inicio: {{ action.getStartTime() }} <br/>
+                    Duração: {{ action.getDuration() }}
+                </div>
+            </mat-list-item>
+        </mat-list>
+    </div>
+    <mat-card>
+        <table width="100%">
+            <tr>
+                <td style="width: 65px; padding-top: 10px; position: relative;">
+                    <mat-card-title>{{ptz}} <img src="./assets/{{ this.rcp.getStatusSvg(ptz) }}" class="status-svg"></mat-card-title>
+                </td>
+                <td style="text-align: right">
+                    <button mat-icon-button (click)="openBrightnessContrastDialog(ptz)" matTooltip="Parâmetros">
+                        <mat-icon>video_settings</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="changeNumpadMode(ptz)" [color]="numpadMode[ptz] == 'load' ? '' : 'warn'" matTooltip="Modo: {{ numpadMode[ptz] == 'load' ? 'CARREGAR' : 'SALVAR' }}">
+                        <mat-icon>{{ numpadMode[ptz] == 'load' ? 'launch' : 'save' }}</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="openPresetNamesDialog(ptz,numpad.labels)" matTooltip="Nome dos Presets">
+                        <mat-icon>list_alt</mat-icon>
+                    </button>
+                    <button mat-icon-button [matMenuTriggerFor]="stepByStepMenu" matTooltip="Passo a Passo">
+                        <mat-icon>mediation</mat-icon>
+                    </button>
+                    <mat-menu #stepByStepMenu="matMenu" xPosition="before">
+                        <button mat-menu-item (click)="openStepByStepDialog(ptz)">Configurar</button>
+                        <hr>
+                        <button mat-menu-item *ngFor="let item of stepByStepService.getTimelineNames(ptz)" (click)="runTimeline(ptz, item)">{{ item }}</button>
+                    </mat-menu>
+                    <button mat-icon-button (click)="setZoomSpeed(ptz, 5)" matTooltip="Setar velocidade do zomm para 5" style="position: relative">
+                        <mat-icon>brightness_1</mat-icon>
+                        <span style="position: absolute; top: 2px; left: 13px; font-size: 0.6em; color: white;">5</span>
+                    </button>
+                    <button mat-icon-button (click)="setZoomSpeed(ptz, 100)"  matTooltip="Setar velocidade do zomm para 100" style="position: relative">
+                        <mat-icon>brightness_1</mat-icon>
+                        <span style="position: absolute; top: 2px; left: 9px; font-size: 0.6em; color: white;">100</span>
+                    </button>
+                    <button style="display: none" mat-icon-button (click)="openRegionDialog(ptz)" matTooltip="Por Região">
+                        <mat-icon>picture_in_picture</mat-icon>
+                    </button>
+                    <button style="display: none" mat-icon-button disabled matTooltip="Posição Específica">
+                        <mat-icon>data_usage</mat-icon>
+                    </button>
+                </td>
+            </tr>
+        </table>
+        <mat-card-content>
+            <table style="width: 100%; margin-top: 10px; margin-bottom: 10px;;" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td rowspan="3" style="width: 15px;"></td>
+                    <td><app-iris [ptz]="ptz"></app-iris></td>
+                    <td rowspan="3" style="width: 200px; padding-left: 10px;"><app-joystick [ptz]="ptz"></app-joystick></td>
+                    <td rowspan="3" style="width: 15px;"></td>
+                </tr>
+                <tr>
+                    <td><app-zoom [ptz]="ptz"></app-zoom></td>
+                </tr>
+                <tr>
+                    <td><app-focus [ptz]="ptz"></app-focus></td>
+                </tr>
+            </table>            
+            <app-numpad [ptz]="ptz" [mode]="numpadMode[ptz]" [labels]="presetNames[ptz]" #numpad></app-numpad>
+        </mat-card-content>
+    </mat-card>
+</div>
+<div class="logButtonDiv">
+    <button mat-stroked-button (click)="openLogDialog()">Abrir Log</button>
+</div>

@@ -1,0 +1,10 @@
+<div class="container">
+  <div class="row" *ngFor="let row of [0,3,6,9]">
+    <div *ngFor="let col of [0,1,2]"       
+      [ngClass]="getClasses(row + col)" 
+      (click)="runPreset(row + col,$event)">
+      {{ row + col + 1}}
+      <div class="sub">{{ labels[row + col] }}</div>
+    </div>
+  </div>
+</div>
