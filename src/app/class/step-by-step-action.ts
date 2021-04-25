@@ -137,8 +137,10 @@ export class StepByStepAction {
             this._description,
             this._functionName,
             this._executionTime,
-            this._params
+            this._params.map( p => p.clone() )
         );
+
+        obj.setWaitingTime( this.getWaitingTime() );
 
         return obj;
     }

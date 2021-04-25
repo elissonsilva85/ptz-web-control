@@ -230,6 +230,7 @@ export class StepByStepDialog implements OnInit {
   itemDropped(event: CdkDragDrop<any[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(this.stepByStepService.getTimelineCurrentAction(this.data.ptz), event.previousIndex, event.currentIndex);
+      moveItemInArray(this.waitingTimeControl, event.previousIndex, event.currentIndex);
     } else {
       this.addField(event.item.data, event.currentIndex);
     }
@@ -237,7 +238,7 @@ export class StepByStepDialog implements OnInit {
 
   addField(action: StepByStepAction, index: number) {
     this.stepByStepService.getTimelineCurrentAction(this.data.ptz).splice(index, 0, action.clone() );
-    this.waitingTimeControl.splice(index, 0, new FormControl() );
+    this.waitingTimeControl.splice(index, 0, new FormControl('0') );
     this.waitingTimeControl[index].valueChanges.subscribe((value) => {
       this.stepByStepService.getTimelineCurrentAction(this.data.ptz)[index].setWaitingTime( parseInt(value) );
       this.stepByStepService.updateActionTimes(this.data.ptz);

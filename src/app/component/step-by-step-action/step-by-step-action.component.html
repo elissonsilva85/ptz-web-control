@@ -1,12 +1,12 @@
 <form [formGroup]="actionFormGorup">
-<div *ngFor="let param of action.getParams(); let i = index">
+<div *ngFor="let param of action.getParams(); let i = index" [ngSwitch]="param.getType()">
 
-    <mat-form-field *ngIf="param.getType() == 'input'" class="full-width">
+    <mat-form-field *ngSwitchCase="'input'" class="full-width">
         <mat-label>{{ param.getLabel() }}</mat-label>
         <input type="text" matInput [formControlName]="i">
     </mat-form-field>
     
-    <mat-form-field *ngIf="param.getType() == 'select'" class="full-width" appearance="fill">
+    <mat-form-field *ngSwitchCase="'select'" class="full-width" appearance="fill">
         <mat-label>{{ param.getLabel() }}</mat-label>
         <mat-select [formControlName]="i">
             <mat-option *ngFor="let item of param.getOptions()" [value]="item">
@@ -15,7 +15,7 @@
         </mat-select>
     </mat-form-field>
 
-    <div *ngIf="param.getType() == 'slider'" style="position: relative;">
+    <div *ngSwitchCase="'slider'" style="position: relative;">
         <mat-form-field class="full-width">
             <mat-label>{{ param.getLabel() }}</mat-label>
             <input type="text" matInput [formControlName]="i">
@@ -30,7 +30,7 @@
         </mat-form-field>        
     </div>
 
-    <div *ngIf="param.getType() == 'label'" class="full-width">
+    <div *ngSwitchCase="'label'" class="full-width">
         <mat-label style="font-style: italic;">{{ param.getLabel() }}</mat-label>
     </div>
 

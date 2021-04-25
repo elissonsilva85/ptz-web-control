@@ -5,7 +5,7 @@
     </div>
 </div>
 <div class="ptzBox" *ngFor="let ptz of rcp.ptzCodes">
-    <div class="timelineExecution" *ngIf="stepByStepService.isTimelineRunning(ptz)">
+    <div class="timelineExecution" *ngIf="stepByStepService.isTimelineRunning(ptz)" [@inOutAnimation]>
         <button mat-raised-button color="warn" (click)="stopTimeline(ptz)">INTERROMPER</button>
         <mat-list>
             <mat-list-item 
@@ -20,7 +20,7 @@
             </mat-list-item>
         </mat-list>
     </div>
-    <mat-card>
+    <mat-card [ngClass]="{ 'blur': stepByStepService.isTimelineRunning(ptz) }">
         <table width="100%">
             <tr>
                 <td style="width: 65px; padding-top: 10px; position: relative;">
@@ -36,14 +36,12 @@
                     <button mat-icon-button (click)="openPresetNamesDialog(ptz,numpad.labels)" matTooltip="Nome dos Presets">
                         <mat-icon>list_alt</mat-icon>
                     </button>
+                    <button mat-icon-button (click)="openRegionDialog(ptz)" matTooltip="Por Região">
+                        <mat-icon>picture_in_picture</mat-icon>
+                    </button>
                     <button mat-icon-button [matMenuTriggerFor]="stepByStepMenu" matTooltip="Passo a Passo">
                         <mat-icon>mediation</mat-icon>
                     </button>
-                    <mat-menu #stepByStepMenu="matMenu" xPosition="before">
-                        <button mat-menu-item (click)="openStepByStepDialog(ptz)">Configurar</button>
-                        <hr>
-                        <button mat-menu-item *ngFor="let item of stepByStepService.getTimelineNames(ptz)" (click)="runTimeline(ptz, item)">{{ item }}</button>
-                    </mat-menu>
                     <button mat-icon-button (click)="setZoomSpeed(ptz, 5)" matTooltip="Setar velocidade do zomm para 5" style="position: relative">
                         <mat-icon>brightness_1</mat-icon>
                         <span style="position: absolute; top: 2px; left: 13px; font-size: 0.6em; color: white;">5</span>
@@ -52,12 +50,11 @@
                         <mat-icon>brightness_1</mat-icon>
                         <span style="position: absolute; top: 2px; left: 9px; font-size: 0.6em; color: white;">100</span>
                     </button>
-                    <button style="display: none" mat-icon-button (click)="openRegionDialog(ptz)" matTooltip="Por Região">
-                        <mat-icon>picture_in_picture</mat-icon>
-                    </button>
-                    <button style="display: none" mat-icon-button disabled matTooltip="Posição Específica">
-                        <mat-icon>data_usage</mat-icon>
-                    </button>
+                    <mat-menu #stepByStepMenu="matMenu" xPosition="before">
+                        <button mat-menu-item (click)="openStepByStepDialog(ptz)">Configurar</button>
+                        <hr>
+                        <button mat-menu-item *ngFor="let item of stepByStepService.getTimelineNames(ptz)" (click)="runTimeline(ptz, item)">{{ item }}</button>
+                    </mat-menu>
                 </td>
             </tr>
         </table>

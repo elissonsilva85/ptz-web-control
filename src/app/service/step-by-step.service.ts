@@ -107,7 +107,7 @@ export class StepByStepService {
       "startJoystick",
       100,
       [
-        new StepByStepActionParam( "Direção", "Di", "select", [ "LeftDown", "LeftUp", "RightDown", "RightUp" ] ),
+        new StepByStepActionParam( "Direção", "Dir", "select", [ "LeftDown", "LeftUp", "RightDown", "RightUp" ] ),
         new StepByStepActionParam( "Velocidade Up/Down", "U-D", "slider", [ 0, 8, 1 ] ),
         new StepByStepActionParam( "Velocidade Left/Right", "L-R", "slider", [ 0, 8, 1 ] ),
       ]));
@@ -219,11 +219,11 @@ export class StepByStepService {
     if(actionIdx == -1) 
       element.timelineActions.push({
         name: name,
-        actions: element.currentTimelineActions
+        actions: element.currentTimelineActions.map( a => a.clone() )
       })
     else
       element.timelineActions[actionIdx].actions = 
-        element.currentTimelineActions;
+        element.currentTimelineActions.map( a => a.clone() );
 
     // Store the names and the actions
     this.saveTimelineAllData();
@@ -289,11 +289,11 @@ export class StepByStepService {
 
     element.currentTimelineActions = element.timelineActions[actionIdx].actions;
 
-    this.runTimeline(ptz, session);;
+    this.runTimeline(ptz, session);
   }
 
   public runTimeline(ptz: string, session: RcpSession) {
-
+    
     let element = this.timelineData.find( el => el.ptz == ptz );
 
     if(element.isTimelineRunning) {
@@ -308,8 +308,9 @@ export class StepByStepService {
 
     var process = () => {
       console.log("process", element.isTimelineRunning);
-      if(!element.isTimelineRunning)
+      if(!element.isTimelineRunning) {
         return;
+      }
 
       element.currentExecutionTime = (new Date()).getTime() - startTime.getTime();
       
@@ -370,6 +371,7 @@ export class StepByStepService {
     element.isTimelineRunning = true;
     element.currentTimelineActions.forEach( a => a.setStatusPending() );
     process();
+
   }
 
   public stopTimeline(ptz: string, session: RcpSession) {

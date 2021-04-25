@@ -38,4 +38,17 @@ export class StepByStepActionParam {
     public getOptions(): any[] {
         return this._options;
     }
+
+    public clone(): StepByStepActionParam {
+        let obj = new StepByStepActionParam(
+            this._label,
+            this._shortLabel,
+            this._type,
+            this._options
+        );
+
+        obj.setValue(this.getValue());
+
+        return obj;
+    }
 }

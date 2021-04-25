@@ -5,13 +5,18 @@
     width: 365px;
 }
 
+.blur {
+    filter: blur(3px);
+    -webkit-filter: blur(3px);  
+}
+
 .ptzBox mat-card {
     padding-bottom: 30px;
 }
 
 .timelineExecution {
     position: absolute;
-    background-color: rgba(100,100,100, 0.2);
+    background-color: rgba(100,100,100, 0.05);
     width: 365px;
     height: 97%;
     z-index: 999;
@@ -27,6 +32,10 @@
     background-color: gainsboro;
     width: 345px;
     margin: 10px;
+    border-radius: 4px;
+    box-shadow: 0px 2px 1px -1px rgb(0 0 0 / 20%), 
+                0px 1px 1px  0px rgb(0 0 0 / 14%), 
+                0px 1px 3px  0px rgb(0 0 0 / 12%);
 }
 
 .timelineExecution mat-list-item .title {
@@ -37,7 +46,7 @@
 .timelineExecution mat-list-item .subhead {
     font-size: 12px;
     font-style: italic; 
-    color: gray;
+    color: rgb(70, 70, 70);
 }
 
 .timelineExecution mat-list-item .time {
@@ -49,6 +58,11 @@
 
 .timelineExecution .step-pending {
     background-color:#999;
+}
+.timelineExecution .step-pending .title,
+.timelineExecution .step-pending .subhead,
+.timelineExecution .step-pending .time {
+    color:rgb(214, 212, 212);
 }
 .timelineExecution .step-running {
     background-color: lightpink;

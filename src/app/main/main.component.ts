@@ -1,3 +1,4 @@
+import { trigger, transition, style, animate } from '@angular/animations';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -13,7 +14,13 @@ import { StepByStepAction } from '../class/step-by-step-action';
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
-  styleUrls: ['./main.component.css']
+  styleUrls: ['./main.component.css'],
+  animations: [
+    trigger('inOutAnimation', [
+      transition(':enter', [style({ opacity: 0 }), animate('0.25s ease-out', style({ opacity: 1 }))]),
+      transition(':leave', [style({ opacity: 1 }), animate('0.25s ease-in', style({ opacity: 0 }))]),
+    ]),
+  ],
 })
 export class MainComponent implements OnInit {
 
@@ -61,7 +68,7 @@ export class MainComponent implements OnInit {
         this.progressBatStatus = "CONECTANDO ..."
         return Promise.all(
           this.rcp.ptzCodes.map( ptz => this.rcp.getSession(ptz).connect()  )
-        ).then(() => {
+        ).then(_ => {
           this.progressBarShow = false;
         });
 
