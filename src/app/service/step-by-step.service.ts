@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { RcpSession } from '../class/rcp-session';
+import { PtzAbstractSession } from '../class/ptz-abstract-session';
+import { PtzDahuaSession } from '../class/ptz-dahua-session';
 import { StepByStepAction } from '../class/step-by-step-action';
 import { StepByStepActionParam } from '../class/step-by-step-action-param';
 
@@ -30,7 +31,7 @@ export class StepByStepService {
   public timelineData: StepByStepPtz[] = [];
   public availableActions : StepByStepAction[] = [];
 
-  constructor(private snackBar: MatSnackBar) { 
+  constructor(private snackBar: MatSnackBar) {
   }
 
   private _convertToStepByStepAction(array: any[]): StepByStepAction[] {
@@ -38,7 +39,7 @@ export class StepByStepService {
       a._params = a._params.map( p => Object.assign(new StepByStepActionParam(), p) )
       return Object.assign(new StepByStepAction(), a);
     });
-  }  
+  }
 
   private _convertToStepByStepPtz(array: StepByStepPtz[]): StepByStepPtz[] {
 
@@ -48,9 +49,9 @@ export class StepByStepService {
         a.actions = this._convertToStepByStepAction(a.actions);
         return Object.assign(new StepByStepPtzAction(), a);
       });
-      return Object.assign(new StepByStepPtz(), ptz); 
+      return Object.assign(new StepByStepPtz(), ptz);
     });
-  }  
+  }
 
   private _loadAvailableActions() {
 
@@ -100,7 +101,7 @@ export class StepByStepService {
       [
         new StepByStepActionParam( "Defina apenas o tempo de espera", null, "label", null )
       ]));
-  
+
     this.availableActions.push(new StepByStepAction(
       "Joystick",
       "Defina a direção, velocidade e duração para o movimento da camera",
@@ -164,10 +165,10 @@ export class StepByStepService {
       this.timelineData = this._convertToStepByStepPtz(tempNames);
     }
 
-    if(!this.timelineData.find( el => el.ptz == ptz )) 
+    if(!this.timelineData.find( el => el.ptz == ptz ))
       this.timelineData.push(new StepByStepPtz(ptz));
   }
-  
+
   public getTimelineNames(ptz: string): string[] {
 
     let element = this.timelineData.find( el => el.ptz == ptz );
@@ -216,19 +217,19 @@ export class StepByStepService {
     element.currentTimelineName = name;
 
     let actionIdx = element.timelineActions.findIndex( el => el.name == name )
-    if(actionIdx == -1) 
+    if(actionIdx == -1)
       element.timelineActions.push({
         name: name,
         actions: element.currentTimelineActions.map( a => a.clone() )
       })
     else
-      element.timelineActions[actionIdx].actions = 
+      element.timelineActions[actionIdx].actions =
         element.currentTimelineActions.map( a => a.clone() );
 
     // Store the names and the actions
     this.saveTimelineAllData();
   }
-  
+
   public removeTimeline(ptz: string, name: string) {
 
     let element = this.timelineData.find( el => el.ptz == ptz );
@@ -260,7 +261,7 @@ export class StepByStepService {
 
   }
 
-  public testItem(ptz: string, index: number, session: RcpSession) {
+  public testItem(ptz: string, index: number, session: PtzDahuaSession) {
 
     let element = this.timelineData.find( el => el.ptz == ptz );
 
@@ -280,7 +281,7 @@ export class StepByStepService {
 
   }
 
-  public runTimelineByName(ptz: string, name: string, session: RcpSession) {
+  public runTimelineByName(ptz: string, name: string, session: PtzAbstractSession) {
 
     let element = this.timelineData.find( el => el.ptz == ptz );
 
@@ -292,8 +293,8 @@ export class StepByStepService {
     this.runTimeline(ptz, session);
   }
 
-  public runTimeline(ptz: string, session: RcpSession) {
-    
+  public runTimeline(ptz: string, session: PtzAbstractSession) {
+
     let element = this.timelineData.find( el => el.ptz == ptz );
 
     if(element.isTimelineRunning) {
@@ -313,7 +314,7 @@ export class StepByStepService {
       }
 
       element.currentExecutionTime = (new Date()).getTime() - startTime.getTime();
-      
+
       let pendingList = element.currentTimelineActions.filter( a => a.isPending() );
       let executionList = element.currentTimelineActions.filter( a => (a.isPending() && a.getStartTime() <= element.currentExecutionTime) );
 
@@ -342,9 +343,9 @@ export class StepByStepService {
             // -----------------------------------------------------
             return p.then(_ => {
               return new Promise<any>( (resolve, reject) => {
-                if( currentStatus == "DONE" ) 
+                if( currentStatus == "DONE" )
                   resolve(null);
-                
+
                 a.setStatusRunning();
                 a.run(session)
                   .then(_ => a.setStatusDone())
@@ -367,14 +368,14 @@ export class StepByStepService {
             //
         });
     }
-    
+
     element.isTimelineRunning = true;
     element.currentTimelineActions.forEach( a => a.setStatusPending() );
     process();
 
   }
 
-  public stopTimeline(ptz: string, session: RcpSession) {
+  public stopTimeline(ptz: string, session: PtzAbstractSession) {
 
     let element = this.timelineData.find( el => el.ptz == ptz );
     if(element.isTimelineRunning) {

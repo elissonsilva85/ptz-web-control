@@ -1,4 +1,4 @@
-export class RcpSessionData {
+export class DahuaSessionData {
     random: string;
     realm: string;
     session: string;

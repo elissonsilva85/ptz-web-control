@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { isDevMode } from '@angular/core';
-import { RcpSession } from '../class/rcp-session';
+import { PtzAbstractSession } from '../class/ptz-abstract-session';
+import { PtzDahuaSession } from '../class/ptz-dahua-session';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,7 @@ export class RcpService {
   urlBase: string = "http://localhost:4200/app/";
 
   ptzUserPass: any = {};
+  ptzBrand: string = "";
   ptzCodes: string[] = [];
   ptzSessionList = new Map();
 
@@ -23,6 +25,7 @@ export class RcpService {
       .toPromise()
       .then( (data: any) => {
         this.urlBase = data.urlBase;
+        this.ptzBrand = data.ptzBrand;
         this.ptzCodes = data.ptzCodes;
         this.ptzCodes.forEach( (ptz) => {
           this.ptzUserPass[ptz] = data[ptz];
@@ -32,25 +35,34 @@ export class RcpService {
         if(isDevMode()) this.urlBase = "http://localhost:4200/app/";
       })
       .catch(err => {
-        throw Error(`Config file not loaded! ${err}`);  
+        throw Error(`Config file not loaded! ${err}`);
       });
   }
 
-  public getSession(ptz: string) : RcpSession {
+  public getSession(ptz: string) : PtzAbstractSession {
     if(this.ptzSessionList.get(ptz) == null)
-      this.ptzSessionList.set(ptz, new RcpSession(
-        this._http,
-        ptz,
-        this.urlBase,
-        this.ptzUserPass[ptz].user,
-        this.ptzUserPass[ptz].pass,
-        (ptz : string, text : string) => {
-          this.logs.unshift({ 
-            date: new Date(), 
-            ptz: ptz,
-            msg: text });
+      switch(this.ptzBrand) {
+        case "dahua": {
+          this.ptzSessionList.set(ptz, new PtzDahuaSession(
+            this._http,
+            ptz,
+            this.urlBase,
+            this.ptzUserPass[ptz].user,
+            this.ptzUserPass[ptz].pass,
+            (ptz : string, text : string) => {
+              this.logs.unshift({
+                date: new Date(),
+                ptz: ptz,
+                msg: text });
+            }
+          ))
+          break;
         }
-      ))
+
+        default:
+          throw new Error(`Brand ${this.ptzBrand} not recognized`);
+
+      }
 
     return this.ptzSessionList.get(ptz);
   }
