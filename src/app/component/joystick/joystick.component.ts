@@ -16,7 +16,7 @@ export class JoystickComponent implements OnInit {
 
   showX: number;
   showY: number;
-  
+
   joysctickOptions: JoystickManagerOptions = {
     mode: 'dynamic',
     color: 'blue',
@@ -77,7 +77,7 @@ export class JoystickComponent implements OnInit {
       }
       this.joystickData.speed[direction] = [0,0];
       this.joystickData.lastSpeed[direction] = [0,0];
-    } 
+    }
   }
 
   checkSpeedChange() {
@@ -119,28 +119,28 @@ export class JoystickComponent implements OnInit {
     }
 
     if(xPos <= 0 && yPos <= 0) {
-      this.joystickData.speed["LeftUp"] = [ ySpeed, xSpeed ]; 
-      this.joystickData.speed["LeftDown"] = [ 0, 0 ]; 
-      this.joystickData.speed["RightUp"] = [ 0, 0 ]; 
-      this.joystickData.speed["RightDown"] = [ 0, 0 ]; 
+      this.joystickData.speed["LeftUp"] = [ ySpeed, xSpeed ];
+      this.joystickData.speed["LeftDown"] = [ 0, 0 ];
+      this.joystickData.speed["RightUp"] = [ 0, 0 ];
+      this.joystickData.speed["RightDown"] = [ 0, 0 ];
     }
-    if(xPos <= 0 && yPos > 0) { 
-      this.joystickData.speed["LeftUp"] = [ 0, 0 ]; 
-      this.joystickData.speed["LeftDown"] = [ ySpeed, xSpeed ];  
-      this.joystickData.speed["RightUp"] = [ 0, 0 ]; 
-      this.joystickData.speed["RightDown"] = [ 0, 0 ]; 
+    if(xPos <= 0 && yPos > 0) {
+      this.joystickData.speed["LeftUp"] = [ 0, 0 ];
+      this.joystickData.speed["LeftDown"] = [ ySpeed, xSpeed ];
+      this.joystickData.speed["RightUp"] = [ 0, 0 ];
+      this.joystickData.speed["RightDown"] = [ 0, 0 ];
     }
     if(xPos > 0 && yPos <= 0) {
-      this.joystickData.speed["LeftUp"] = [ 0, 0 ]; 
-      this.joystickData.speed["LeftDown"] = [ 0, 0 ]; 
-      this.joystickData.speed["RightUp"] = [ ySpeed, xSpeed ]; 
-      this.joystickData.speed["RightDown"] = [ 0, 0 ]; 
+      this.joystickData.speed["LeftUp"] = [ 0, 0 ];
+      this.joystickData.speed["LeftDown"] = [ 0, 0 ];
+      this.joystickData.speed["RightUp"] = [ ySpeed, xSpeed ];
+      this.joystickData.speed["RightDown"] = [ 0, 0 ];
     }
-    if(xPos > 0 && yPos > 0) { 
-      this.joystickData.speed["LeftUp"] = [ 0, 0 ]; 
-      this.joystickData.speed["LeftDown"] = [ 0, 0 ]; 
-      this.joystickData.speed["RightUp"] = [ 0, 0 ]; 
-      this.joystickData.speed["RightDown"] = [ ySpeed, xSpeed ]; 
+    if(xPos > 0 && yPos > 0) {
+      this.joystickData.speed["LeftUp"] = [ 0, 0 ];
+      this.joystickData.speed["LeftDown"] = [ 0, 0 ];
+      this.joystickData.speed["RightUp"] = [ 0, 0 ];
+      this.joystickData.speed["RightDown"] = [ ySpeed, xSpeed ];
     }
 
     this.checkSpeedChange();
@@ -150,16 +150,16 @@ export class JoystickComponent implements OnInit {
     if(this.zoomStopTimeout)
       clearTimeout(this.zoomStopTimeout);
     if(direction == 1)
-      this.rcp.getSession(this.ptz).stopZoomIn(5);
+      this.rcp.getSession(this.ptz).stopZoomIn();
     if(direction == -1)
-      this.rcp.getSession(this.ptz).stopZoomOut(5);
+      this.rcp.getSession(this.ptz).stopZoomOut();
   }
 
   startZoom(direction: number) {
     if(direction == 1)
-      this.rcp.getSession(this.ptz).startZoomIn(5);
+      this.rcp.getSession(this.ptz).startZoomIn();
     if(direction == -1)
-      this.rcp.getSession(this.ptz).startZoomOut(5);
+      this.rcp.getSession(this.ptz).startZoomOut();
 }
 
   @HostListener('mousewheel', ['$event'])
@@ -188,5 +188,5 @@ export class JoystickComponent implements OnInit {
 
       console.log(wheelDelta);
     }
-  }   
+  }
 }

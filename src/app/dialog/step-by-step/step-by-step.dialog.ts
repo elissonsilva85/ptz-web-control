@@ -9,7 +9,7 @@ import { CdkDragStart, CdkDragMove, CdkDragDrop, moveItemInArray } from '@angula
 import { ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { StepByStepService } from 'src/app/service/step-by-step.service';
-import { RcpSession } from 'src/app/class/rcp-session';
+import { PtzDahuaSession } from 'src/app/class/ptz-dahua-session';
 import { ConfirmDialog } from '../confirm/confirm.dialog';
 
 
@@ -35,7 +35,7 @@ export class StepByStepDialog implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<StepByStepDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: { ptz: string, session: RcpSession },
+    @Inject(MAT_DIALOG_DATA) public data: { ptz: string, session: PtzDahuaSession },
     private snackBar: MatSnackBar,
     public stepByStepService: StepByStepService,
     private dialog: MatDialog ) {
@@ -70,7 +70,7 @@ export class StepByStepDialog implements OnInit {
     const filterValue = name.toLowerCase();
     return this.stepByStepService
       .getTimelineNames(this.data.ptz)
-      .filter(option => 
+      .filter(option =>
         option.toLowerCase().indexOf(filterValue) === 0);
   }
 
@@ -124,7 +124,7 @@ export class StepByStepDialog implements OnInit {
     this.stepByStepService.saveTimelineByName(this.data.ptz, name);
 
     this._updateFilteredOptions();
- 
+
     // Show a message
     this.snackBar.open("Linha do tempo salva com sucesso", "Fechar", {
       duration: 2000,
@@ -146,7 +146,7 @@ export class StepByStepDialog implements OnInit {
     if(!this.stepByStepService.getTimelineNames(this.data.ptz).includes(name)) {
       this.timelineNameControl.setErrors({'incorrect': true});
       this.snackBar.open(`Não há um itme com o nome ${name} na lista de ações`, "Fechar", {
-        duration: 3000,        
+        duration: 3000,
       });
       return;
     }
@@ -156,7 +156,7 @@ export class StepByStepDialog implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      
+
       if(result !== true) return;
 
       this.step = -1;
@@ -181,7 +181,7 @@ export class StepByStepDialog implements OnInit {
 
   getClasses(action: StepByStepAction) {
     return {
-      'step' : true, 
+      'step' : true,
       'step-pending': this.stepByStepService.isTimelineRunning(this.data.ptz) && action.isPending(),
       'step-running': this.stepByStepService.isTimelineRunning(this.data.ptz) && action.isRunning(),
       'step-done': this.stepByStepService.isTimelineRunning(this.data.ptz) && action.isDone(),
@@ -213,7 +213,7 @@ export class StepByStepDialog implements OnInit {
   }
 
   // ================================================================================
-  
+
   dragStart(event: CdkDragStart) {
     this._currentIndex = this.stepByStepService.availableActions.indexOf(event.source.data); // Get index of dragged type
     this._currentField = this.child.nativeElement.children[this._currentIndex]; // Store HTML field

@@ -1,5 +1,6 @@
 {
     "urlBase": "http://localhost/app/",
+    "ptzBrand": "dahua",
     "ptzCodes": [
         "PTZ1",
         "PTZ2"

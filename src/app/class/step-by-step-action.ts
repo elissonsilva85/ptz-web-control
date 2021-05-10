@@ -1,4 +1,4 @@
-import { RcpSession } from "./rcp-session";
+import { PtzAbstractSession } from "./ptz-abstract-session";
 import { StepByStepActionParam } from "./step-by-step-action-param";
 
 export enum StepByStepActionStatus {
@@ -12,7 +12,7 @@ export class StepByStepAction {
     private _title: string;
     private _description: string;
     private _ptz: string;
-    
+
     private _functionName: string;
 
     private _timeFromBegining: number = 0;
@@ -62,14 +62,14 @@ export class StepByStepAction {
     public getExecutionTime() {
         return this._executionTime;
     }
-  
+
     public updateStartTime( timeFromBegining: number) {
         this._timeFromBegining = timeFromBegining;
     }
 
     public getParams(): StepByStepActionParam[] {
         return this._params;
-    }      
+    }
 
     public getParamsToString(): string {
         return this._params
@@ -111,7 +111,7 @@ export class StepByStepAction {
         this._status = StepByStepActionStatus.RUNNING;
     }
 
-    run(rcp: RcpSession): Promise<any> {
+    run(rcp: PtzAbstractSession): Promise<any> {
 
         return new Promise<any>( (resolve, reject) => {
 
@@ -123,11 +123,11 @@ export class StepByStepAction {
                 .then( () => {
                     setTimeout( () => {
                         resolve(null);
-                    }, this._waitingTime );                    
+                    }, this._waitingTime );
                 })
                 .catch( (err) => {
                     reject( ( typeof err == "string" ? err : JSON.stringify(err) ) );
-                });    
+                });
         });
     }
 

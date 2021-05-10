@@ -1,4 +1,4 @@
-export class Faultylabs {
+export class DahuaFaultylabs {
 
   p = null;
   q = null;
@@ -180,13 +180,13 @@ export class Faultylabs {
     MD5(a) {
       this.p = null;
       this.q = null;
-      return "string" == typeof a ? 
-        this.p = this.k(a) : a.constructor == Array ? 
-        0 === a.length ? this.p = a : "string" == typeof a[0] ? 
-        this.p = this.c(a) : "number" == typeof a[0] ? 
-        this.p = a : this.q = typeof a[0] : "undefined" != typeof ArrayBuffer ? 
-        a instanceof ArrayBuffer ? this.p = this.m(new Uint8Array(a)) : a instanceof Uint8Array || a instanceof Int8Array ? 
-        this.p = this.m(a) : a instanceof Uint32Array || a instanceof Int32Array || a instanceof Uint16Array || a instanceof Int16Array || a instanceof Float32Array || a instanceof Float64Array ? 
+      return "string" == typeof a ?
+        this.p = this.k(a) : a.constructor == Array ?
+        0 === a.length ? this.p = a : "string" == typeof a[0] ?
+        this.p = this.c(a) : "number" == typeof a[0] ?
+        this.p = a : this.q = typeof a[0] : "undefined" != typeof ArrayBuffer ?
+        a instanceof ArrayBuffer ? this.p = this.m(new Uint8Array(a)) : a instanceof Uint8Array || a instanceof Int8Array ?
+        this.p = this.m(a) : a instanceof Uint32Array || a instanceof Int32Array || a instanceof Uint16Array || a instanceof Int16Array || a instanceof Float32Array || a instanceof Float64Array ?
         this.p = this.m(new Uint8Array(a.buffer)) : this.q = typeof a : this.q = typeof a,
         this.q && alert("MD5 type mismatch, cannot process " + this.q),
         this.o();

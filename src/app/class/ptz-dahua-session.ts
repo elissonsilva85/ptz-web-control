@@ -1,54 +1,21 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Faultylabs } from '../class/faultylabs';
-import { RcpSessionData } from '../class/rcp-session-data';
+import { DahuaFaultylabs } from './dahua-faultylabs';
+import { DahuaSessionData } from './dahua-session-data';
+import { PtzAbstractSession } from './ptz-abstract-session';
 
-const faultylabs: Faultylabs = new Faultylabs();
+const faultylabs: DahuaFaultylabs = new DahuaFaultylabs();
 
-export class RcpSession {
+export class PtzDahuaSession extends PtzAbstractSession {
 
     private _keepAliveInterval: number = 9000;
-    private _sessionData : RcpSessionData = new RcpSessionData();
-    private _lastCallBody : any = {};
-    private _httpOptions = {
-        headers: new HttpHeaders({
-          'X-Requested-With': 'XMLHttpRequest',
-          'Accept': 'application/json, text/javascript, */*; q=0.01',
-          'Accept-Language': 'pt-PT,pt;q=0.9,en-US;q=0.8,en;q=0.7',
-          'Content-Type': 'application/x-www-form-urlencoded',
-        }),
-        withCredentials: false,
-        params: null
-      };
+    private _sessionData : DahuaSessionData = new DahuaSessionData();
 
-    //private _runningKeepAliveEvent: Observable<boolean>;
-  
-    constructor(
-      private _http: HttpClient, 
-      private _ptz : string, 
-      private _urlBase : string, 
-      private _user : string, 
-      private _pass : string,
-      private _addLog = (p:string, t:string) => {}) { 
-    }
-
-    private _getPromiseRejectWithText(text: string): Promise<any> {
-      return new Promise<any>( (resolve, reject) => {
-        reject(text);
-      });
-    }
-
-    public isConnected() : boolean {
-      return this._sessionData.isConnected;
-    }
-
-    private _post( page: string, body : any ): Promise<any> {
+    protected _post( page: string, body : any ): Promise<any> {
       if(body.method == "ptz.start") this._lastCallBody = body;
-      return this._http
-        .post<any>(this._getUrl(page), body, this._httpOptions)
-        .toPromise();
+      return super._post(page, body);
     }
-  
+
+    /////// PRIVATE METHODS /////////////////////
+
     private _getSeq(): number {
       let b = 0;
       let a = this._sessionData.session.toString().replace(/[^0-9]/gi, "")
@@ -57,28 +24,24 @@ export class RcpSession {
       return b = (b + 1) % 256,
       parseInt(c + d, 2)
     }
-  
+
     private _getHashPassword() : string {
       let pass = this._hex_md5(
-        this._user + ":" + 
-        this._sessionData.random + ":" + 
-        this._hex_md5(this._user + ":" + 
-        this._sessionData.realm + ":" + 
+        this._user + ":" +
+        this._sessionData.random + ":" +
+        this._hex_md5(this._user + ":" +
+        this._sessionData.realm + ":" +
         this._pass)).toUpperCase();
       return pass;
     }
-  
+
     private _hex_md5(text: string): string {
       return faultylabs.MD5(text);
     }
-  
-    private _getUrl(page: string): string {
-      return this._urlBase + this._ptz + "/" + page;
-    }
-  
+
     private _startSession() : Promise<any> {
       clearTimeout(this._sessionData.timer);
-  
+
       let body = {
         "method": "global.login",
         "params": {
@@ -103,9 +66,9 @@ export class RcpSession {
       }).catch( (error) => {
         this._sessionData.isConnected = false;
         throw error;
-      } ); 
+      } );
     }
-  
+
     private _login() : Promise<any> {
       let hashPass = this._getHashPassword();
       let body = {
@@ -126,9 +89,9 @@ export class RcpSession {
         this._addLog(this._ptz, "login return: " + JSON.stringify(r));
         this._sessionData.session = r.session;
         this._sessionData.id = r.id;
-      }); 
+      });
     }
-  
+
     private _factoryInstance() : Promise<any> {
       var body = {
         "method":"ptz.factory.instance",
@@ -143,12 +106,12 @@ export class RcpSession {
       return this._post("RPC2", body).then( r => {
         this._addLog(this._ptz, "factoryInstance return: " + JSON.stringify(r));
         this._sessionData.result = r.result;
-        this._sessionData.id = r.id;  
-      });  
+        this._sessionData.id = r.id;
+      });
     }
-  
+
     private _keepAlive() : Promise<any> {
-      if( !this.isConnected() ) 
+      if( !this.isConnected() )
         return this._getPromiseRejectWithText(`_keepAlive: ${this._ptz} is not connected`);
 
       var body = {
@@ -164,18 +127,18 @@ export class RcpSession {
       this._addLog(this._ptz, "keepAlive : " + JSON.stringify(body));
       return this._post("RPC2", body).then( r => {
         this._addLog(this._ptz, "keepAlive return: " + JSON.stringify(r));
-        this._sessionData.id = r.id;  
-      });  
+        this._sessionData.id = r.id;
+      });
     }
-  
+
     private _keepAliveTimeout() {
       this._sessionData.timer = setTimeout(() => {
         this._keepAlive().then( () => { this._keepAliveTimeout(); })
       }, this._keepAliveInterval);
     }
-  
+
     private _ptzStart(code: string, arg1 = null, arg2 = null, arg3 = null, arg4 = null, channel = null) : Promise<any> {
-      if( !this.isConnected() ) 
+      if( !this.isConnected() )
         return this._getPromiseRejectWithText(`_ptzStart: ${this._ptz} is not connected`);
 
       var body = {
@@ -200,12 +163,12 @@ export class RcpSession {
       this._addLog(this._ptz, "_ptzStart : " + JSON.stringify(body));
       return this._post("RPC2", body).then( r => {
         this._addLog(this._ptz, "_ptzStart return: " + JSON.stringify(r));
-        this._sessionData.id = r.id;     
-      }); 
+        this._sessionData.id = r.id;
+      });
     }
-  
+
     private _ptzStop(code: string, arg1 = null, arg2 = null, arg3 = null, arg4 = null, channel = null) : Promise<any> {
-      if( !this.isConnected() ) 
+      if( !this.isConnected() )
         return this._getPromiseRejectWithText(`_ptzStop: ${this._ptz} is not connected`);
 
       var body = {
@@ -230,12 +193,12 @@ export class RcpSession {
       this._addLog(this._ptz, "_ptzStop : " + JSON.stringify(body));
       return this._post("RPC2", body).then( r => {
         this._addLog(this._ptz, "_ptzStop return: " + JSON.stringify(r));
-        this._sessionData.id = r.id;     
-      }); 
+        this._sessionData.id = r.id;
+      });
     }
-  
+
     private _systemMulticall(params: any[]) : Promise<any> {
-      if( !this.isConnected() ) 
+      if( !this.isConnected() )
         return this._getPromiseRejectWithText(`_systemMulticall: ${this._ptz} is not connected`);
 
       var body = {
@@ -248,10 +211,10 @@ export class RcpSession {
       this._addLog(this._ptz, "_systemMulticall : " + JSON.stringify(body));
       return this._post("RPC2", body).then( r => {
         this._addLog(this._ptz, "_systemMulticall return: " + JSON.stringify(r));
-        this._sessionData.id = r.id;     
-      }); 
+        this._sessionData.id = r.id;
+      });
     }
-  
+
     private _getConfigManagerSetConfigStructure(name: string, table: any[], options: any[] = []) {
       var body = {
         "method": "configManager.setConfig",
@@ -265,6 +228,36 @@ export class RcpSession {
       };
       //
       return body;
+    }
+
+    /////// PUBLIC METHODS ///////////
+
+    public isConnected() : boolean {
+      return this._sessionData.isConnected;
+    }
+
+    public connect() : Promise<any> {
+      return this._startSession()
+        .then( () => { return this._login(); })
+        .then( () => { return this._factoryInstance(); })
+    }
+
+    public loadPreset(id: number) : Promise<any> {
+      if( !this.isConnected() )
+        return this._getPromiseRejectWithText(`loadPreset: ${this._ptz} is not connected`);
+
+      let freezeFocus = false;
+
+      return this._ptzStart("GotoPreset", id, 0, 0).then( () => {
+        if(freezeFocus)
+          setTimeout( () => {
+            this.startFocusOut().then(() => {
+              this.stopFocusOut() }) }, 5000);
+      });
+    }
+
+    public savePreset(id: number) : Promise<any> {
+      return this._ptzStart("SetPreset", id, 0, 0);
     }
 
     public setZoomSpeed(value) : Promise<any> {
@@ -293,9 +286,90 @@ export class RcpSession {
       //
       return this._systemMulticall([ body ]);
     }
-  
+
+    public startZoomIn() : Promise<any> {
+      let amount = 5;
+      return this._ptzStart("ZoomTele", amount, 0, 0);
+    }
+
+    public stopZoomIn() : Promise<any> {
+      let amount = 5;
+      return this._ptzStop("ZoomTele", amount, 0, 0);
+    }
+
+    public startZoomOut() : Promise<any> {
+      let amount = 5;
+      return this._ptzStart("ZoomWide", amount, 0, 0);
+    }
+
+    public stopZoomOut() : Promise<any> {
+      let amount = 5;
+      return this._ptzStop("ZoomWide", amount, 0, 0);
+    }
+
+    public startFocusIn() : Promise<any> {
+      let amount = 5;
+      return this._ptzStart("FocusNear", amount, 0, 0);
+    }
+
+    public stopFocusIn() : Promise<any> {
+      let amount = 5;
+      return this._ptzStop("FocusNear", amount, 0, 0);
+    }
+
+    public startFocusOut() : Promise<any> {
+      let amount = 5;
+      return this._ptzStart("FocusFar", amount, 0, 0);
+    }
+
+    public stopFocusOut() : Promise<any> {
+      let amount = 5;
+      return this._ptzStop("FocusFar", amount, 0, 0);
+    }
+
+    public startJoystick(direction: string, speed1: number, speed2: number = 0) : Promise<any> {
+      return this._ptzStart(direction, speed1, speed2, 0);
+    }
+
+    public stopJoystick(direction: string, speed1: number, speed2: number = 0) : Promise<any> {
+      return this._ptzStop(direction, speed1, speed2, 0);
+    }
+
+    public stopLastCall() : Promise<any> {
+      if( !this.isConnected() )
+        return this._getPromiseRejectWithText(`stopLastCall: ${this._ptz} is not connected`);
+
+      if(this._lastCallBody && this._lastCallBody.method)
+      {
+        if(this._lastCallBody.method == "ptz.start")
+        {
+          this._lastCallBody.method = "ptz.stop";
+          this._lastCallBody.id = this._sessionData.id + 1,
+          this._lastCallBody.session = this._sessionData.session,
+          this._lastCallBody.object = this._sessionData.result,
+          this._lastCallBody.seq = this._getSeq()
+          //
+          this._addLog(this._ptz, "stopLastCall : " + JSON.stringify(this._lastCallBody));
+          return this._post("RPC2", this._lastCallBody).then( r => {
+            this._addLog(this._ptz, "stopLastCall return: " + JSON.stringify(r));
+            this._sessionData.id = r.id;
+          });
+        }
+      }
+
+      return Promise.resolve();
+    }
+
+
+    ///////////// UNDER DEVELOPMENT //////////////
+
+    public specificPosition(horizontal: number, vertical: number, zoom: number) : Promise<any> {
+      //let degree = -18.99666 + 6.9773 * Math.log(horizontal);
+      return this._ptzStart("PositionABS", horizontal, vertical, zoom);
+    }
+
     public getVideoColor(table: any[]) : Promise<any> {
-      if( !this.isConnected() ) 
+      if( !this.isConnected() )
         return this._getPromiseRejectWithText(`getVideoColor: ${this._ptz} is not connected`);
 
       var body = {
@@ -875,12 +949,12 @@ export class RcpSession {
       this._addLog(this._ptz, "getVideoColor : " + JSON.stringify(body));
       return this._post("RPC2", body).then( r => {
         this._addLog(this._ptz, "getVideoColor return: " + JSON.stringify(r));
-        this._sessionData.id = r.id;     
+        this._sessionData.id = r.id;
       });
     }
-  
+
     public setVideoColor(table: any[]) : Promise<any> {
-      if( !this.isConnected() ) 
+      if( !this.isConnected() )
         return this._getPromiseRejectWithText(`setVideoColor: ${this._ptz} is not connected`);
 
       var body = {
@@ -930,12 +1004,12 @@ export class RcpSession {
       this._addLog(this._ptz, "setVideoColor : " + JSON.stringify(body));
       return this._post("RPC2", body).then( r => {
         this._addLog(this._ptz, "setVideoColor return: " + JSON.stringify(r));
-        this._sessionData.id = r.id;     
+        this._sessionData.id = r.id;
       });
     }
-  
+
     public moveDirectly(coord: number[], speed: number) : Promise<any> {
-      if( !this.isConnected() ) 
+      if( !this.isConnected() )
         return this._getPromiseRejectWithText(`moveDirectly: ${this._ptz} is not connected`);
 
       var body = {
@@ -953,99 +1027,8 @@ export class RcpSession {
       return this._post("RPC2", body).then( r => {
         this._addLog(this._ptz, "moveDirectly return: " + JSON.stringify(r));
         this._sessionData.session = r.session;
-        this._sessionData.id = r.id;  
-      });  
-    }
-    public connect() : Promise<any> {
-      return this._startSession()
-        .then( () => { return this._login(); })
-        .then( () => { return this._factoryInstance(); })
-    }
-  
-    public loadPreset(id: number, freezeFocus: boolean = false) : Promise<any> {
-      if( !this.isConnected() ) 
-        return this._getPromiseRejectWithText(`loadPreset: ${this._ptz} is not connected`);
-
-      return this._ptzStart("GotoPreset", id, 0, 0).then( () => {
-        if(freezeFocus) 
-          setTimeout( () => { 
-            this.startFocusOut().then(() => { 
-              this.stopFocusOut() }) }, 5000);
+        this._sessionData.id = r.id;
       });
     }
-  
-    public savePreset(id: number) : Promise<any> {
-      return this._ptzStart("SetPreset", id, 0, 0);
-    }
-  
-    public startZoomIn(amount: number = 5) : Promise<any> {
-      return this._ptzStart("ZoomTele", amount, 0, 0);
-    }
-  
-    public stopZoomIn(amount: number = 5) : Promise<any> {
-      return this._ptzStop("ZoomTele", amount, 0, 0);
-    }
-  
-    public startZoomOut(amount: number = 5) : Promise<any> {
-      return this._ptzStart("ZoomWide", amount, 0, 0);
-    }
-  
-    public stopZoomOut(amount: number = 5) : Promise<any> {
-      return this._ptzStop("ZoomWide", amount, 0, 0);
-    }
-  
-    public startFocusIn(amount: number = 5) : Promise<any> {
-      return this._ptzStart("FocusNear", amount, 0, 0);
-    }
-  
-    public stopFocusIn(amount: number = 5) : Promise<any> {
-      return this._ptzStop("FocusNear", amount, 0, 0);
-    }
-  
-    public startFocusOut(amount: number = 5) : Promise<any> {
-      return this._ptzStart("FocusFar", amount, 0, 0);
-    }
-  
-    public stopFocusOut(amount: number = 5) : Promise<any> {
-      return this._ptzStop("FocusFar", amount, 0, 0);
-    }
-  
-    public startJoystick(direction: string, speed1: number, speed2: number = 0) : Promise<any> {
-      return this._ptzStart(direction, speed1, speed2, 0);
-    }
-  
-    public stopJoystick(direction: string, speed1: number, speed2: number = 0) : Promise<any> {
-      return this._ptzStop(direction, speed1, speed2, 0);
-    }
-  
-    public specificPosition(horizontal: number, vertical: number, zoom: number) : Promise<any> {
-      //let degree = -18.99666 + 6.9773 * Math.log(horizontal);
-      return this._ptzStart("PositionABS", horizontal, vertical, zoom);
-    }
 
-    public stopLastCall() : Promise<any> {
-      if( !this.isConnected() ) 
-        return this._getPromiseRejectWithText(`stopLastCall: ${this._ptz} is not connected`);
-
-      if(this._lastCallBody && this._lastCallBody.method)
-      {
-        if(this._lastCallBody.method == "ptz.start")
-        {
-          this._lastCallBody.method = "ptz.stop";
-          this._lastCallBody.id = this._sessionData.id + 1,
-          this._lastCallBody.session = this._sessionData.session,
-          this._lastCallBody.object = this._sessionData.result,
-          this._lastCallBody.seq = this._getSeq()
-          //
-          this._addLog(this._ptz, "stopLastCall : " + JSON.stringify(this._lastCallBody));
-          return this._post("RPC2", this._lastCallBody).then( r => {
-            this._addLog(this._ptz, "stopLastCall return: " + JSON.stringify(r));
-            this._sessionData.id = r.id;     
-          }); 
-        }
-      }
-
-      return Promise.resolve();
-    }
-  
 }
