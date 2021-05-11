@@ -1,3 +1,5 @@
+<ng-keyboard-shortcuts [shortcuts]="shortcuts"></ng-keyboard-shortcuts>
+<ng-keyboard-shortcuts-help [key]="'f1'" [closeKey]="'escape'" [title]="'Atalhos'"></ng-keyboard-shortcuts-help>
 <div class="progress-bar" [style.visibility]="progressBarShow ? 'visible' : 'hidden'">
     <div class="progress-bar-spinner">
     <mat-spinner style="margin:0 auto;"></mat-spinner>
@@ -8,8 +10,8 @@
     <div class="timelineExecution" *ngIf="stepByStepService.isTimelineRunning(ptz)" [@inOutAnimation]>
         <button mat-raised-button color="warn" (click)="stopTimeline(ptz)">INTERROMPER</button>
         <mat-list>
-            <mat-list-item 
-                *ngFor="let action of stepByStepService.getTimelineCurrentAction(ptz); let i = index;" 
+            <mat-list-item
+                *ngFor="let action of stepByStepService.getTimelineCurrentAction(ptz); let i = index;"
                 [ngClass]="getClasses(ptz, action)">
                 <div mat-line class="title">{{ action.getTitle() }}</div>
                 <div mat-line class="subhead">{{ action.getParamsToString() }}</div>
@@ -20,7 +22,7 @@
             </mat-list-item>
         </mat-list>
     </div>
-    <mat-card [ngClass]="{ 'blur': stepByStepService.isTimelineRunning(ptz) }">
+    <mat-card [ngClass]="{ 'blur': stepByStepService.isTimelineRunning(ptz), 'shortcutActivated': isShortcutActivated(ptz) }">
         <table width="100%">
             <tr>
                 <td style="width: 65px; padding-top: 10px; position: relative;">
@@ -72,7 +74,7 @@
                 <tr>
                     <td><app-focus [ptz]="ptz"></app-focus></td>
                 </tr>
-            </table>            
+            </table>
             <app-numpad [ptz]="ptz" [mode]="numpadMode[ptz]" [labels]="presetNames[ptz]" #numpad></app-numpad>
         </mat-card-content>
     </mat-card>
