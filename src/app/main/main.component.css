@@ -121,3 +121,17 @@
 .mat-icon-button {
     width: 32px;
 }
+
+.key__container {
+  float: right;
+  margin-left: 10px;
+}
+
+.key {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px 12px;
+  margin-right: 5px;
+  background-color: #f5f5f5;
+  color: #333;
+}
