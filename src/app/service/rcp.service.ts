@@ -49,7 +49,7 @@ export class RcpService {
             ptz,
             this.urlBase,
             this.ptzUserPass[ptz].user,
-            this.ptzUserPass[ptz].pass,
+            this.ptzUserPass[ptz].password,
             (ptz : string, text : string) => {
               this.logs.unshift({
                 date: new Date(),
@@ -66,7 +66,7 @@ export class RcpService {
             ptz,
             this.urlBase,
             this.ptzUserPass[ptz].user,
-            this.ptzUserPass[ptz].pass,
+            this.ptzUserPass[ptz].password,
             (ptz : string, text : string) => {
               this.logs.unshift({
                 date: new Date(),

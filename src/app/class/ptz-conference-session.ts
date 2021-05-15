@@ -34,7 +34,7 @@ export class PtzConferenceSession extends PtzAbstractSession {
       //
       console.log("this", this);
       //
-      let body = `username=${this._user}&password=admin`;
+      let body = `username=${this._user}&password=${this._pass}`;
       //
       this._addLog(this._ptz, "_login: " + JSON.stringify(body));
       return this._get("login/login", body).then( r => {
