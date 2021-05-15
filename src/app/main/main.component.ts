@@ -1,6 +1,7 @@
 import { trigger, transition, style, animate } from '@angular/animations';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { ShortcutInput, ShortcutEventOutput, KeyboardShortcutsComponent } from "ng-keyboard-shortcuts";
 
 import { RcpService } from '../service/rcp.service';
 import { RegionDialog } from '../dialog/region/region.dialog';
@@ -10,6 +11,8 @@ import { StepByStepDialog } from '../dialog/step-by-step/step-by-step.dialog';
 import { LogDialog } from '../dialog/log/log.dialog';
 import { StepByStepService } from '../service/step-by-step.service';
 import { StepByStepAction } from '../class/step-by-step-action';
+import { NumpadComponent } from '../component/numpad/numpad.component';
+import { JoystickComponent, JoystickDirection } from '../component/joystick/joystick.component';
 
 @Component({
   selector: 'app-main',
@@ -22,7 +25,7 @@ import { StepByStepAction } from '../class/step-by-step-action';
     ]),
   ],
 })
-export class MainComponent implements OnInit {
+export class MainComponent implements AfterViewInit {
 
   numpadMode = {};
 
@@ -33,27 +36,131 @@ export class MainComponent implements OnInit {
   progressBarShow = true;
   progressBatStatus = "";
 
+  activatedShortcutPtzCode = "";
+  shortcuts: ShortcutInput[] = [];
+
+  @ViewChild(KeyboardShortcutsComponent) private keyboard: KeyboardShortcutsComponent;
+  @ViewChildren('numpad') numpadComponents:QueryList<NumpadComponent>;
+  @ViewChildren('joystick') joystickComponents:QueryList<JoystickComponent>;
+
+  joystickKeyboardMovementTimeout : number = 500;
+  joystickKeyboardMovementTimeoutHandler = null;
+
   constructor(public rcp: RcpService,
     public stepByStepService: StepByStepService,
     private dialog: MatDialog) {
-    
+
   }
 
-  ngOnInit(): void {
-    
-    
+  ngAfterViewInit(): void {
+
     this.rcp.loadAppConfig()
       .then(_ => {
-    
+
         this.numpadMode = this.rcp.ptzCodes.reduce((prev, curr, idx) => {
           prev[curr] = "load";
           return prev;
         }, {});
-    
+
         this.presetNames = this.rcp.ptzCodes.reduce((prev, curr, idx) => {
           prev[curr] = [];
           return prev;
         }, {});
+
+      })
+      .then(_ => {
+
+        this.shortcuts = this.rcp.ptzCodes.map( (ptz, idx) => {
+          return {
+              key: `alt + ${idx + 1}`,
+              label: `Ativar ${ptz}`,
+              description: `Ativa a ${ptz} para receber os próximos atalhos`,
+              command: (output: ShortcutEventOutput) => {
+                this.activateShortcutPtz(ptz);
+              },
+              preventDefault: true
+          };
+        }).concat([1,2,3,4,5,6,7,8,9,10,11,12].map((num) => {
+          let keyValue : string;
+          switch(num) {
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9: {
+              keyValue = `${num}`;
+              break;
+            }
+            case 10: {
+              keyValue = `0`;
+              break;
+            }
+            case 11: {
+              keyValue = `-`;
+              break;
+            }
+            case 12: {
+              keyValue = `=`;
+              break;
+            }
+          }
+          return {
+            key: keyValue,
+            label: `Carregar preset ${num}`,
+            description: `Carrega o preset ${num} da camera ativa`,
+            command: (output: ShortcutEventOutput) => {
+              //
+              if(output.event.altKey || output.event.ctrlKey || output.event.shiftKey) return false;
+              //
+              let indexOf = this.rcp.ptzCodes.indexOf(this.activatedShortcutPtzCode);
+              if(indexOf < 0) return false;
+              //
+              let numpad : NumpadComponent = this.numpadComponents.find((item, idx) => idx == indexOf);
+              if(!numpad) return false;
+              //
+              numpad.runPreset(num - 1);
+              //
+            },
+            preventDefault: true
+          };
+        })).concat(['left', 'right', 'up', 'down'].map((direction) => {
+          return {
+            key: direction,
+            label: `Move para '${direction}'`,
+            description: `Move a camera ativa para '${direction}'`,
+            command: (output: ShortcutEventOutput) => {
+              //
+              if(output.event.altKey || output.event.ctrlKey || output.event.shiftKey) return false;
+              //
+              let indexOf = this.rcp.ptzCodes.indexOf(this.activatedShortcutPtzCode);
+              if(indexOf < 0) return false;
+              //
+              let joystick : JoystickComponent = this.joystickComponents.find((item, idx) => idx == indexOf);
+              if(!joystick) return false;
+              //
+              if(this.joystickKeyboardMovementTimeoutHandler) {
+                clearTimeout(this.joystickKeyboardMovementTimeoutHandler);
+              }
+              //
+              if(direction == "left")  joystick.moveByXandYSpeed(JoystickDirection.LeftUp, 1, 0);
+              if(direction == "right") joystick.moveByXandYSpeed(JoystickDirection.RightDown, 1, 0);
+              if(direction == "up")    joystick.moveByXandYSpeed(JoystickDirection.LeftUp, 0, 1);
+              if(direction == "down")  joystick.moveByXandYSpeed(JoystickDirection.RightDown, 0, 1);
+              //
+              this.joystickKeyboardMovementTimeoutHandler = setTimeout((j) => {
+                j.stopAll();
+              }, this.joystickKeyboardMovementTimeout, joystick);
+              //
+            },
+            preventDefault: true
+          };
+        }));
+
+        console.log("shortcuts", this.shortcuts);
 
       })
       .then(_ => {
@@ -77,7 +184,14 @@ export class MainComponent implements OnInit {
         this.progressBarShow = false;
       });
 
+  }
 
+  activateShortcutPtz(ptz: string) {
+    this.activatedShortcutPtzCode = ptz;
+  }
+
+  isShortcutActivated(ptz: string) : boolean {
+    return this.activatedShortcutPtzCode == ptz;
   }
 
   runTimeline(ptz: string, name: string) {
@@ -90,7 +204,7 @@ export class MainComponent implements OnInit {
 
   getClasses(ptz: string, action: StepByStepAction) {
     return {
-      'step' : true, 
+      'step' : true,
       'step-pending': this.stepByStepService.isTimelineRunning(ptz) && action.isPending(),
       'step-running': this.stepByStepService.isTimelineRunning(ptz) && action.isRunning(),
       'step-done': this.stepByStepService.isTimelineRunning(ptz) && action.isDone(),
@@ -124,7 +238,7 @@ export class MainComponent implements OnInit {
   }
 
   openPresetNamesDialog(ptz: string, labels: any): void {
-    
+
     const dialogRef = this.dialog.open(PresetNamesDialog, {
       width: '690px',
       data: { "ptz": ptz, "labels": labels }
@@ -186,7 +300,7 @@ export class MainComponent implements OnInit {
     //   |_____| 8183 (x)
     //        8171 (y)
     //
-    
+
     var c = this.limit(((coord[0] + coord[2]) / 16384), -1, 1)
       , d = this.limit(((coord[1] + coord[3]) / 16384), -1, 1)
       , e = Math.abs(coord[3] - coord[1]) > Math.abs(coord[2] - coord[0]) ? coord[3] - coord[1] : coord[2] - coord[0]

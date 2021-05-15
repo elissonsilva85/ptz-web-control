@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxJoystickModule } from 'ngx-joystick';
+import { KeyboardShortcutsModule } from 'ng-keyboard-shortcuts';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSelectModule } from '@angular/material/select';
@@ -69,7 +70,8 @@ import { ConfirmDialog } from './dialog/confirm/confirm.dialog';
     FormsModule,
     ReactiveFormsModule,
     NgxJoystickModule,
-    //    
+    KeyboardShortcutsModule.forRoot(),
+    //
     BrowserAnimationsModule,
     //
     MatSelectModule,

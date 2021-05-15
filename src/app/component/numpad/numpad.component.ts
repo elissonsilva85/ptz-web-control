@@ -18,7 +18,7 @@ export class NumpadComponent implements OnInit {
 
   labelsDisabled: boolean[] = [];
 
-  constructor(private rcp: RcpService, 
+  constructor(private rcp: RcpService,
     private snackBar: MatSnackBar,
     private ref: ChangeDetectorRef) { }
 
@@ -30,17 +30,17 @@ export class NumpadComponent implements OnInit {
       this.labelsDisabled.push(false);
     }
 
-    this.labels = this.__labelsDefault.map( 
-      (e,i) => { 
-        return ( this.labels[i] ? this.labels[i] : e ) 
+    this.labels = this.__labelsDefault.map(
+      (e,i) => {
+        return ( this.labels[i] ? this.labels[i] : e )
       })
   }
 
   getClasses(idx: number) {
     return {
-      'digit' : true, 
+      'digit' : true,
       'disabled': this.labelsDisabled[idx],
-      'saveMode': this.mode == 'save' 
+      'saveMode': this.mode == 'save'
     }
   }
 
@@ -53,7 +53,7 @@ export class NumpadComponent implements OnInit {
     });
   }
 
-  runPreset(id: number, event: MouseEvent) {
+  runPreset(id: number) {
     if(!this.labelsDisabled[id])
     {
       this.labelsDisabled[id] = true;
