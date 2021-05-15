@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { isDevMode } from '@angular/core';
 import { PtzAbstractSession } from '../class/ptz-abstract-session';
+import { PtzConferenceSession } from '../class/ptz-conference-session';
 import { PtzDahuaSession } from '../class/ptz-dahua-session';
 
 @Injectable({
@@ -44,6 +45,23 @@ export class RcpService {
       switch(this.ptzBrand) {
         case "dahua": {
           this.ptzSessionList.set(ptz, new PtzDahuaSession(
+            this._http,
+            ptz,
+            this.urlBase,
+            this.ptzUserPass[ptz].user,
+            this.ptzUserPass[ptz].pass,
+            (ptz : string, text : string) => {
+              this.logs.unshift({
+                date: new Date(),
+                ptz: ptz,
+                msg: text });
+            }
+          ))
+          break;
+        }
+
+        case "conference": {
+          this.ptzSessionList.set(ptz, new PtzConferenceSession(
             this._http,
             ptz,
             this.urlBase,
