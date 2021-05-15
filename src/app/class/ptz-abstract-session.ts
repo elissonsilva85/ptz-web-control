@@ -37,6 +37,12 @@ export abstract class PtzAbstractSession {
       .toPromise();
   }
 
+  protected _get( page: string, params : string ): Promise<any> {
+    return this._http
+      .get<any>(this._getUrl(page) + "?" + params, this._httpOptions)
+      .toPromise();
+  }
+
   protected _getUrl(page: string): string {
     return this._urlBase + this._ptz + "/" + page;
   }
