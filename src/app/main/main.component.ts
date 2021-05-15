@@ -67,15 +67,17 @@ export class MainComponent implements AfterViewInit {
           return prev;
         }, {});
 
-      })
-      .then(_ => {
+      }).then(_ => {
 
         this.shortcuts = this.rcp.ptzCodes.map( (ptz, idx) => {
           return {
-              key: `alt + ${idx + 1}`,
+              key: `cmd + ${idx + 1}`,
               label: `Ativar ${ptz}`,
               description: `Ativa a ${ptz} para receber os próximos atalhos`,
               command: (output: ShortcutEventOutput) => {
+                //
+                if(output.event.ctrlKey && (output.event.altKey || output.event.shiftKey)) return false;
+                //
                 this.activateShortcutPtz(ptz);
               },
               preventDefault: true
@@ -158,12 +160,46 @@ export class MainComponent implements AfterViewInit {
             },
             preventDefault: true
           };
-        }));
+        })).concat([1, 2, 3, 4, 5, 6, 7, 8, 9].map((functionKey) => {
+          return {
+            key: `alt + ${functionKey}`,
+            label: `Ativa o ${functionKey}º passo-a-passo`,
+            description: `Ativa o ${functionKey}º Passo-a-Passo da PTZ ativa (se houver)`,
+            command: (output: ShortcutEventOutput) => {
+              //
+              if(output.event.altKey && (output.event.ctrlKey || output.event.shiftKey)) return false;
+              //
+              let indexOf = this.rcp.ptzCodes.indexOf(this.activatedShortcutPtzCode);
+              if(indexOf < 0) return false;
+              //
+              let timelineNames = this.stepByStepService.getTimelineNames(this.activatedShortcutPtzCode);
+              if(functionKey <= timelineNames.length) this.runTimeline(this.activatedShortcutPtzCode, timelineNames[functionKey - 1])
+              //
+            },
+            preventDefault: true
+          };
+        })).concat([{
+            key: `escape`,
+            label: `Interrompe o passo-a-passo`,
+            description: `Interrompe o Passo-a-Passo ativo no momento`,
+            command: (output: ShortcutEventOutput) => {
+              //
+              console.log(`escape`, output);
+              //
+              if(output.event.altKey && (output.event.ctrlKey || output.event.shiftKey)) return false;
+              //
+              let indexOf = this.rcp.ptzCodes.indexOf(this.activatedShortcutPtzCode);
+              if(indexOf < 0) return false;
+              console.log(`indexOf`, indexOf);
+              //
+              this.stopTimeline(this.activatedShortcutPtzCode)
+              //
+            },
+            preventDefault: true
+          }]
+        );
 
-        console.log("shortcuts", this.shortcuts);
-
-      })
-      .then(_ => {
+      }).then(_ => {
 
         let temp = JSON.parse(localStorage.getItem('PTZNames'));
         if(temp) this.presetNames = temp;
