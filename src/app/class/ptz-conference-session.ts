@@ -6,7 +6,6 @@ export class PtzConferenceSession extends PtzAbstractSession {
 
 
     protected _post( page: string, body : any ): Promise<any> {
-      this._lastCallBody = body;
       return super._post(page, body);
     }
 
@@ -30,9 +29,10 @@ export class PtzConferenceSession extends PtzAbstractSession {
       if( body.params.arg4 == null ) delete body.params.arg4;
       */
       //
-      this._addLog(this._ptz, "_ptzStart : " + JSON.stringify(body));
+      this._lastCallBody = body;
+      this._addLog(this._ptz, "_szCmd : " + JSON.stringify(body));
       return this._post("ajaxcom", `szCmd=${JSON.stringify(body)}`      ).then( r => {
-        this._addLog(this._ptz, "_ptzStart return: " + JSON.stringify(r));
+        this._addLog(this._ptz, "_szCmd return: " + JSON.stringify(r));
       });
     }
 
@@ -45,7 +45,7 @@ export class PtzConferenceSession extends PtzAbstractSession {
       this._addLog(this._ptz, "_login: " + JSON.stringify(body));
       return this._get("login/login", body).then( r => {
         this._isConnected = true;
-        this._addLog(this._ptz, "login return: " + JSON.stringify(r));
+        this._addLog(this._ptz, "_login return: " + JSON.stringify(r));
       });
     }
 
@@ -158,6 +158,9 @@ export class PtzConferenceSession extends PtzAbstractSession {
       if( !this.isConnected() )
         return this._getPromiseRejectWithText(`startJoystick: ${this._ptz} is not connected`);
 
+      if( (speed1 + speed2) == 0 )
+        return Promise.resolve();
+
       let conferenceDirection = this._conferenceDirection(direction, speed1, speed2);
       let conferenceSpeed = this._conferenceSpeed(Math.max(speed1, speed2));
 
@@ -175,13 +178,22 @@ export class PtzConferenceSession extends PtzAbstractSession {
     }
 
     public stopLastCall() : Promise<any> {
+      console.log("stopLastCall", this._lastCallBody);
+
       if( !this.isConnected() )
         return this._getPromiseRejectWithText(`stopLastCall: ${this._ptz} is not connected`);
 
       if(this._lastCallBody.SysCtrl?.PtzCtrl?.szPtzCmd)
       {
+        let szPtzCmd = this._lastCallBody.SysCtrl.PtzCtrl.szPtzCmd;
+        let byValue  = this._lastCallBody.SysCtrl.PtzCtrl.byValue;
+        console.log("szPtzCmd", szPtzCmd);
 
-
+        if(szPtzCmd.includes("start"))
+        {
+          szPtzCmd = szPtzCmd.replace("start", "stop");
+          return this._szCmd(szPtzCmd, byValue);
+        }
       }
 
       return Promise.resolve();
