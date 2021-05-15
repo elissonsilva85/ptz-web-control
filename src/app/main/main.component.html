@@ -1,5 +1,5 @@
 <ng-keyboard-shortcuts [shortcuts]="shortcuts"></ng-keyboard-shortcuts>
-<ng-keyboard-shortcuts-help [key]="'f1'" [closeKey]="'escape'" [title]="'Atalhos'"></ng-keyboard-shortcuts-help>
+<ng-keyboard-shortcuts-help [key]="'f1'" [closeKey]="'escape'" [title]="'ATALHOS'"></ng-keyboard-shortcuts-help>
 <div class="progress-bar" [style.visibility]="progressBarShow ? 'visible' : 'hidden'">
     <div class="progress-bar-spinner">
     <mat-spinner style="margin:0 auto;"></mat-spinner>
@@ -65,7 +65,7 @@
                 <tr>
                     <td rowspan="3" style="width: 15px;"></td>
                     <td><app-iris [ptz]="ptz"></app-iris></td>
-                    <td rowspan="3" style="width: 200px; padding-left: 10px;"><app-joystick [ptz]="ptz"></app-joystick></td>
+                    <td rowspan="3" style="width: 200px; padding-left: 10px;"><app-joystick [ptz]="ptz" #joystick></app-joystick></td>
                     <td rowspan="3" style="width: 15px;"></td>
                 </tr>
                 <tr>

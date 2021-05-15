@@ -5,6 +5,13 @@ import { Subject } from 'rxjs';
 import { RcpService } from '../../service/rcp.service';
 import { JoystickQueueData } from '../../class/joystick-queue-data';
 
+export enum JoystickDirection {
+  LeftDown = "LeftDown",
+  LeftUp = "LeftUp",
+  RightDown = "RightDown",
+  RightUp = "RightUp"
+}
+
 @Component({
   selector: 'app-joystick',
   templateUrl: './joystick.component.html',
@@ -49,7 +56,7 @@ export class JoystickComponent implements OnInit {
     this.processJoystickQueue();
   }
 
-   processJoystickQueue() {
+  processJoystickQueue() {
     this.joystickQueue.subscribe( async (msg: JoystickQueueData) => {
       if(msg.startStop == "start") await this.rcp.getSession(this.ptz).startJoystick(msg.direction, msg.speed1, msg.speed2);
       if(msg.startStop == "stop")  await this.rcp.getSession(this.ptz).stopJoystick(msg.direction, msg.speed1, msg.speed2);
@@ -118,32 +125,26 @@ export class JoystickComponent implements OnInit {
       return;
     }
 
-    if(xPos <= 0 && yPos <= 0) {
-      this.joystickData.speed["LeftUp"] = [ ySpeed, xSpeed ];
-      this.joystickData.speed["LeftDown"] = [ 0, 0 ];
-      this.joystickData.speed["RightUp"] = [ 0, 0 ];
-      this.joystickData.speed["RightDown"] = [ 0, 0 ];
-    }
-    if(xPos <= 0 && yPos > 0) {
-      this.joystickData.speed["LeftUp"] = [ 0, 0 ];
-      this.joystickData.speed["LeftDown"] = [ ySpeed, xSpeed ];
-      this.joystickData.speed["RightUp"] = [ 0, 0 ];
-      this.joystickData.speed["RightDown"] = [ 0, 0 ];
-    }
-    if(xPos > 0 && yPos <= 0) {
-      this.joystickData.speed["LeftUp"] = [ 0, 0 ];
-      this.joystickData.speed["LeftDown"] = [ 0, 0 ];
-      this.joystickData.speed["RightUp"] = [ ySpeed, xSpeed ];
-      this.joystickData.speed["RightDown"] = [ 0, 0 ];
-    }
-    if(xPos > 0 && yPos > 0) {
-      this.joystickData.speed["LeftUp"] = [ 0, 0 ];
-      this.joystickData.speed["LeftDown"] = [ 0, 0 ];
-      this.joystickData.speed["RightUp"] = [ 0, 0 ];
-      this.joystickData.speed["RightDown"] = [ ySpeed, xSpeed ];
-    }
+    let direction: JoystickDirection = null;
+    if(xPos <= 0 && yPos <= 0) direction = JoystickDirection.LeftUp;
+    if(xPos <= 0 && yPos >  0) direction = JoystickDirection.LeftDown;
+    if(xPos >  0 && yPos <= 0) direction = JoystickDirection.RightUp;
+    if(xPos >  0 && yPos >  0) direction = JoystickDirection.RightDown;
+
+    this. moveByXandYSpeed(direction, xSpeed, ySpeed);
+  }
+
+  moveByXandYSpeed(direction: JoystickDirection, xSpeed: number, ySpeed: number) {
+
+    this.joystickData.speed["LeftUp"] = [ 0, 0 ];
+    this.joystickData.speed["LeftDown"] = [ 0, 0 ];
+    this.joystickData.speed["RightUp"] = [ 0, 0 ];
+    this.joystickData.speed["RightDown"] = [ 0, 0 ];
+
+    this.joystickData.speed[direction] = [ ySpeed, xSpeed ];
 
     this.checkSpeedChange();
+
   }
 
   stopZoom(direction: number) {
