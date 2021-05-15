@@ -42,7 +42,7 @@ export class PtzConferenceSession extends PtzAbstractSession {
       //
       let body = `username=${this._user}&password=${this._pass}`;
       //
-      this._addLog(this._ptz, "_login: " + JSON.stringify(body));
+      this._addLog(this._ptz, "_login");
       return this._get("login/login", body).then( r => {
         this._isConnected = true;
         this._addLog(this._ptz, "_login return: " + JSON.stringify(r));
@@ -113,9 +113,9 @@ export class PtzConferenceSession extends PtzAbstractSession {
 
     public savePreset(id: number) : Promise<any> {
       if( !this.isConnected() )
-      return this._getPromiseRejectWithText(`savePreset: ${this._ptz} is not connected`);
+        return this._getPromiseRejectWithText(`savePreset: ${this._ptz} is not connected`);
 
-    return this._szCmd("preset_set", id);
+      return this._szCmd("preset_set", id);
     }
 
     public setZoomSpeed(value) : Promise<any> {
@@ -123,35 +123,59 @@ export class PtzConferenceSession extends PtzAbstractSession {
     }
 
     public startZoomIn() : Promise<any> {
-      return Promise.resolve();
+      if( !this.isConnected() )
+        return this._getPromiseRejectWithText(`startZoomIn: ${this._ptz} is not connected`);
+
+      return this._szCmd(`zoomadd_start`, 0);
     }
 
     public stopZoomIn() : Promise<any> {
-      return Promise.resolve();
+      if( !this.isConnected() )
+        return this._getPromiseRejectWithText(`stopZoomIn: ${this._ptz} is not connected`);
+
+      return this._szCmd(`zoomadd_stop`, 0);
     }
 
     public startZoomOut() : Promise<any> {
-      return Promise.resolve();
+      if( !this.isConnected() )
+        return this._getPromiseRejectWithText(`startZoomOut: ${this._ptz} is not connected`);
+
+      return this._szCmd(`zoomdec_start`, 0);
     }
 
     public stopZoomOut() : Promise<any> {
-      return Promise.resolve();
+      if( !this.isConnected() )
+        return this._getPromiseRejectWithText(`stopZoomOut: ${this._ptz} is not connected`);
+
+      return this._szCmd(`zoomdec_stop`, 0);
     }
 
     public startFocusIn() : Promise<any> {
-      return Promise.resolve();
+      if( !this.isConnected() )
+        return this._getPromiseRejectWithText(`startFocusIn: ${this._ptz} is not connected`);
+
+      return this._szCmd(`focusadd_start`, 0);
     }
 
     public stopFocusIn() : Promise<any> {
-      return Promise.resolve();
+      if( !this.isConnected() )
+        return this._getPromiseRejectWithText(`stopFocusIn: ${this._ptz} is not connected`);
+
+      return this._szCmd(`focusadd_stop`, 0);
     }
 
     public startFocusOut() : Promise<any> {
-      return Promise.resolve();
+      if( !this.isConnected() )
+        return this._getPromiseRejectWithText(`startFocusOut: ${this._ptz} is not connected`);
+
+      return this._szCmd(`focusdec_start`, 0);
     }
 
     public stopFocusOut() : Promise<any> {
-      return Promise.resolve();
+      if( !this.isConnected() )
+        return this._getPromiseRejectWithText(`stopFocusOut: ${this._ptz} is not connected`);
+
+      return this._szCmd(`focusdec_stop`, 0);
     }
 
     public startJoystick(direction: string, speed1: number, speed2: number) : Promise<any> {
