@@ -43,8 +43,11 @@ export class MainComponent implements AfterViewInit {
   @ViewChildren('numpad') numpadComponents:QueryList<NumpadComponent>;
   @ViewChildren('joystick') joystickComponents:QueryList<JoystickComponent>;
 
-  joystickKeyboardMovementTimeout : number = 500;
+  keyboardMovementTimeout : number = 500;
+  
   joystickKeyboardMovementTimeoutHandler = null;
+  zoomInKeyboardMovementTimeoutHandler   = null;
+  zoomOutKeyboardMovementTimeoutHandler  = null;
 
   constructor(public rcp: RcpService,
     public stepByStepService: StepByStepService,
@@ -155,7 +158,7 @@ export class MainComponent implements AfterViewInit {
               //
               this.joystickKeyboardMovementTimeoutHandler = setTimeout((j) => {
                 j.stopAll();
-              }, this.joystickKeyboardMovementTimeout, joystick);
+              }, this.keyboardMovementTimeout, joystick);
               //
             },
             preventDefault: true
@@ -184,15 +187,62 @@ export class MainComponent implements AfterViewInit {
             description: `Interrompe o Passo-a-Passo ativo no momento`,
             command: (output: ShortcutEventOutput) => {
               //
-              console.log(`escape`, output);
-              //
               if(output.event.altKey && (output.event.ctrlKey || output.event.shiftKey)) return false;
               //
               let indexOf = this.rcp.ptzCodes.indexOf(this.activatedShortcutPtzCode);
               if(indexOf < 0) return false;
-              console.log(`indexOf`, indexOf);
               //
               this.stopTimeline(this.activatedShortcutPtzCode)
+              //
+            },
+            preventDefault: true
+          },
+          {
+            key: `pageup`,
+            label: `Zoom In`,
+            description: `Zoom In para a camera ativa no momento`,
+            command: (output: ShortcutEventOutput) => {
+              //
+              console.log('pageup');
+              //
+              let indexOf = this.rcp.ptzCodes.indexOf(this.activatedShortcutPtzCode);
+              if(indexOf < 0) return false;
+              //
+              if(this.zoomInKeyboardMovementTimeoutHandler) {
+                clearTimeout(this.zoomInKeyboardMovementTimeoutHandler);
+              }
+              //
+              let session = this.rcp.getSession(this.activatedShortcutPtzCode)
+              session.startZoomIn();
+              //
+              this.zoomInKeyboardMovementTimeoutHandler = setTimeout((s) => {
+                s.stopZoomIn();
+              }, this.keyboardMovementTimeout + 200, session);
+              //
+            },
+            preventDefault: true
+          },
+          {
+            key: `pagedown`,
+            label: `Zoom Out`,
+            description: `Zoom Out para a camera ativa no momento`,
+            command: (output: ShortcutEventOutput) => {
+              //
+              console.log('pagedown');
+              //
+              let indexOf = this.rcp.ptzCodes.indexOf(this.activatedShortcutPtzCode);
+              if(indexOf < 0) return false;
+              //
+              if(this.zoomOutKeyboardMovementTimeoutHandler) {
+                clearTimeout(this.zoomOutKeyboardMovementTimeoutHandler);
+              }
+              //
+              let session = this.rcp.getSession(this.activatedShortcutPtzCode)
+              session.startZoomOut();
+              //
+              this.zoomOutKeyboardMovementTimeoutHandler = setTimeout((s) => {
+                s.stopZoomOut();
+              }, this.keyboardMovementTimeout + 200, session);
               //
             },
             preventDefault: true
