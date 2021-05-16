@@ -86,6 +86,10 @@ export class PtzDahuaSession extends PtzAbstractSession {
       //
       this._addLog(this._ptz, "login: " + JSON.stringify(body));
       return this._post("RPC2_Login", body).then( r => {
+        // TODO
+        // Validate login return (check result value)
+        // ERROR: {"error":{"code":268632085,"message":"Component error: User or password not valid!"},"id":3,"params":{"remainLockSecond":0,"remainLoginTimes":2},"result":false,"session":2147483643}
+        // SUCCESS: {"id":3,"params":{"keepAliveInterval":60},"result":true,"session":"4f8fc4ebe6ab2b4b6a04909b3fb91686"}
         this._addLog(this._ptz, "login return: " + JSON.stringify(r));
         this._sessionData.session = r.session;
         this._sessionData.id = r.id;
