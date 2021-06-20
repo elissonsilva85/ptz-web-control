@@ -7,11 +7,12 @@
     display: inline-block;
     position: relative;
     padding: 10px;
-    width: 365px;
 }
 
 .ptzBox mat-card {
     padding-bottom: 30px;
+    width: 330px;
+    height: 527px;
 }
 
 .ptzBox .shortcutActivated {
@@ -76,10 +77,14 @@
     display: none;
 }
 
-.logButtonDiv {
-    display: inline-block;
-    vertical-align: top;
-    padding-top: 10px;
+.config-btn {
+    width: 100%;
+    margin: 10px;
+}
+
+.config-btn mat-icon {
+  float: right;
+  margin-top: 5px;
 }
 
 .progress-bar {
