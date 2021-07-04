@@ -55,6 +55,29 @@ export class MainComponent implements AfterViewInit {
 
   }
 
+  runPresetByNumpad(ptz: string, preset: number)
+  {
+    let indexOf = this.rcp.ptzCodes.indexOf(ptz);
+    if(indexOf < 0) return false;
+    //
+    let numpad : NumpadComponent = this.numpadComponents.find((item, idx) => idx == indexOf);
+    if(!numpad) return false;
+    //
+    return numpad.runPreset(preset - 1);
+  }
+
+  runPtzTimeline(ptz: string, preset: number) 
+  {
+    let indexOf = this.rcp.ptzCodes.indexOf(ptz);
+    if(indexOf < 0) return false;
+    //
+    let timelineNames = this.stepByStepService.getTimelineNames(ptz);
+    if(preset <= timelineNames.length) return this.runTimeline(ptz, timelineNames[preset - 1])
+    //
+    return false;
+    //
+  }
+
   ngAfterViewInit(): void {
 
     this.rcp.loadAppConfig()
@@ -121,13 +144,7 @@ export class MainComponent implements AfterViewInit {
               //
               if(output.event.altKey || output.event.ctrlKey || output.event.shiftKey) return false;
               //
-              let indexOf = this.rcp.ptzCodes.indexOf(this.activatedShortcutPtzCode);
-              if(indexOf < 0) return false;
-              //
-              let numpad : NumpadComponent = this.numpadComponents.find((item, idx) => idx == indexOf);
-              if(!numpad) return false;
-              //
-              numpad.runPreset(num - 1);
+              this.runPresetByNumpad(this.activatedShortcutPtzCode, num);
               //
             },
             preventDefault: true
@@ -172,11 +189,7 @@ export class MainComponent implements AfterViewInit {
               //
               if(output.event.altKey && (output.event.ctrlKey || output.event.shiftKey)) return false;
               //
-              let indexOf = this.rcp.ptzCodes.indexOf(this.activatedShortcutPtzCode);
-              if(indexOf < 0) return false;
-              //
-              let timelineNames = this.stepByStepService.getTimelineNames(this.activatedShortcutPtzCode);
-              if(functionKey <= timelineNames.length) this.runTimeline(this.activatedShortcutPtzCode, timelineNames[functionKey - 1])
+              this.runPtzTimeline(this.activatedShortcutPtzCode, functionKey);
               //
             },
             preventDefault: true
@@ -247,7 +260,23 @@ export class MainComponent implements AfterViewInit {
             },
             preventDefault: true
           }]
-        );
+        ).concat(this.rcp.customShortcuts.map( s => { 
+          return {
+            key: s.key,
+            label: `Custom Key`,
+            description: `Custom Key`,
+            command: (output: ShortcutEventOutput) => {
+              //
+              console.log(`custom key ${s.key}`);
+              //
+              s.action.forEach(a => eval(a));
+              //
+              return false;
+              //
+            },
+            preventDefault: true
+          }
+        }));
 
       }).then(_ => {
 

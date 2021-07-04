@@ -20,6 +20,7 @@ export class RcpService {
   ptzSessionList = new Map();
   startStreamingCommands: string[] = [];
   stopStreamingCommands: string[] = [];
+  customShortcuts: any[] = [];
 
   constructor(private _http: HttpClient) {  }
 
@@ -33,8 +34,9 @@ export class RcpService {
         this.startStreamingCommands = data.startStreaming;
         this.stopStreamingCommands = data.stopStreaming;
         this.ptzCodes.forEach( (ptz) => {
-          this.ptzUserPass[ptz] = data[ptz];
+          this.ptzUserPass[ptz] = data.ptzConnection[ptz];
         });
+        this.customShortcuts = data.shortcuts;
 
         console.log("devMode:", isDevMode());
         if(isDevMode()) this.urlBase = "http://localhost:4200/app/";
