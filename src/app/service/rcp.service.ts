@@ -18,6 +18,7 @@ export class RcpService {
   ptzBrand: string = "";
   ptzCodes: string[] = [];
   ptzSessionList = new Map();
+  customShortcuts: any[] = [];
 
   constructor(private _http: HttpClient) {  }
 
@@ -31,6 +32,7 @@ export class RcpService {
         this.ptzCodes.forEach( (ptz) => {
           this.ptzUserPass[ptz] = data[ptz];
         });
+        this.customShortcuts = data.shortcuts;
 
         console.log("devMode:", isDevMode());
         if(isDevMode()) this.urlBase = "http://localhost:4200/app/";
