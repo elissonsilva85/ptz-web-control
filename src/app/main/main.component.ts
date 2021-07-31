@@ -318,6 +318,18 @@ export class MainComponent implements AfterViewInit {
     this.rcp.getSession(ptz).setZoomSpeed(value);
   }
 
+  startStreaming() {
+    this.rcp.startStreamingCommands.forEach( action => {
+      eval(action);
+    });
+  }
+
+  stopStreaming() {
+    this.rcp.stopStreamingCommands.forEach( action => {
+      eval(action);
+    });
+  }
+
   RegionChanged(ptz) {
     let coord = [3641, 4442, 4861, 6102];
     //

@@ -109,6 +109,18 @@
             <td><button mat-stroked-button class="config-btn">Conectar no Facebook <mat-icon>facebook</mat-icon></button></td>
           </tr>
           <tr>
+            <td><hr></td>
+          </tr>
+          <tr>
+            <td><button mat-stroked-button class="config-btn" (click)="startStreaming()">Iniciar Transmissão</button></td>
+          </tr>
+          <tr>
+            <td><button mat-stroked-button class="config-btn" (click)="stopStreaming()">Encerrar Transmissão</button></td>
+          </tr>
+          <tr>
+            <td><hr></td>
+          </tr>
+          <tr>
             <td><button mat-stroked-button class="config-btn" (click)="openLogDialog()">Abrir Log <mat-icon>description</mat-icon></button></td>
           </tr>
         </table>
