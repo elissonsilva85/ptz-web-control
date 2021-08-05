@@ -18,6 +18,8 @@ export class RcpService {
   ptzBrand: string = "";
   ptzCodes: string[] = [];
   ptzSessionList = new Map();
+  startStreamingCommands: string[] = [];
+  stopStreamingCommands: string[] = [];
 
   constructor(private _http: HttpClient) {  }
 
@@ -28,6 +30,8 @@ export class RcpService {
         this.urlBase = data.urlBase;
         this.ptzBrand = data.ptzBrand;
         this.ptzCodes = data.ptzCodes;
+        this.startStreamingCommands = data.startStreaming;
+        this.stopStreamingCommands = data.stopStreaming;
         this.ptzCodes.forEach( (ptz) => {
           this.ptzUserPass[ptz] = data[ptz];
         });

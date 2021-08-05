@@ -19,5 +19,11 @@
         "ip": "<ip>",
         "user": "<username>",
         "password": "<password>"
-    }
+    },
+    "StartStreaming": [
+        ""
+    ],
+    "StopStreaming": [
+        ""
+    ]
 }

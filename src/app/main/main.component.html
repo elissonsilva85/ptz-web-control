@@ -89,6 +89,41 @@
         </mat-card-content>
     </mat-card>
 </div>
-<div class="logButtonDiv">
-    <button mat-stroked-button (click)="openLogDialog()">Abrir Log</button>
+<div class="ptzBox">
+  <mat-card>
+      <mat-card-content>
+        <table style="width: 100%; margin-top: 10px; margin-bottom: 10px;;" cellspacing="0" cellpadding="0">
+          <tr>
+            <td><mat-card-title>MENU</mat-card-title><br></td>
+          </tr>
+          <tr>
+            <td><button mat-stroked-button class="config-btn">Configurações <mat-icon>settings</mat-icon></button></td>
+          </tr>
+          <tr>
+            <td><button mat-stroked-button class="config-btn">Definir Transmissão <mat-icon>cast</mat-icon></button></td>
+          </tr>
+          <tr>
+            <td><button mat-stroked-button class="config-btn">Conectar no Youtube <mat-icon>youtube</mat-icon></button></td>
+          </tr>
+          <tr>
+            <td><button mat-stroked-button class="config-btn">Conectar no Facebook <mat-icon>facebook</mat-icon></button></td>
+          </tr>
+          <tr>
+            <td><hr></td>
+          </tr>
+          <tr>
+            <td><button mat-stroked-button class="config-btn" (click)="startStreaming()">Iniciar Transmissão</button></td>
+          </tr>
+          <tr>
+            <td><button mat-stroked-button class="config-btn" (click)="stopStreaming()">Encerrar Transmissão</button></td>
+          </tr>
+          <tr>
+            <td><hr></td>
+          </tr>
+          <tr>
+            <td><button mat-stroked-button class="config-btn" (click)="openLogDialog()">Abrir Log <mat-icon>description</mat-icon></button></td>
+          </tr>
+        </table>
+      </mat-card-content>
+  </mat-card>
 </div>
