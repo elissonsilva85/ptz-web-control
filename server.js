@@ -9,8 +9,6 @@
 // https://www.section.io/engineering-education/compile-your-nodejs-application-into-a-exe-file/
 //
 
-// Setting up our app requirements
-
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
@@ -25,20 +23,25 @@ const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
 server.listen(config.port, () => console.log(`Server at ${config.port}`));
 
-// Configuiring simple express routes
-// getDir() function is used here along with package.json.pkg.assets
+/*
+app.all('*', (req, res, next) => {
+    let origin = req.get('origin');
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+});
+*/
 
-app.use('/app', express.static( path.join( __dirname, './view/dist/app' ) ));
+require('./src/proxy')(app, config);
+
+app.use('/app', express.static( getDir('./view/dist/app' ) ));
 
 app.get('/', function(req, res) {
     res.redirect('/app')
 });
 
 // Using a function to set default app path
-function getDir() {
-    if (process.pkg) {
-        return path.resolve(process.execPath + "/..");
-    } else {
-        return path.join(require.main ? require.main.path : process.cwd());
-    }
+function getDir(fileName) {
+    return path.join( __dirname, fileName )
 }

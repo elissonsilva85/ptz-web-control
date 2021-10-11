@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "nodemon server.js",
     "compile": "cd view | npm run build",
     "build": "pkg ."
   },
@@ -25,6 +25,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "http-proxy-middleware": "^2.0.1"
   }
 }
