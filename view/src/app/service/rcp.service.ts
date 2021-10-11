@@ -53,7 +53,7 @@ export class RcpService {
           this.ptzSessionList.set(ptz, new PtzDahuaSession(
             this._http,
             ptz,
-            this.urlBase,
+            "/",
             this.ptzUserPass[ptz].user,
             this.ptzUserPass[ptz].password,
             (ptz : string, text : string) => {
@@ -70,7 +70,7 @@ export class RcpService {
           this.ptzSessionList.set(ptz, new PtzConferenceSession(
             this._http,
             ptz,
-            this.urlBase,
+            "/",
             this.ptzUserPass[ptz].user,
             this.ptzUserPass[ptz].password,
             (ptz : string, text : string) => {

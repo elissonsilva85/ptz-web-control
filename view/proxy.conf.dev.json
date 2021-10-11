@@ -1,0 +1,26 @@
+{
+  "/PTZ1": {
+    "target": "http://localhost/PTZ1/",
+    "secure": false,
+    "pathRewrite": {
+      "^/PTZ1": ""
+    },
+    "logLevel": "debug"
+  },
+  "/PTZ2": {
+    "target": "http://localhost/PTZ2/",
+    "secure": false,
+    "pathRewrite": {
+      "^/PTZ2": ""
+    },
+    "logLevel": "debug"
+  },
+  "/PTZ3": {
+    "target": "http://localhost/PTZ3/",
+    "secure": false,
+    "pathRewrite": {
+      "^/PTZ3": ""
+    },
+    "logLevel": "debug"
+  }
+}
