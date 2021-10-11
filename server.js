@@ -34,14 +34,10 @@ app.all('*', (req, res, next) => {
 */
 
 require('./src/proxy')(app, config);
+require('./src/youtube')(app, config);
 
-app.use('/app', express.static( getDir('./view/dist/app' ) ));
+app.use('/app', express.static( path.join( __dirname, './view/dist/app' ) ));
 
 app.get('/', function(req, res) {
     res.redirect('/app')
 });
-
-// Using a function to set default app path
-function getDir(fileName) {
-    return path.join( __dirname, fileName )
-}
