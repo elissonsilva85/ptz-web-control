@@ -1,21 +1,22 @@
 //
-// 
+// https://developers.google.com/youtube/v3/quickstart/nodejs
 //
 
 const path = require('path');
 const fs = require('fs');
-const {google} = require('googleapis');
+const google = require('googleapis').google;
 const OAuth2 = google.auth.OAuth2;
+const service = google.youtube('v3');
 
 // If modifying these scopes, delete your previously saved credentials
 // at ~/.credentials/youtube-nodejs-quickstart.json
-const SCOPES = ['https://www.googleapis.com/auth/youtube.readonly'];
+const SCOPES = [ 'https://www.googleapis.com/auth/youtube' ];
 const TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + '/.credentials/';
 const TOKEN_PATH = TOKEN_DIR + 'ptz-web-control-youtube.json';
 const REDIRECT_URL = "http://localhost/youtube/callback";
 
-let secret = "";
 let oauth2Client = "";
+let credentials = "";
 let clientSecret = "";
 let clientId = "";
 
@@ -25,9 +26,9 @@ fs.readFile( path.join( __dirname, '../assets/youtube_secret.json') , (err, cont
     console.log('Error loading client secret file: ' + err);
     return;
   }
-  let credentials = JSON.parse(content);
-  clientSecret = credentials.installed.client_secret;
-  clientId = credentials.installed.client_id;
+  credentials = JSON.parse(content);
+  clientSecret = credentials.web.client_secret;
+  clientId = credentials.web.client_id;
 
   fs.readFile( TOKEN_PATH , (err, content) => {
     if (err) {
@@ -101,38 +102,174 @@ function storeToken(token) {
  *
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
-function getChannel(auth) {
-  var service = google.youtube('v3');
-  service.channels.list({
-    auth: auth,
-    part: 'snippet,contentDetails,statistics',
-    forUsername: 'GoogleDevelopers'
-  }, function(err, response) {
-    if (err) {
-      console.log('The API returned an error: ' + err);
-      return;
+ function channelsList() {
+  return service.channels.list({
+    auth: oauth2Client,
+    part: [
+      'snippet,contentDetails,statistics'
+    ],
+    mine: true
+  })
+  .then((response) => {
+    return Promise.resolve({
+      data: {
+        channelsList: response.data
+      }
+    });
+  });
+}
+
+function liveBroadcastsList(videoId) {
+  //
+  // https://developers.google.com/youtube/v3/live/docs/liveBroadcasts/list
+  //
+
+  let params = {
+    auth: oauth2Client,
+    part: [
+      "snippet,contentDetails,status"
+    ],
+    broadcastType: "event"
+  }
+
+  if(videoId) {
+    params.id = videoId
+  } else {
+    params.broadcastStatus = "upcoming";
+  }
+
+  return service.liveBroadcasts.list(params)
+  .then((response) => {
+    return Promise.resolve({
+      data: {
+        liveBroadcastsList: response.data
+      }
+    })
+  });
+}
+
+function liveStreamsList(streamId) {
+  //
+  // https://developers.google.com/youtube/v3/live/docs/liveStreams/list
+  //
+  return service.liveStreams.list({
+    auth: oauth2Client,
+    part: [
+      "snippet,cdn,contentDetails,status"
+    ],
+    mine: true
+  })
+  .then((response) => {
+    return Promise.resolve({
+      data: {
+        liveStreamsList: response.data
+      }
+    })
+  });
+}
+
+function liveBroadcastsInsert(params) {
+  //
+  // https://developers.google.com/youtube/v3/live/docs/liveBroadcasts/insert
+  //
+  return service.liveBroadcasts.insert({
+    auth: oauth2Client,
+    part: [
+      "snippet,contentDetails,status"
+    ],
+    resource: {
+      snippet: {
+        title: "Teste de agendamento de vídeo",
+        description: "Descrição",
+        scheduledStartTime: "2021-11-05T08:05:45-03:00"
+      },
+      contentDetails: {
+        enableClosedCaptions: false,
+        enableContentEncryption: true,
+        enableAutoStart: true,
+        enableAutoStop: true,
+        enableDvr: true,
+        enableEmbed: true,
+        recordFromStart: true,
+        startWithSlate: true
+      },
+      status: {
+        privacyStatus: "private",
+        selfDeclaredMadeForKids: false
+      }
     }
-    var channels = response.data.items;
-    if (channels.length == 0) {
-      console.log('No channel found.');
-    } else {
-      console.log('This channel\'s ID is %s. Its title is \'%s\', and ' +
-                  'it has %s views.',
-                  channels[0].id,
-                  channels[0].snippet.title,
-                  channels[0].statistics.viewCount);
+  })
+  .then((response) => {
+    return Promise.resolve({
+      data: {
+        liveBroadcastsInsert: response.data
+      }
+    })
+  });
+}
+
+function thumbnailSet(videoId, fileName) {
+  //
+  // https://developers.google.com/youtube/v3/docs/thumbnails/set
+  //
+
+  //get image file extension name
+  let extensionName = path.extname(fileName);
+
+  return service.thumbnails.set({
+    auth: oauth2Client,
+    videoId: videoId,
+    media: {
+      mimeType: `image/${extensionName.split('.').pop()}`,
+      body: fs.readFileSync(fileName)
     }
+  })
+  .then((response) => {
+    return Promise.resolve({
+      data: {
+        thumbnailSet: response.data
+      }
+    });
+  });
+}
+
+function playlistItemsInsert(videoId, playlistId) {
+  //
+  // https://developers.google.com/youtube/v3/docs/playlists/insert
+  //
+
+  return service.playlistItems.insert({
+    auth: oauth2Client,
+    part: [
+      "snippet"
+    ],
+    resource: {
+      snippet: {
+        playlistId: playlistId,
+        resourceId: {
+          kind: "youtube#video",
+          videoId: videoId
+        }
+      }
+    }
+  })
+  .then((response) => {
+    return Promise.resolve({
+      data: {
+        playlistItemsInsert: response.data
+      }
+    })
   });
 }
 
 module.exports = (app, config) => {
 
   app.get('/youtube/connect', function(req, res) {
-    if(!secret) {
+    if(!credentials) {
       res.sendStatus(500);
       return;
     }
-    authorize(secret, (success, result) => {
+    authorize((success, result) => {
       if(success)
       {
         oauth2Client = result;
@@ -158,9 +295,81 @@ module.exports = (app, config) => {
     });
   });
 
-  app.get('/youtube/getChannel', function(req, res) {
-    getChannel(oauth2Client);
-    res.sendStatus(200);
+  app.get('/youtube/channelsList', function(req, res) {
+    channelsList()
+      .then((result) => {
+          var channels = result.data.channelsList.items;
+          if (!channels || channels.length == 0) {
+            console.log('No channel found.');
+            res.status(404).end('No channel found.');
+            return;
+          }
+          res.status(200).json(result);
+      })
+      .catch((err) => {
+          console.log('The API returned an error: ' + err);
+          res.status(500).json(err);
+      });
+  });
+
+  app.get('/youtube/liveBroadcastsList', function(req, res) {
+
+    liveBroadcastsList()
+      .then((response) => {
+        res.status(200).json(response);
+      })
+      .catch((err) => {
+        console.log('The API returned an error: ' + err);
+        res.status(500).json(err);
+      });
+    
+  });
+
+  app.get('/youtube/liveStreamsList', function(req, res) {
+
+    liveStreamsList()
+      .then((response) => {
+        res.status(200).json(response);
+      })
+      .catch((err) => {
+        console.log('The API returned an error: ' + err);
+        res.status(500).json(err);
+      });
+    
+  });
+
+  app.get('/youtube/liveBroadcastsInsert', function(req, res) {
+    let videoId = "";
+    let boundStreamId = "";
+    let playlistId = "PL4kdVvykXhfJ6zquEkLO9MI97r_NYJTep";
+    let thumbnailFilename = `${process.cwd()}/capa.png`;
+    let finalResponse = { data: {} };
+
+    liveBroadcastsInsert()
+      .then((response) => {
+        videoId = response.data.liveBroadcastsInsert.id;
+        //
+        finalResponse = { data: {...finalResponse.data, ...response.data} }
+        return liveStreamsList(videoId);
+      })
+      .then((response) => {
+        //boundStreamId = response.data.liveStreamsList.id;
+        //
+        finalResponse = { data: {...finalResponse.data, ...response.data} }
+        return thumbnailSet(videoId, thumbnailFilename);
+      })
+      .then((response) => {
+        finalResponse = { data: {...finalResponse.data, ...response.data} }
+        return playlistItemsInsert(videoId, playlistId)
+      })
+      .then((response) => {
+        finalResponse = { data: {...finalResponse.data, ...response.data} }
+        res.status(200).json(finalResponse);
+      })
+      .catch((err) => {
+        console.log('The API returned an error: ' + err);
+        res.status(500).json(err);
+      });
   });
   
 }
