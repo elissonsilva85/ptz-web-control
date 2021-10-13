@@ -341,7 +341,7 @@ module.exports = (app, config) => {
   app.get('/youtube/liveBroadcastsInsert', function(req, res) {
     let videoId = "";
     let boundStreamId = "";
-    let playlistId = "PL4kdVvykXhfJ6zquEkLO9MI97r_NYJTep";
+    let playlistId = ""; //"PL4kdVvykXhfJ6zquEkLO9MI97r_NYJTep";
     let thumbnailFilename = `${process.cwd()}/capa.png`;
     let finalResponse = { data: {} };
 
@@ -350,10 +350,10 @@ module.exports = (app, config) => {
         videoId = response.data.liveBroadcastsInsert.id;
         //
         finalResponse = { data: {...finalResponse.data, ...response.data} }
-        return liveStreamsList(videoId);
+        return liveBroadcastsList(videoId);
       })
       .then((response) => {
-        //boundStreamId = response.data.liveStreamsList.id;
+        //boundStreamId = response.data.liveBroadcastsList.id;
         //
         finalResponse = { data: {...finalResponse.data, ...response.data} }
         return thumbnailSet(videoId, thumbnailFilename);

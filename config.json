@@ -1,3 +1,30 @@
 {
-    "port": 80
+    "port": 80,
+    "server": "http://localhost/",
+    "proxy": {
+        "/PTZ1": {
+          "target": "http://192.168.0.110",
+          "secure": false,
+          "pathRewrite": {
+            "^/PTZ1": ""
+          },
+          "logLevel": "debug"
+        },
+        "/PTZ2": {
+          "target": "http://192.168.0.111",
+          "secure": false,
+          "pathRewrite": {
+            "^/PTZ2": ""
+          },
+          "logLevel": "debug"
+        },
+        "/PTZ3": {
+          "target": "http://192.168.0.112",
+          "secure": false,
+          "pathRewrite": {
+            "^/PTZ3": ""
+          },
+          "logLevel": "debug"
+        }
+    }
 }

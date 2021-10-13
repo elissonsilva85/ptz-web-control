@@ -20,7 +20,6 @@ let ptzAppRoutes = [
 ]
 
 var restream = function(proxyReq, req, res, options) {
-  console.log('restream',req);
   if (req.body) {
       let bodyData = JSON.stringify(req.body);
       // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
@@ -32,13 +31,19 @@ var restream = function(proxyReq, req, res, options) {
 }
 
 module.exports = (app, config) => {
-    ptzAppRoutes.forEach(cfg => {
-      console.log("proxy", cfg);
-      app.use(cfg.origin, createProxyMiddleware({ 
-        target: cfg.target, 
+    for (var proxy in config.proxy) {
+      let target = config.proxy[proxy].target;
+      let pathRewrite = config.proxy[proxy].pathRewrite;
+      //
+      app.use(proxy, createProxyMiddleware({ 
+        target: target, 
         changeOrigin: true,
-        pathRewrite: function (path, req) { return path.replace(cfg.origin, '') },
+        pathRewrite: function (path, req) { 
+          for (var rule in pathRewrite)
+            path = path.replace(new RegExp(rule, "g"), pathRewrite[rule]);
+          return path; 
+        },
         onProxyReq: restream
       }));
-    })
+    }
 };
