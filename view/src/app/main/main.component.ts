@@ -13,6 +13,8 @@ import { StepByStepService } from '../service/step-by-step.service';
 import { StepByStepAction } from '../class/step-by-step-action';
 import { NumpadComponent } from '../component/numpad/numpad.component';
 import { JoystickComponent, JoystickDirection } from '../component/joystick/joystick.component';
+import { YoutubeService } from '../service/youtube.service';
+import { YoutubeDialog } from '../dialog/youtube/youtube.dialog';
 
 @Component({
   selector: 'app-main',
@@ -49,8 +51,11 @@ export class MainComponent implements AfterViewInit {
   zoomInKeyboardMovementTimeoutHandler   = null;
   zoomOutKeyboardMovementTimeoutHandler  = null;
 
+  youtubeIsConnected: boolean = false;
+
   constructor(public rcp: RcpService,
     public stepByStepService: StepByStepService,
+    private youtube: YoutubeService,
     private dialog: MatDialog) {
 
   }
@@ -79,6 +84,20 @@ export class MainComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    this.checkYoutubeIsConnected();
+    this.rcpLoadAppConfig();
+  }
+
+  checkYoutubeIsConnected(): void {
+
+    this.youtube.isConnected()
+      .then((data: any) => {
+        this.youtubeIsConnected = data.connected;
+      });
+
+  }
+
+  rcpLoadAppConfig(): void {
 
     this.rcp.loadAppConfig()
       .then(_ => {
@@ -387,6 +406,17 @@ export class MainComponent implements AfterViewInit {
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed', result);
     });
+  }
+
+  openYoutubeDialog(): void {
+    const dialogRef = this.dialog.open(YoutubeDialog, {
+      width: '700px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      this.checkYoutubeIsConnected();
+    });
+
   }
 
   limit(me, a, b): any {

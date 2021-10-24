@@ -14,7 +14,8 @@
       "src/**/*.js"
     ],
     "assets": [
-      "view/dist/app/**/*"
+      "view/dist/app/**/*",
+      "assets/**/*"
     ],
     "targets": [
       "node14-win-x64"
@@ -26,6 +27,8 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
+    "google-auth-library": "^7.10.0",
+    "googleapis": "^88.2.0",
     "http-proxy-middleware": "^2.0.1"
   }
 }

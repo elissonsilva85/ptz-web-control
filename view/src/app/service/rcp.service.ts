@@ -25,7 +25,7 @@ export class RcpService {
   constructor(private _http: HttpClient) {  }
 
   public loadAppConfig() {
-    return this._http.get('/app/assets/config.json')
+    return this._http.get('/config')
       .toPromise()
       .then( (data: any) => {
         this.urlBase = data.urlBase;

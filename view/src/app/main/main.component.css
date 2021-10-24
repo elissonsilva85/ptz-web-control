@@ -140,3 +140,11 @@
   background-color: #f5f5f5;
   color: #333;
 }
+
+.connected {
+    background-color: rgb(180, 255, 180);
+}
+
+.notConnected {
+    background-color: rgb(252, 186, 186);
+}

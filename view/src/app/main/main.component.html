@@ -103,7 +103,10 @@
             <td><button mat-stroked-button class="config-btn">Definir Transmissão <mat-icon>cast</mat-icon></button></td>
           </tr>
           <tr>
-            <td><button mat-stroked-button class="config-btn">Conectar no Youtube <mat-icon>youtube</mat-icon></button></td>
+            <td><button mat-stroked-button  (click)="openYoutubeDialog()"
+              [ngClass]="{ 'config-btn': true, 'connected': youtubeIsConnected, 'notConnected': !youtubeIsConnected }">
+              {{ youtubeIsConnected ? "Configurar" : "Conectar no" }} Youtube <mat-icon>ondemand_video</mat-icon>
+            </button></td>
           </tr>
           <tr>
             <td><button mat-stroked-button class="config-btn">Conectar no Facebook <mat-icon>facebook</mat-icon></button></td>
