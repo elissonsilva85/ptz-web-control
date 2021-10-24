@@ -22,5 +22,15 @@
       "^/PTZ3": ""
     },
     "logLevel": "debug"
+  },
+  "/youtube": {
+    "target": "http://localhost/",
+    "secure": false,
+    "logLevel": "debug"
+  },
+  "/config": {
+    "target": "http://localhost/",
+    "secure": false,
+    "logLevel": "debug"
   }
 }

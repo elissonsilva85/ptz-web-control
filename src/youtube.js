@@ -273,12 +273,19 @@ module.exports = (app, config) => {
       if(success)
       {
         oauth2Client = result;
-        res.sendStatus(200)
+        res.status(200).end("Voce esta conectado. Pode fechar essa janela.")
       }
       else
       {
         res.redirect(result);
       }
+    });
+  });
+
+  app.get('/youtube/isConnected', function(req, res) {
+    console.log(TOKEN_PATH);
+    fs.access(TOKEN_PATH, (err) => {
+      res.status(200).json({ connected: (err ? false : true) });
     });
   });
   

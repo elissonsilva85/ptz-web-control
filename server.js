@@ -38,6 +38,10 @@ require('./src/youtube')(app, config);
 
 app.use('/app', express.static( path.join( __dirname, './view/dist/app' ) ));
 
+app.get('/config', function(req, res) {
+    res.status(200).json(config);
+});
+
 app.get('/', function(req, res) {
     res.redirect('/app')
 });

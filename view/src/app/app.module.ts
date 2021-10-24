@@ -43,6 +43,7 @@ import { LogDialog } from './dialog/log/log.dialog';
 import { StepByStepActionComponent } from './component/step-by-step-action/step-by-step-action.component';
 import { MilisecondFormatPipe } from './component/milisecond-format/milisecond-format.pipe';
 import { ConfirmDialog } from './dialog/confirm/confirm.dialog';
+import { YoutubeDialog } from './dialog/youtube/youtube.dialog';
 
 @NgModule({
   declarations: [
@@ -62,6 +63,7 @@ import { ConfirmDialog } from './dialog/confirm/confirm.dialog';
     StepByStepActionComponent,
     MilisecondFormatPipe,
     ConfirmDialog,
+    YoutubeDialog,
   ],
   imports: [
     BrowserModule,
