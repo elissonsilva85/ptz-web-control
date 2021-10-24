@@ -1,6 +1,7 @@
 {
     "port": 80,
     "urlBase": "http://localhost/",
+    "blackmagicDesignIP": "127.0.0.1",
     "ptzBrand": "dahua",
     "ptzCodes": [
         "PTZ1",
