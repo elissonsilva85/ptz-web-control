@@ -33,8 +33,15 @@ app.all('*', (req, res, next) => {
 });
 */
 
-require('./src/proxy')(app, config);
-require('./src/youtube')(app, config);
+fs.readdirSync('./src/').forEach(fileName => {
+  let extensionName = path.extname(fileName);
+  if(extensionName === '.js')
+  {
+    let basename = path.basename(fileName, extensionName);
+    require(`./src/${basename}`)(app, config);
+    console.log('require', `./src/${basename}`);
+  }
+});
 
 app.use('/app', express.static( path.join( __dirname, './view/dist/app' ) ));
 
