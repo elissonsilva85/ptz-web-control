@@ -227,14 +227,14 @@ export class PtzConferenceSession extends PtzAbstractSession {
       return Promise.resolve();
     }
 
-    public getVideoColor(table: any[]) : Promise<any> {
+    public getConfig(list: any[]) : Promise<any> {
       return Promise.resolve();
     }
 
-    public setVideoColor(table: any[]) : Promise<any> {
+    public setConfig(list: any[], table: any[]) : Promise<any> {
       return Promise.resolve();
     }
-
+    
     public moveDirectly(coord: number[], speed: number) : Promise<any> {
       return Promise.resolve();
     }

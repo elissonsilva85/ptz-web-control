@@ -398,6 +398,13 @@ export class MainComponent implements AfterViewInit {
   }
 
   startStreaming() {
+    /*
+    this.rcp.simpleGet('vmix/API/', new URLSearchParams({
+      'Function': 'ScriptStart',
+      'Value': 'Teste'
+    }).toString());
+    */
+
     this.rcp.startStreamingCommands.forEach( action => {
       eval(action);
     });

@@ -372,592 +372,93 @@ export class PtzDahuaSession extends PtzAbstractSession {
       return this._ptzStart("PositionABS", horizontal, vertical, zoom);
     }
 
-    public getVideoColor(table: any[]) : Promise<any> {
+    public getConfig(list: any[]) : Promise<any> {
       if( !this.isConnected() )
-        return this._getPromiseRejectWithText(`getVideoColor: ${this._ptz} is not connected`);
+        return this._getPromiseRejectWithText(`getConfig: ${this._ptz} is not connected`);
 
       var body = {
         "method": "system.multicall",
-        "params": [
-          {
-            "method": "configManager.getConfig",
-            "params": {
-              "name": "VideoColor"
-            },
-            "id": 835,
-            "session": "f561b87b07f86d1cbe4fb69a3081aa6f"
-          },
-          {
-            "method": "configManager.getConfig",
-            "params": {
-              "name": "VideoImageControl"
-            },
-            "id": 836,
-            "session": "f561b87b07f86d1cbe4fb69a3081aa6f"
-          },
-          {
-            "method": "configManager.getConfig",
-            "params": {
-              "name": "VideoInSharpness"
-            },
-            "id": 837,
-            "session": "f561b87b07f86d1cbe4fb69a3081aa6f"
-          },
-          {
-            "method": "configManager.getConfig",
-            "params": {
-              "name": "VideoSubColor"
-            },
-            "id": 838,
-            "session": "f561b87b07f86d1cbe4fb69a3081aa6f"
-          },
-          {
-            "method": "configManager.getConfig",
-            "params": {
-              "name": "VideoInExposure"
-            },
-            "id": 839,
-            "session": "f561b87b07f86d1cbe4fb69a3081aa6f"
-          },
-          {
-            "method": "configManager.getConfig",
-            "params": {
-              "name": "VideoInDenoise"
-            },
-            "id": 840,
-            "session": "f561b87b07f86d1cbe4fb69a3081aa6f"
-          },
-          {
-            "method": "configManager.getConfig",
-            "params": {
-              "name": "VideoInIRExposure"
-            },
-            "id": 841,
-            "session": "f561b87b07f86d1cbe4fb69a3081aa6f"
-          },
-          {
-            "method": "configManager.getConfig",
-            "params": {
-              "name": "VideoInBacklight"
-            },
-            "id": 842,
-            "session": "f561b87b07f86d1cbe4fb69a3081aa6f"
-          },
-          {
-            "method": "configManager.getConfig",
-            "params": {
-              "name": "VideoInWhiteBalance"
-            },
-            "id": 843,
-            "session": "f561b87b07f86d1cbe4fb69a3081aa6f"
-          },
-          {
-            "method": "configManager.getConfig",
-            "params": {
-              "name": "VideoInDayNight"
-            },
-            "id": 844,
-            "session": "f561b87b07f86d1cbe4fb69a3081aa6f"
-          },
-          {
-            "method": "configManager.getConfig",
-            "params": {
-              "name": "VideoInZoom"
-            },
-            "id": 845,
-            "session": "f561b87b07f86d1cbe4fb69a3081aa6f"
-          },
-          {
-            "method": "configManager.getConfig",
-            "params": {
-              "name": "VideoInFocus"
-            },
-            "id": 846,
-            "session": "f561b87b07f86d1cbe4fb69a3081aa6f"
-          },
-          {
-            "method": "configManager.getConfig",
-            "params": {
-              "name": "VideoInDefog"
-            },
-            "id": 847,
-            "session": "f561b87b07f86d1cbe4fb69a3081aa6f"
-          }
-        ],
-        "id": 848,
-        "session": "f561b87b07f86d1cbe4fb69a3081aa6f"
+        "params": [ ],
+        "id": 0,
+        "session": this._sessionData.session
       };
+
+      body.params = list.map( (name, i) => { return {
+          "method": "configManager.getConfig",
+          "params": {
+            "name": name
+          },
+          "id": this._sessionData.id + 1 + i,
+          "session": this._sessionData.session
+        }
+      });
+
+      body.id = this._sessionData.id + 1 + list.length;
+
       //
-      // RETORNO
-      let retorno = {
-        "id": 848,
-        "params": [
-          {
-            "id": 835,
-            "params": {
-              "table": [
-                [
-                  {
-                    "Brightness": 50,
-                    "ChromaSuppress": 50,
-                    "Contrast": 50,
-                    "Gamma": 50,
-                    "Hue": 50,
-                    "Saturation": 50,
-                    "Style": "Standard",
-                    "TimeSection": "0 00:00:00-24:00:00"
-                  },
-                  {
-                    "Brightness": 50,
-                    "ChromaSuppress": 50,
-                    "Contrast": 50,
-                    "Gamma": 50,
-                    "Hue": 50,
-                    "Saturation": 50,
-                    "Style": "Standard",
-                    "TimeSection": "0 00:00:00-24:00:00"
-                  },
-                  {
-                    "Brightness": 50,
-                    "ChromaSuppress": 50,
-                    "Contrast": 50,
-                    "Gamma": 50,
-                    "Hue": 50,
-                    "Saturation": 50,
-                    "Style": "Standard",
-                    "TimeSection": "1 00:00:00-24:00:00"
-                  }
-                ]
-              ]
-            },
-            "result": true
-          },
-          {
-            "id": 836,
-            "params": {
-              "table": [
-                {
-                  "Flip": false,
-                  "FlipMode": "Auto",
-                  "Freeze": false,
-                  "HorizontalFlip": false,
-                  "Mirror": false,
-                  "Rotate90": 0,
-                  "Stable": 0,
-                  "VerticalFlip": false
-                }
-              ]
-            },
-            "result": true
-          },
-          {
-            "id": 837,
-            "params": {
-              "table": [
-                [
-                  {
-                    "Level": 50,
-                    "Mode": 1,
-                    "Sharpness": 50
-                  },
-                  {
-                    "Level": 50,
-                    "Mode": 1,
-                    "Sharpness": 50
-                  },
-                  {
-                    "Level": 50,
-                    "Mode": 1,
-                    "Sharpness": 50
-                  }
-                ]
-              ]
-            },
-            "result": true
-          },
-          {
-            "id": 838,
-            "params": {
-              "table": [
-                [
-                  {
-                    "Adapt": "Network"
-                  },
-                  {
-                    "Adapt": "Network"
-                  },
-                  {
-                    "Adapt": "Network"
-                  }
-                ]
-              ]
-            },
-            "result": true
-          },
-          {
-            "id": 839,
-            "params": {
-              "table": [
-                [
-                  {
-                    "AntiFlicker": 0,
-                    "Compensation": 50,
-                    "DoubleExposure": 0,
-                    "Gain": 50,
-                    "GainMax": 50,
-                    "GainMin": 0,
-                    "Iris": 50,
-                    "IrisAuto": false,
-                    "IrisMax": 50,
-                    "IrisMin": 10,
-                    "Mode": 0,
-                    "RecoveryTime": 900,
-                    "SlowAutoExposure": 50,
-                    "SlowShutter": false,
-                    "SlowSpeed": 30,
-                    "Speed": 30,
-                    "Value1": 33.33,
-                    "Value2": 33.33
-                  },
-                  {
-                    "AntiFlicker": 0,
-                    "Compensation": 50,
-                    "DoubleExposure": 0,
-                    "Gain": 50,
-                    "GainMax": 50,
-                    "GainMin": 0,
-                    "Iris": 50,
-                    "IrisAuto": false,
-                    "IrisMax": 50,
-                    "IrisMin": 10,
-                    "Mode": 0,
-                    "RecoveryTime": 900,
-                    "SlowAutoExposure": 50,
-                    "SlowShutter": false,
-                    "SlowSpeed": 30,
-                    "Speed": 30,
-                    "Value1": 33.33,
-                    "Value2": 33.33
-                  },
-                  {
-                    "AntiFlicker": 0,
-                    "Compensation": 50,
-                    "DoubleExposure": 0,
-                    "Gain": 50,
-                    "GainMax": 50,
-                    "GainMin": 0,
-                    "Iris": 50,
-                    "IrisAuto": false,
-                    "IrisMax": 50,
-                    "IrisMin": 10,
-                    "Mode": 0,
-                    "RecoveryTime": 900,
-                    "SlowAutoExposure": 50,
-                    "SlowShutter": false,
-                    "SlowSpeed": 30,
-                    "Speed": 30,
-                    "Value1": 33.33,
-                    "Value2": 33.33
-                  }
-                ]
-              ]
-            },
-            "result": true
-          },
-          {
-            "id": 840,
-            "params": {
-              "table": [
-                [
-                  {
-                    "2DEnable": true,
-                    "2DLevel": 50,
-                    "3DAutoType": {
-                      "AutoLevel": 50
-                    },
-                    "3DManulType": {
-                      "SnfLevel": 0,
-                      "TnfLevel": 0
-                    },
-                    "3DType": "Auto",
-                    "DenoiseAlgorithm1": {
-                      "SnfLevel": 50,
-                      "TnfLevel": 50,
-                      "Type": "Off"
-                    }
-                  },
-                  {
-                    "2DEnable": true,
-                    "2DLevel": 50,
-                    "3DAutoType": {
-                      "AutoLevel": 50
-                    },
-                    "3DManulType": {
-                      "SnfLevel": 0,
-                      "TnfLevel": 0
-                    },
-                    "3DType": "Auto",
-                    "DenoiseAlgorithm1": {
-                      "SnfLevel": 50,
-                      "TnfLevel": 50,
-                      "Type": "Off"
-                    }
-                  },
-                  {
-                    "2DEnable": true,
-                    "2DLevel": 50,
-                    "3DAutoType": {
-                      "AutoLevel": 50
-                    },
-                    "3DManulType": {
-                      "SnfLevel": 0,
-                      "TnfLevel": 0
-                    },
-                    "3DType": "Auto",
-                    "DenoiseAlgorithm1": {
-                      "SnfLevel": 50,
-                      "TnfLevel": 50,
-                      "Type": "Off"
-                    }
-                  }
-                ]
-              ]
-            },
-            "result": true
-          },
-          {
-            "id": 841,
-            "params": {
-              "table": [
-                [
-                  {
-                    "SmartIRExposure": false
-                  },
-                  {
-                    "SmartIRExposure": false
-                  },
-                  {
-                    "SmartIRExposure": false
-                  }
-                ]
-              ]
-            },
-            "result": true
-          },
-          {
-            "id": 842,
-            "params": {
-              "table": [
-                [
-                  {
-                    "BacklightMode": "Default",
-                    "BacklightRegion": [
-                      3096,
-                      3096,
-                      5096,
-                      5096
-                    ],
-                    "GlareInhibition": 50,
-                    "Intensity": 50,
-                    "IntensityMode": "AutoIntensity",
-                    "Mode": "Off",
-                    "WideDynamicRange": 50
-                  },
-                  {
-                    "BacklightMode": "Default",
-                    "BacklightRegion": [
-                      3096,
-                      3096,
-                      5096,
-                      5096
-                    ],
-                    "GlareInhibition": 50,
-                    "Intensity": 50,
-                    "IntensityMode": "AutoIntensity",
-                    "Mode": "Off",
-                    "WideDynamicRange": 50
-                  },
-                  {
-                    "BacklightMode": "Default",
-                    "BacklightRegion": [
-                      3096,
-                      3096,
-                      5096,
-                      5096
-                    ],
-                    "GlareInhibition": 50,
-                    "Intensity": 50,
-                    "IntensityMode": "AutoIntensity",
-                    "Mode": "Off",
-                    "WideDynamicRange": 50
-                  }
-                ]
-              ]
-            },
-            "result": true
-          },
-          {
-            "id": 843,
-            "params": {
-              "table": [
-                [
-                  {
-                    "ColorTemperatureLevel": 50,
-                    "GainBlue": 50,
-                    "GainGreen": 50,
-                    "GainRed": 50,
-                    "Mode": "Auto"
-                  },
-                  {
-                    "ColorTemperatureLevel": 50,
-                    "GainBlue": 50,
-                    "GainGreen": 50,
-                    "GainRed": 50,
-                    "Mode": "Auto"
-                  },
-                  {
-                    "ColorTemperatureLevel": 50,
-                    "GainBlue": 50,
-                    "GainGreen": 50,
-                    "GainRed": 50,
-                    "Mode": "Auto"
-                  }
-                ]
-              ]
-            },
-            "result": true
-          },
-          {
-            "id": 844,
-            "params": {
-              "table": [
-                [
-                  {
-                    "Delay": 10,
-                    "Mode": "Brightness",
-                    "Sensitivity": 2,
-                    "Type": "Mechanism"
-                  },
-                  {
-                    "Delay": 10,
-                    "Mode": "Brightness",
-                    "Sensitivity": 2,
-                    "Type": "Mechanism"
-                  },
-                  {
-                    "Delay": 10,
-                    "Mode": "Brightness",
-                    "Sensitivity": 2,
-                    "Type": "Mechanism"
-                  }
-                ]
-              ]
-            },
-            "result": true
-          },
-          {
-            "id": 845,
-            "params": {
-              "table": [
-                [
-                  {
-                    "DigitalZoom": false,
-                    "Speed": 100,
-                    "ZoomLimit": 4
-                  },
-                  {
-                    "DigitalZoom": false,
-                    "Speed": 100,
-                    "ZoomLimit": 4
-                  },
-                  {
-                    "DigitalZoom": false,
-                    "Speed": 100,
-                    "ZoomLimit": 4
-                  }
-                ]
-              ]
-            },
-            "result": true
-          },
-          {
-            "id": 846,
-            "params": {
-              "table": [
-                [
-                  {
-                    "AutoFocusTrace": 1,
-                    "FocusLimit": 5000,
-                    "FocusLimitSelectMode": "Auto",
-                    "IRCorrection": 2,
-                    "Mode": 3,
-                    "Sensitivity": 1
-                  },
-                  {
-                    "AutoFocusTrace": 1,
-                    "FocusLimit": 5000,
-                    "FocusLimitSelectMode": "Auto",
-                    "IRCorrection": 2,
-                    "Mode": 3,
-                    "Sensitivity": 1
-                  },
-                  {
-                    "AutoFocusTrace": 1,
-                    "FocusLimit": 5000,
-                    "FocusLimitSelectMode": "Auto",
-                    "IRCorrection": 2,
-                    "Mode": 3,
-                    "Sensitivity": 1
-                  }
-                ]
-              ]
-            },
-            "result": true
-          },
-          {
-            "id": 847,
-            "params": {
-              "table": [
-                [
-                  {
-                    "CamDefogEnable": false,
-                    "Intensity": 1,
-                    "LightIntensityLevel": 12,
-                    "LightIntensityMode": "Auto",
-                    "Mode": "Off"
-                  },
-                  {
-                    "CamDefogEnable": false,
-                    "Intensity": 1,
-                    "LightIntensityLevel": 12,
-                    "LightIntensityMode": "Auto",
-                    "Mode": "Off"
-                  },
-                  {
-                    "CamDefogEnable": false,
-                    "Intensity": 1,
-                    "LightIntensityLevel": 12,
-                    "LightIntensityMode": "Auto",
-                    "Mode": "Off"
-                  }
-                ]
-              ]
-            },
-            "result": true
-          }
-        ],
-        "result": true,
-        "session": "f561b87b07f86d1cbe4fb69a3081aa6f"
-      }
-      //
-      this._addLog(this._ptz, "getVideoColor : " + JSON.stringify(body));
+      this._addLog(this._ptz, "getConfig : " + JSON.stringify(body));
       return this._post("RPC2", body).then( r => {
-        this._addLog(this._ptz, "getVideoColor return: " + JSON.stringify(r));
+        this._addLog(this._ptz, "getConfig return: " + JSON.stringify(r));
         this._sessionData.id = r.id;
+        return r; 
       });
     }
 
-    public setVideoColor(table: any[]) : Promise<any> {
+    public setConfig(list: any[], table: any[]) : Promise<any> {
+      if( !this.isConnected() )
+        return this._getPromiseRejectWithText(`setConfig: ${this._ptz} is not connected`);
+
+      var body: any = {};
+
+      if(list.length == 1) {
+
+        body = {
+          "method": "configManager.setConfig",
+          "params": {
+            "name": list[0],
+            "table": [
+              table[0]
+            ],
+            "options": []
+          },
+          "id": this._sessionData.id + 1,
+          "session": this._sessionData.session
+        };
+
+      }
+      else {
+        body = {  
+          "method": "system.multicall",
+          "params": [ ],
+          "id": 0,
+          "session": this._sessionData.session
+        };
+
+        body.params = list.map( (name, i) => { return {
+            "method": "configManager.setConfig",
+            "params": {
+              "name": name,
+              "table": [ table[i] ],
+              "options": []
+            },
+            "id": this._sessionData.id + 1 + i,
+            "session": this._sessionData.session
+          }
+        });
+
+        body.id = this._sessionData.id + 1 + list.length;
+      }
+
+      //
+      this._addLog(this._ptz, "setConfig : " + JSON.stringify(body));
+      return this._post("RPC2", body).then( r => {
+        this._addLog(this._ptz, "setConfig return: " + JSON.stringify(r));
+        this._sessionData.id = r.id;
+        return r; 
+      });
+    }
+
+    public setVideoColor(videoColorTable: any[]) : Promise<any> {
       if( !this.isConnected() )
         return this._getPromiseRejectWithText(`setVideoColor: ${this._ptz} is not connected`);
 
@@ -965,40 +466,7 @@ export class PtzDahuaSession extends PtzAbstractSession {
         "method": "configManager.setTemporaryConfig",
         "params": {
           "name": "VideoColor",
-          "table": [
-            [
-              {
-                "Brightness": 50,
-                "ChromaSuppress": 50,
-                "Contrast": 50,
-                "Gamma": 50,
-                "Hue": 50,
-                "Saturation": 50,
-                "Style": "Standard",
-                "TimeSection": "0 00:00:00-24:00:00"
-              },
-              {
-                "Brightness": 50,
-                "ChromaSuppress": 50,
-                "Contrast": 50,
-                "Gamma": 50,
-                "Hue": 50,
-                "Saturation": 50,
-                "Style": "Standard",
-                "TimeSection": "0 00:00:00-24:00:00"
-              },
-              {
-                "Brightness": 50,
-                "ChromaSuppress": 50,
-                "Contrast": 50,
-                "Gamma": 50,
-                "Hue": 50,
-                "Saturation": 50,
-                "Style": "Standard",
-                "TimeSection": "1 00:00:00-24:00:00"
-              }
-            ]
-          ],
+          "table": videoColorTable,
           "options": []
         },
         "id": this._sessionData.id + 1,
@@ -1008,6 +476,117 @@ export class PtzDahuaSession extends PtzAbstractSession {
       this._addLog(this._ptz, "setVideoColor : " + JSON.stringify(body));
       return this._post("RPC2", body).then( r => {
         this._addLog(this._ptz, "setVideoColor return: " + JSON.stringify(r));
+        this._sessionData.id = r.id;
+      });
+    }
+
+    public setVideoInMode(config: number) : Promise<any> {
+      if( !this.isConnected() )
+        return this._getPromiseRejectWithText(`setVideoInMode: ${this._ptz} is not connected`);
+
+      var body = {
+        "method": "configManager.setTemporaryConfig",
+        "params": {
+          "name": "VideoInMode",
+          "table": [
+            {
+              "Config": [
+                config
+              ],
+              "Mode": 0,
+              "TimeSection": [
+                [
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00"
+                ],
+                [
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00"
+                ],
+                [
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00"
+                ],
+                [
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00"
+                ],
+                [
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00"
+                ],
+                [
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00"
+                ],
+                [
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00",
+                  "0 00:00:00-24:00:00"
+                ]
+              ]
+            }
+          ],
+          "options": []
+        },
+        "id": this._sessionData.id + 1,
+        "session": this._sessionData.session
+      };
+      //
+      this._addLog(this._ptz, "setVideoInMode : " + JSON.stringify(body));
+      return this._post("RPC2", body).then( r => {
+        this._addLog(this._ptz, "setVideoInMode return: " + JSON.stringify(r));
+        this._sessionData.id = r.id;
+      });
+    }
+
+    public setVideoInWhiteBalance(videoInWhiteBalanceTable: any[]) : Promise<any> {
+      if( !this.isConnected() )
+        return this._getPromiseRejectWithText(`setVideoInWhiteBalance: ${this._ptz} is not connected`);
+
+      var body = {
+        "method": "configManager.setTemporaryConfig",
+        "params": {
+          "name": "VideoInWhiteBalance",
+          "table": [
+            videoInWhiteBalanceTable
+          ],
+          "options": []
+        },
+        "id": this._sessionData.id + 1,
+        "session": this._sessionData.session
+      };
+      //
+      this._addLog(this._ptz, "setVideoInWhiteBalance : " + JSON.stringify(body));
+      return this._post("RPC2", body).then( r => {
+        this._addLog(this._ptz, "setVideoInWhiteBalance return: " + JSON.stringify(r));
         this._sessionData.id = r.id;
       });
     }

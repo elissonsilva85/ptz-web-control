@@ -1,5 +1,5 @@
 import { ChangeDetectorRef } from '@angular/core';
-import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RcpService } from '../../service/rcp.service';
 

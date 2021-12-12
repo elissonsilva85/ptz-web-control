@@ -85,9 +85,9 @@ export abstract class PtzAbstractSession {
 
   public abstract specificPosition(horizontal: number, vertical: number, zoom: number) : Promise<any>;
 
-  public abstract getVideoColor(table: any[]) : Promise<any>;
+  public abstract getConfig(list: any[]) : Promise<any>;
 
-  public abstract setVideoColor(table: any[]) : Promise<any>;
+  public abstract setConfig(list: any[], table: any[]) : Promise<any>;
 
   public abstract moveDirectly(coord: number[], speed: number) : Promise<any>;
 
