@@ -1,0 +1,130 @@
+server:
+  port: 80
+
+ribbon:
+  eureka:
+    enabled: false
+
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/data
+    driverClassName: org.h2.Driver
+    username: ptz
+    password: ptz
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    console:
+      enabled: true
+      path: /api/h2
+
+zuul:
+  decodeUrl: false
+  prefix: /api/ptz
+  routes:
+    ptz1:
+      path: /PTZ1/**
+      url: http://localhost:3000/
+    ptz2:
+      path: /PTZ2/**
+      url: http://localhost:3000/
+    ptz3:
+      path: /PTZ3/**
+      url: http://localhost:3000/
+
+config:
+  ptzBrand: dahua
+  ptzConnection:
+    PTZ1:
+      label: "PTZ-1"
+      ip: "http://localhost:3000/"
+      user: "<user>"
+      password: "<pass>"
+    PTZ2:
+      label: "PTZ-2"
+      ip: "http://localhost:3000/"
+      user: "<user>"
+      password: "<pass>"
+    PTZ3:
+      label: "PTZ-3"
+      ip: "http://localhost:3000/"
+      user: "<username>"
+      password: "<password>"
+  startStreaming:
+    - ''
+  stopStreaming:
+    - ''
+  shortcuts:
+    - key: q
+      action:
+        - this.runPresetByNumpad('PTZ1', 1);
+        - this.activateShortcutPtz('PTZ1');
+    - key: w
+      action:
+        - this.runPresetByNumpad('PTZ1', 2);
+        - this.activateShortcutPtz('PTZ1');
+    - key: e
+      action:
+        - this.runPresetByNumpad('PTZ1', 4);
+        - this.activateShortcutPtz('PTZ1');
+    - key: r
+      action:
+        - this.runPresetByNumpad('PTZ1', 5);
+        - this.activateShortcutPtz('PTZ1');
+    - key: t
+      action:
+        - this.runPresetByNumpad('PTZ1', 7);
+        - this.activateShortcutPtz('PTZ1');
+    - key: y
+      action:
+        - this.runPresetByNumpad('PTZ1', 8);
+        - this.activateShortcutPtz('PTZ1');
+    - key: u
+      action:
+        - this.runPresetByNumpad('PTZ1', 9);
+        - this.activateShortcutPtz('PTZ1');
+    - key: a
+      action:
+        - this.runPresetByNumpad('PTZ2', 1);
+        - this.activateShortcutPtz('PTZ2');
+    - key: s
+      action:
+        - this.runPresetByNumpad('PTZ2', 2);
+        - this.activateShortcutPtz('PTZ2');
+    - key: d
+      action:
+        - this.runPresetByNumpad('PTZ2', 7);
+        - this.activateShortcutPtz('PTZ2');
+    - key: f
+      action:
+        - this.runPresetByNumpad('PTZ2', 8);
+        - this.activateShortcutPtz('PTZ2');
+    - key: g
+      action:
+        - this.runPresetByNumpad('PTZ2', 10);
+        - this.activateShortcutPtz('PTZ2');
+    - key: h
+      action:
+        - this.runPresetByNumpad('PTZ2', 11);
+        - this.activateShortcutPtz('PTZ2');
+    - key: z
+      action:
+        - this.runPresetByNumpad('PTZ3', 1);
+        - this.activateShortcutPtz('PTZ3');
+    - key: x
+      action:
+        - this.runPresetByNumpad('PTZ3', 2);
+        - this.activateShortcutPtz('PTZ3');
+    - key: c
+      action:
+        - this.runPresetByNumpad('PTZ3', 3);
+        - this.activateShortcutPtz('PTZ3');
+    - key: v
+      action:
+        - this.runPresetByNumpad('PTZ3', 6);
+        - this.activateShortcutPtz('PTZ3');
+    - key: b
+      action:
+        - this.runPresetByNumpad('PTZ3', 9);
+        - this.activateShortcutPtz('PTZ3');
