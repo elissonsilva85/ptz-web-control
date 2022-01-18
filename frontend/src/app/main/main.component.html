@@ -6,7 +6,7 @@
     <span>{{ progressBatStatus }}</span>
     </div>
 </div>
-<div class="ptzBox" *ngFor="let ptz of rcp.ptzCodes">
+<div class="ptzBox" *ngFor="let ptz of objectKeys(rcp.ptzConnection)">
     <div class="timelineExecution" *ngIf="stepByStepService.isTimelineRunning(ptz)" [@inOutAnimation]>
         <button mat-raised-button color="warn" (click)="stopTimeline(ptz)">
           INTERROMPER
@@ -31,7 +31,7 @@
         <table width="100%">
             <tr>
                 <td style="width: 65px; padding-top: 10px; position: relative;">
-                    <mat-card-title>{{ptz}} <img src="./assets/{{ this.rcp.getStatusSvg(ptz) }}" class="status-svg"></mat-card-title>
+                    <mat-card-title>{{rcp.ptzConnection[ptz].label}} <img src="./assets/{{ this.rcp.getStatusSvg(ptz) }}" class="status-svg"></mat-card-title>
                 </td>
                 <td style="text-align: right">
                     <button mat-icon-button (click)="openBrightnessContrastDialog(ptz)" matTooltip="Parâmetros">

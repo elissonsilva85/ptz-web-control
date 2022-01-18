@@ -29,6 +29,8 @@ import { YoutubeDialog } from '../dialog/youtube/youtube.dialog';
 })
 export class MainComponent implements AfterViewInit {
 
+  objectKeys = Object.keys;
+  
   numpadMode = {};
 
   presetNames = {};
@@ -62,10 +64,7 @@ export class MainComponent implements AfterViewInit {
 
   runPresetByNumpad(ptz: string, preset: number)
   {
-    let indexOf = this.rcp.ptzCodes.indexOf(ptz);
-    if(indexOf < 0) return false;
-    //
-    let numpad : NumpadComponent = this.numpadComponents.find((item, idx) => idx == indexOf);
+    let numpad : NumpadComponent = this.numpadComponents.find((item, idx) => item.ptz == ptz);
     if(!numpad) return false;
     //
     return numpad.runPreset(preset - 1);
@@ -73,9 +72,6 @@ export class MainComponent implements AfterViewInit {
 
   runPtzTimeline(ptz: string, preset: number) 
   {
-    let indexOf = this.rcp.ptzCodes.indexOf(ptz);
-    if(indexOf < 0) return false;
-    //
     let timelineNames = this.stepByStepService.getTimelineNames(ptz);
     if(preset <= timelineNames.length) return this.runTimeline(ptz, timelineNames[preset - 1])
     //
@@ -102,19 +98,19 @@ export class MainComponent implements AfterViewInit {
     this.rcp.loadAppConfig()
       .then(_ => {
 
-        this.numpadMode = this.rcp.ptzCodes.reduce((prev, curr, idx) => {
+        this.numpadMode = Object.keys(this.rcp.ptzConnection).reduce((prev, curr, idx) => {
           prev[curr] = "load";
           return prev;
         }, {});
 
-        this.presetNames = this.rcp.ptzCodes.reduce((prev, curr, idx) => {
+        this.presetNames = Object.keys(this.rcp.ptzConnection).reduce((prev, curr, idx) => {
           prev[curr] = [];
           return prev;
         }, {});
 
       }).then(_ => {
 
-        this.shortcuts = this.rcp.ptzCodes.map( (ptz, idx) => {
+        this.shortcuts = Object.keys(this.rcp.ptzConnection).map( (ptz, idx) => {
           return {
               key: `cmd + ${idx + 1}`,
               label: `Ativar ${ptz}`,
@@ -124,6 +120,8 @@ export class MainComponent implements AfterViewInit {
                 if(output.event.ctrlKey && (output.event.altKey || output.event.shiftKey)) return false;
                 //
                 this.activateShortcutPtz(ptz);
+
+                return false;
               },
               preventDefault: true
           };
@@ -165,6 +163,7 @@ export class MainComponent implements AfterViewInit {
               //
               this.runPresetByNumpad(this.activatedShortcutPtzCode, num);
               //
+              return false;
             },
             preventDefault: true
           };
@@ -177,10 +176,7 @@ export class MainComponent implements AfterViewInit {
               //
               if(output.event.altKey || output.event.ctrlKey || output.event.shiftKey) return false;
               //
-              let indexOf = this.rcp.ptzCodes.indexOf(this.activatedShortcutPtzCode);
-              if(indexOf < 0) return false;
-              //
-              let joystick : JoystickComponent = this.joystickComponents.find((item, idx) => idx == indexOf);
+              let joystick : JoystickComponent = this.joystickComponents.find((item, idx) => item.ptz == this.activatedShortcutPtzCode);
               if(!joystick) return false;
               //
               if(this.joystickKeyboardMovementTimeoutHandler) {
@@ -196,6 +192,7 @@ export class MainComponent implements AfterViewInit {
                 j.stopAll();
               }, this.keyboardMovementTimeout, joystick);
               //
+              return false;
             },
             preventDefault: true
           };
@@ -210,6 +207,7 @@ export class MainComponent implements AfterViewInit {
               //
               this.runPtzTimeline(this.activatedShortcutPtzCode, functionKey);
               //
+              return false;
             },
             preventDefault: true
           };
@@ -221,11 +219,9 @@ export class MainComponent implements AfterViewInit {
               //
               if(output.event.altKey && (output.event.ctrlKey || output.event.shiftKey)) return false;
               //
-              let indexOf = this.rcp.ptzCodes.indexOf(this.activatedShortcutPtzCode);
-              if(indexOf < 0) return false;
-              //
               this.stopTimeline(this.activatedShortcutPtzCode)
               //
+              return false;
             },
             preventDefault: true
           },
@@ -236,9 +232,6 @@ export class MainComponent implements AfterViewInit {
             command: (output: ShortcutEventOutput) => {
               //
               console.log('pageup');
-              //
-              let indexOf = this.rcp.ptzCodes.indexOf(this.activatedShortcutPtzCode);
-              if(indexOf < 0) return false;
               //
               if(this.zoomInKeyboardMovementTimeoutHandler) {
                 clearTimeout(this.zoomInKeyboardMovementTimeoutHandler);
@@ -251,6 +244,7 @@ export class MainComponent implements AfterViewInit {
                 s.stopZoomIn();
               }, this.keyboardMovementTimeout + 200, session);
               //
+              return false;
             },
             preventDefault: true
           },
@@ -261,9 +255,6 @@ export class MainComponent implements AfterViewInit {
             command: (output: ShortcutEventOutput) => {
               //
               console.log('pagedown');
-              //
-              let indexOf = this.rcp.ptzCodes.indexOf(this.activatedShortcutPtzCode);
-              if(indexOf < 0) return false;
               //
               if(this.zoomOutKeyboardMovementTimeoutHandler) {
                 clearTimeout(this.zoomOutKeyboardMovementTimeoutHandler);
@@ -276,6 +267,7 @@ export class MainComponent implements AfterViewInit {
                 s.stopZoomOut();
               }, this.keyboardMovementTimeout + 200, session);
               //
+              return false;
             },
             preventDefault: true
           }]
@@ -303,12 +295,12 @@ export class MainComponent implements AfterViewInit {
         if(temp) this.presetNames = temp;
         else localStorage.setItem('PTZNames', JSON.stringify(this.presetNames));
         //
-        this.rcp.ptzCodes.forEach( p => this.stepByStepService.initialize(p) );
+        Object.keys(this.rcp.ptzConnection).forEach( (p) => this.stepByStepService.initialize(p) );
         this.stepByStepService.saveTimelineAllData();
         //
         this.progressBatStatus = "CONECTANDO ..."
         return Promise.all(
-          this.rcp.ptzCodes.map( ptz => this.rcp.getSession(ptz).connect()  )
+          Object.keys(this.rcp.ptzConnection).map( (p) => this.rcp.getSession(p).connect()  )
         ).then(_ => {
           this.progressBarShow = false;
         });

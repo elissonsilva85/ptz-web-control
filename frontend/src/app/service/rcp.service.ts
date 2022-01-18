@@ -14,9 +14,8 @@ export class RcpService {
   keepAliveInterval: number = 9000;
   urlBase: string = "http://localhost:4200/app/";
 
-  ptzUserPass: any = {};
   ptzBrand: string = "";
-  ptzCodes: string[] = [];
+  ptzConnection: any = {};
   ptzSessionList = new Map();
   startStreamingCommands: string[] = [];
   stopStreamingCommands: string[] = [];
@@ -25,17 +24,14 @@ export class RcpService {
   constructor(private _http: HttpClient) {  }
 
   public loadAppConfig() {
-    return this._http.get('/config')
+    return this._http.get('/api/config/')
       .toPromise()
       .then( (data: any) => {
-        this.urlBase = data.urlBase;
+        this.urlBase = data.urlBase + "api/ptz/";
         this.ptzBrand = data.ptzBrand;
-        this.ptzCodes = data.ptzCodes;
         this.startStreamingCommands = data.startStreaming;
         this.stopStreamingCommands = data.stopStreaming;
-        this.ptzCodes.forEach( (ptz) => {
-          this.ptzUserPass[ptz] = data.ptzConnection[ptz];
-        });
+        this.ptzConnection = data.ptzConnection;
         this.customShortcuts = data.shortcuts;
 
         console.log("devMode:", isDevMode());
@@ -53,9 +49,9 @@ export class RcpService {
           this.ptzSessionList.set(ptz, new PtzDahuaSession(
             this._http,
             ptz,
-            "/",
-            this.ptzUserPass[ptz].user,
-            this.ptzUserPass[ptz].password,
+            this.urlBase,
+            this.ptzConnection[ptz].user,
+            this.ptzConnection[ptz].password,
             (ptz : string, text : string) => {
               this.logs.unshift({
                 date: new Date(),
@@ -70,9 +66,9 @@ export class RcpService {
           this.ptzSessionList.set(ptz, new PtzConferenceSession(
             this._http,
             ptz,
-            "/",
-            this.ptzUserPass[ptz].user,
-            this.ptzUserPass[ptz].password,
+            this.urlBase,
+            this.ptzConnection[ptz].user,
+            this.ptzConnection[ptz].password,
             (ptz : string, text : string) => {
               this.logs.unshift({
                 date: new Date(),
