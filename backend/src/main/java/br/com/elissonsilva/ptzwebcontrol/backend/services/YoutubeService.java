@@ -7,17 +7,23 @@ package br.com.elissonsilva.ptzwebcontrol.backend.services;
 
 // https://developers.google.com/youtube/v3/docs/channels/list?apix=true#common-use-cases
 
+import br.com.elissonsilva.ptzwebcontrol.backend.entity.YoutubeLiveBroadcast;
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.YoutubeSession;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.*;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.InputStreamContent;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.ChannelListResponse;
+import com.google.api.services.youtube.model.*;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
@@ -74,9 +80,120 @@ public class YoutubeService {
     }
 
     public ChannelListResponse getChannelInfo() throws IOException, GeneralSecurityException {
-        YouTube.Channels.List request = getService().channels()
-                .list("snippet,contentDetails,statistics");
-        return request.setMine(true).execute();
+        //
+        // https://developers.google.com/youtube/v3/docs/channels/list
+        //
+        return getService().channels()
+                .list("snippet,contentDetails,statistics")
+                .setMine(true)
+                .execute();
     }
 
+    public LiveBroadcastListResponse getLiveBroadcastsList() throws GeneralSecurityException, IOException {
+        //
+        // https://developers.google.com/youtube/v3/live/docs/liveBroadcasts/list
+        //
+        return getService().liveBroadcasts()
+                .list("snippet,contentDetails,status")
+                .setBroadcastType("event")
+                .setBroadcastStatus("upcoming")
+                .execute();
+    }
+
+    public LiveBroadcastListResponse getLiveBroadcastsList(String broadcastId) throws GeneralSecurityException, IOException {
+        //
+        // https://developers.google.com/youtube/v3/live/docs/liveBroadcasts/list
+        //
+        return getService().liveBroadcasts()
+                .list("snippet,contentDetails,status")
+                .setBroadcastType("event")
+                .setId(broadcastId)
+                .execute();
+    }
+
+    public LiveStreamListResponse getLiveStreamsList() throws GeneralSecurityException, IOException {
+        //
+        // https://developers.google.com/youtube/v3/live/docs/liveStreams/list
+        //
+        return getService().liveStreams()
+                .list("snippet,cdn,contentDetails,status")
+                .setMine(true)
+                .execute();
+    }
+
+    public ThumbnailSetResponse setThumbnail(String videoId, File mediaFile) throws GeneralSecurityException, IOException {
+        //
+        // https://developers.google.com/youtube/v3/docs/thumbnails/set
+        //
+        InputStreamContent mediaContent =
+                new InputStreamContent("application/octet-stream",
+                        new BufferedInputStream(new FileInputStream(mediaFile)));
+        mediaContent.setLength(mediaFile.length());
+        //mediaContent.setType(); // image/${extensionName.split('.').pop()}
+
+        return getService().thumbnails()
+                .set(videoId, mediaContent)
+                .execute();
+    }
+
+    public PlaylistItem addPlaylistItem(String videoId, String playlistId) throws GeneralSecurityException, IOException {
+        //
+        // https://developers.google.com/youtube/v3/docs/playlistItems/insert
+        //
+        return getService().playlistItems()
+                .insert("snippet", new PlaylistItem()
+                        .setSnippet(new PlaylistItemSnippet()
+                                .setPlaylistId(playlistId)
+                                .setResourceId(new ResourceId()
+                                        .setKind("youtube#video")
+                                        .setVideoId(videoId))))
+                .execute();
+    }
+
+    public LiveBroadcast addLiveBroadcast(String title, String description, DateTime scheduledStartTime, String privacy) throws GeneralSecurityException, IOException {
+        //
+        // https://developers.google.com/youtube/v3/live/docs/liveBroadcasts/insert
+        //
+        return getService().liveBroadcasts()
+                .insert("snippet,contentDetails,status", new LiveBroadcast()
+                        .setSnippet(new LiveBroadcastSnippet()
+                                .setTitle(title)
+                                .setDescription(description)
+                                .setScheduledStartTime(scheduledStartTime))
+                        .setContentDetails(new LiveBroadcastContentDetails()
+                                .setEnableClosedCaptions(false)
+                                .setEnableContentEncryption(true)
+                                .setEnableAutoStart(true)
+                                .setEnableDvr(true)
+                                .setEnableEmbed(true)
+                                .setRecordFromStart(true)
+                                .setStartWithSlate(true))
+                        .setStatus(new LiveBroadcastStatus()
+                                .setPrivacyStatus(privacy)
+                                .setSelfDeclaredMadeForKids(false)))
+                .execute();
+    }
+
+    public YoutubeLiveBroadcast addLiveBroadcast(YoutubeLiveBroadcast liveData) throws GeneralSecurityException, IOException {
+
+        liveData.setLiveBroadcastResponse(addLiveBroadcast(
+                liveData.getTitle(),
+                liveData.getDescription(),
+                new DateTime(liveData.getScheduledStartTime()),
+                liveData.getPrivacy()));
+
+        if(liveData.getThumbnailFilename() != null)
+            liveData.setThumbnailSetResponse(setThumbnail(
+                    liveData.getVideoId(),
+                    new File(liveData.getThumbnailFilename())
+            ));
+
+        if(liveData.getPlaylistId() != null)
+            liveData.setPlaylistItemResponse(addPlaylistItem(
+                    liveData.getVideoId(),
+                    liveData.getPlaylistId()
+            ));
+
+        return liveData;
+    }
 }
