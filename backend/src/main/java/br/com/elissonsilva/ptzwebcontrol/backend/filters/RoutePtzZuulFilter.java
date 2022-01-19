@@ -40,7 +40,7 @@ public class RoutePtzZuulFilter extends ZuulFilter {
     //@Override
     @SneakyThrows
     public Object run() throws ZuulException {
-        log.info("run");
+        log.debug("run");
         RequestContext ctx = RequestContext.getCurrentContext();
 
         //
@@ -63,9 +63,8 @@ public class RoutePtzZuulFilter extends ZuulFilter {
         ctx.setRouteHost(new URL(routeUrl));
 
         //
-        log.info("PTZ Code ...: " + ptzCode);
-        log.info("RouteHost ..: " + ctx.getRouteHost());
-        log.info("RequestURI .: " + requestURI);
+        log.debug("[" + ptzCode + "] RouteHost ..: " + ctx.getRouteHost());
+        log.debug("[" + ptzCode + "] RequestURI .: " + requestURI);
 
         return null;
     }

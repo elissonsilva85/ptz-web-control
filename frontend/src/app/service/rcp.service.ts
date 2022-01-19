@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { isDevMode } from '@angular/core';
+import { Router,NavigationEnd  } from '@angular/router';
+
 import { PtzAbstractSession } from '../class/ptz-abstract-session';
 import { PtzConferenceSession } from '../class/ptz-conference-session';
 import { PtzDahuaSession } from '../class/ptz-dahua-session';
@@ -12,7 +14,7 @@ export class RcpService {
 
   logs : any[] = [];
   keepAliveInterval: number = 9000;
-  urlBase: string = "http://localhost:4200/app/";
+  urlBase: string;
 
   ptzBrand: string = "";
   ptzConnection: any = {};
@@ -21,13 +23,14 @@ export class RcpService {
   stopStreamingCommands: string[] = [];
   customShortcuts: any[] = [];
 
-  constructor(private _http: HttpClient) {  }
+  constructor(private _http: HttpClient,
+    private _router: Router) {  }
 
   public loadAppConfig() {
     return this._http.get('/api/config/')
       .toPromise()
       .then( (data: any) => {
-        this.urlBase = data.urlBase + "ptz/";
+        this.urlBase = this._router.url + "ptz/";
         this.ptzBrand = data.ptz.brand;
         this.startStreamingCommands = data.startStreaming;
         this.stopStreamingCommands = data.stopStreaming;
@@ -35,7 +38,6 @@ export class RcpService {
         this.customShortcuts = data.shortcuts;
 
         console.log("devMode:", isDevMode());
-        if(isDevMode()) this.urlBase = "http://localhost:4200/app/";
       })
       .catch(err => {
         throw Error(`Config file not loaded! ${err}`);

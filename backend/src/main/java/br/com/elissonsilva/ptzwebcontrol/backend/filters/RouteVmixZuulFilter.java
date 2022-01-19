@@ -40,7 +40,7 @@ public class RouteVmixZuulFilter extends ZuulFilter {
     //@Override
     @SneakyThrows
     public Object run() throws ZuulException {
-        log.info("run");
+        log.debug("run");
         RequestContext ctx = RequestContext.getCurrentContext();
 
         //
@@ -54,8 +54,8 @@ public class RouteVmixZuulFilter extends ZuulFilter {
         ctx.setRouteHost(new URL(routeUrl));
 
         //
-        log.info("RouteHost ..: " + ctx.getRouteHost());
-        log.info("RequestURI .: " + requestURI);
+        log.debug("RouteHost ..: " + ctx.getRouteHost());
+        log.debug("RequestURI .: " + requestURI);
 
         return null;
     }
