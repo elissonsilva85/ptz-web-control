@@ -12,8 +12,8 @@
     <table>
     <tr>
       <td [width]="channelInfo?.snippet.thumbnails.default.width + 20" valign="top" align="left" rowspan="3">
-        <img 
-          [src]="channelInfo?.snippet.thumbnails.default.url" 
+        <img
+          [src]="channelInfo?.snippet.thumbnails.default.url"
           [width]="channelInfo?.snippet.thumbnails.default.width"
           [height]="channelInfo?.snippet.thumbnails.default.height" />
       </td>
@@ -33,7 +33,7 @@
     </tr>
     <tr>
       <td>
-        <a target="_blank" href="/youtube/disconnect" mat-raised-button>DESCONECTAR</a>      
+        <a target="_blank" href="/api/youtube/disconnect" mat-raised-button>DESCONECTAR</a>
       </td>
     </tr>
   </table>
@@ -42,7 +42,7 @@
     <table style="height: 200px">
     <tr>
         <td>
-            <a target="_blank" href="/youtube/connect" mat-raised-button>Você não está conectado. Clique aqui para conectar.</a>      
+            <a target="_blank" href="/api/youtube/connect" mat-raised-button>Você não está conectado. Clique aqui para conectar.</a>
         </td>
     </tr>
     </table>

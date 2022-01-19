@@ -30,7 +30,7 @@ import { YoutubeDialog } from '../dialog/youtube/youtube.dialog';
 export class MainComponent implements AfterViewInit {
 
   objectKeys = Object.keys;
-  
+
   numpadMode = {};
 
   presetNames = {};
@@ -48,7 +48,7 @@ export class MainComponent implements AfterViewInit {
   @ViewChildren('joystick') joystickComponents:QueryList<JoystickComponent>;
 
   keyboardMovementTimeout : number = 500;
-  
+
   joystickKeyboardMovementTimeoutHandler = null;
   zoomInKeyboardMovementTimeoutHandler   = null;
   zoomOutKeyboardMovementTimeoutHandler  = null;
@@ -70,7 +70,7 @@ export class MainComponent implements AfterViewInit {
     return numpad.runPreset(preset - 1);
   }
 
-  runPtzTimeline(ptz: string, preset: number) 
+  runPtzTimeline(ptz: string, preset: number)
   {
     let timelineNames = this.stepByStepService.getTimelineNames(ptz);
     if(preset <= timelineNames.length) return this.runTimeline(ptz, timelineNames[preset - 1])
@@ -88,7 +88,7 @@ export class MainComponent implements AfterViewInit {
 
     this.youtube.isConnected()
       .then((data: any) => {
-        this.youtubeIsConnected = data.connected;
+        this.youtubeIsConnected = (data === true);
       });
 
   }
@@ -271,7 +271,7 @@ export class MainComponent implements AfterViewInit {
             },
             preventDefault: true
           }]
-        ).concat(this.rcp.customShortcuts.map( s => { 
+        ).concat(this.rcp.customShortcuts.map( s => {
           return {
             key: s.key,
             label: `Custom Key`,

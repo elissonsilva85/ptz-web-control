@@ -73,7 +73,7 @@ public class YoutubeService {
                 "http://localhost/api/youtube/callback/").execute();
     }
 
-    public ChannelListResponse getChannelList() throws IOException, GeneralSecurityException {
+    public ChannelListResponse getChannelInfo() throws IOException, GeneralSecurityException {
         YouTube.Channels.List request = getService().channels()
                 .list("snippet,contentDetails,statistics");
         return request.setMine(true).execute();

@@ -22,7 +22,7 @@ export class YoutubeDialog implements OnInit, OnDestroy {
   checkYoutubeIsConnected(): void {
     this.youtube.isConnected()
       .then((data: any) => {
-        this.youtubeIsConnected = data.connected;
+        this.youtubeIsConnected = (data === true);
         this.loading = false;
 
         if(this.exists && !this.youtubeIsConnected) {

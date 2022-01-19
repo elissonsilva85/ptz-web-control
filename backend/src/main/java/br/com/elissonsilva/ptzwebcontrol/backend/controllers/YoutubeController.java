@@ -40,18 +40,34 @@ public class YoutubeController {
 
     private static Logger log = LoggerFactory.getLogger(YoutubeController.class);
 
+    private static YoutubeSession youtubeSession;
+
+    private boolean isConnected() {
+        youtubeSession = youtubeRepository.findFirstByOrderByCodeAsc();
+        return !(youtubeSession == null || youtubeSession.getAccessToken() == null);
+    }
+
     @GetMapping("/isConnected")
-    public ResponseEntity<Boolean> isConnected() throws UnknownHostException {
-        return new ResponseEntity<>(true, HttpStatus.OK);
+    public ResponseEntity<Boolean> getIsConnected() throws UnknownHostException {
+        return new ResponseEntity<>(isConnected(), HttpStatus.OK);
+    }
+
+    @GetMapping("/disconnect")
+    public ResponseEntity<Void> getDisconnect() throws IOException {
+        if(!isConnected())
+            return new ResponseEntity<>(null, HttpStatus.OK);
+
+        youtubeRepository.delete(youtubeSession);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
     @GetMapping("/connect")
     public ResponseEntity<Void> getConnect() throws IOException {
+        isConnected();
 
-        YoutubeSession youtubeSession = youtubeRepository.findFirstByOrderByCodeAsc();
         if(youtubeSession != null && youtubeSession.getAccessToken() != null)
         {
-            log.info("Já está conectado");
+            log.info("Ja esta conectado");
             youtubeService.setCredential(youtubeSession);
             return new ResponseEntity<>(null, HttpStatus.OK);
         }
@@ -63,28 +79,28 @@ public class YoutubeController {
         }
         else
         {
-            log.info("Ainda não está conectado ... redirecionando para login");
+            log.info("Ainda nao esta conectado ... redirecionando para login");
             String url = youtubeService.getClientRequestUrl(REDIRECT_URI);
             return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(url)).build();
         }
     }
 
     @GetMapping("/callback")
-    public ResponseEntity<Void> getCallback(YoutubeSession youtubeSession) throws IOException {
-        String code = youtubeSession.getCode();
+    public ResponseEntity<Void> getCallback(YoutubeSession ytSession) throws IOException {
+        String code = ytSession.getCode();
         if(code != null) {
             log.info("code: " + code);
             //
             try {
                 GoogleTokenResponse token = youtubeService.getAuthorizationCodeToken(code, REDIRECT_URI);
                 //
-                youtubeSession.setTokenResponse(token);
+                ytSession.setTokenResponse(token);
                 //
             } catch (TokenResponseException e) {
                 log.error(e.getMessage(), e);
                 if(e.getStatusCode() == 400)
                 {
-                    youtubeRepository.delete(youtubeSession);
+                    youtubeRepository.delete(ytSession);
                     String url = "http://localhost/api/youtube/connect";
                     return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(url)).build();
                 }
@@ -94,8 +110,8 @@ public class YoutubeController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
             //
-            youtubeRepository.save(youtubeSession);
-            youtubeService.setCredential(youtubeSession);
+            youtubeRepository.save(ytSession);
+            youtubeService.setCredential(ytSession);
             log.info("sucesso");
             //
         }
@@ -103,16 +119,40 @@ public class YoutubeController {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
-    @GetMapping("/channelsList")
-    public ResponseEntity<List<Channel>> getChannelsList() throws IOException, GeneralSecurityException {
-        YoutubeSession youtubeSession = youtubeRepository.findFirstByOrderByCodeAsc();
-        if(youtubeSession == null || youtubeSession.getAccessToken() == null)
+    @GetMapping("/channelsInfo")
+    public ResponseEntity<List<Channel>> getChannelsInfo() throws IOException, GeneralSecurityException {
+        if(!isConnected())
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 
         try
         {
             youtubeService.setCredential(youtubeSession);
-            ChannelListResponse response = youtubeService.getChannelList();
+            ChannelListResponse response = youtubeService.getChannelInfo();
+            if (response == null || response.getItems() == null || response.getItems().size() == 0)
+                return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+
+            return new ResponseEntity<>(response.getItems(), HttpStatus.OK);
+        }
+        catch(GoogleJsonResponseException e)
+        {
+            log.error(e.getMessage(), e);
+            return ResponseEntity.status(e.getStatusCode()).build();
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+
+    @GetMapping("/channelsList")
+    public ResponseEntity<List<Channel>> getChannelsList() throws IOException, GeneralSecurityException {
+        if(!isConnected())
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+
+        try
+        {
+            youtubeService.setCredential(youtubeSession);
+            ChannelListResponse response = youtubeService.getChannelInfo();
             if (response == null || response.getItems() == null || response.getItems().size() == 0)
                 return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
 
