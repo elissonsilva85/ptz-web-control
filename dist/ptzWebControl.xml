@@ -1,0 +1,9 @@
+<service>
+    <id>PtzWebControl</id>
+    <name>PtzWebControl</name>
+    <description>PTZ Web Control</description>
+    <env name="PTZWC_HOME" value="%BASE%"/>
+    <executable>java</executable>
+    <arguments>-Xmx256m -jar "%BASE%\ptzWebControl.jar"</arguments>
+    <logmode>rotate</logmode>
+</service>
