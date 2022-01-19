@@ -11,7 +11,7 @@ export class YoutubeDialog implements OnInit, OnDestroy {
   exists: boolean = true;
   loading: boolean = true;
   youtubeIsConnected: boolean = false;
-  channelInfo: any = {};
+  channelInfoList: any[] = [];
 
   constructor(private youtube: YoutubeService) { }
 
@@ -30,9 +30,9 @@ export class YoutubeDialog implements OnInit, OnDestroy {
             this.checkYoutubeIsConnected()
           }, 1000);
         } else {
-          this.youtube.channelInfo().then((data: any) => {
-            if(data.data.channelsList.pageInfo.totalResults > 0)
-              this.channelInfo = data.data.channelsList.items[0];
+          this.youtube.channelInfo().then((data: any[]) => {
+            console.log(data);
+            this.channelInfoList = data;
           })
         }
       });

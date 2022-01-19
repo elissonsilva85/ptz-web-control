@@ -34,7 +34,7 @@ public class ConfigController {
         if(!"80".equals(port)) host += ":" + port;
         host = "http://" + host + "/";
 
-        log.info("UrlBase: " + host);
+        log.debug("UrlBase: " + host);
         config.setUrlBase(host);
 
         return new ResponseEntity<>(config, HttpStatus.OK);

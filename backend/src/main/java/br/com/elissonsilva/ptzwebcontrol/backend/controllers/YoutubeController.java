@@ -1,5 +1,6 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.controllers;
 
+import br.com.elissonsilva.ptzwebcontrol.backend.entity.YoutubeLiveBroadcast;
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.YoutubeSession;
 import br.com.elissonsilva.ptzwebcontrol.backend.repository.YoutubeSessionRepository;
 
@@ -9,20 +10,21 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.ChannelListResponse;
+import com.google.api.services.youtube.model.LiveBroadcastListResponse;
+import com.google.api.services.youtube.model.LiveStreamListResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -110,6 +112,7 @@ public class YoutubeController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
             //
+            ytSession.setLastTokenRequest(new Date());
             youtubeRepository.save(ytSession);
             youtubeService.setCredential(ytSession);
             log.info("sucesso");
@@ -119,8 +122,8 @@ public class YoutubeController {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
-    @GetMapping("/channelsInfo")
-    public ResponseEntity<List<Channel>> getChannelsInfo() throws IOException, GeneralSecurityException {
+    @GetMapping("/channelInfo")
+    public ResponseEntity<List<Channel>> getChannelInfo() throws IOException, GeneralSecurityException {
         if(!isConnected())
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 
@@ -144,19 +147,83 @@ public class YoutubeController {
         }
     }
 
-    @GetMapping("/channelsList")
-    public ResponseEntity<List<Channel>> getChannelsList() throws IOException, GeneralSecurityException {
+    @GetMapping("/liveBroadcastsList/upcoming")
+    public ResponseEntity<LiveBroadcastListResponse> getLiveBroadcastsListUpcoming() throws IOException, GeneralSecurityException {
         if(!isConnected())
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 
         try
         {
             youtubeService.setCredential(youtubeSession);
-            ChannelListResponse response = youtubeService.getChannelInfo();
-            if (response == null || response.getItems() == null || response.getItems().size() == 0)
-                return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+            LiveBroadcastListResponse response = youtubeService.getLiveBroadcastsList();
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        catch(GoogleJsonResponseException e)
+        {
+            log.error(e.getMessage(), e);
+            return ResponseEntity.status(e.getStatusCode()).build();
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
 
-            return new ResponseEntity<>(response.getItems(), HttpStatus.OK);
+    @GetMapping("/liveBroadcastsList/{broadcastId}")
+    public ResponseEntity<LiveBroadcastListResponse> getLiveBroadcastsById(@PathVariable("broadcastId") String broadcastId) throws IOException, GeneralSecurityException {
+        if(!isConnected())
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+
+        try
+        {
+            youtubeService.setCredential(youtubeSession);
+            LiveBroadcastListResponse response = youtubeService.getLiveBroadcastsList(broadcastId);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        catch(GoogleJsonResponseException e)
+        {
+            log.error(e.getMessage(), e);
+            return ResponseEntity.status(e.getStatusCode()).build();
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+
+    @GetMapping("/liveStreamsList")
+    public ResponseEntity<LiveStreamListResponse> getLiveStreamsList() throws IOException, GeneralSecurityException {
+        if(!isConnected())
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+
+        try
+        {
+            youtubeService.setCredential(youtubeSession);
+            LiveStreamListResponse response = youtubeService.getLiveStreamsList();
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        catch(GoogleJsonResponseException e)
+        {
+            log.error(e.getMessage(), e);
+            return ResponseEntity.status(e.getStatusCode()).build();
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+
+    @PostMapping("/liveBroadcast")
+    public ResponseEntity<YoutubeLiveBroadcast> postLiveBroadcast(@RequestBody YoutubeLiveBroadcast liveData) throws IOException, GeneralSecurityException {
+        if(!isConnected())
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+
+        try
+        {
+            youtubeService.setCredential(youtubeSession);
+            YoutubeLiveBroadcast response = youtubeService.addLiveBroadcast(liveData);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
         catch(GoogleJsonResponseException e)
         {

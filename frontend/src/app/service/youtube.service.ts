@@ -14,7 +14,7 @@ export class YoutubeService {
   }
 
   public channelInfo() {
-    return this._http.get('/api/youtube/channelsList')
+    return this._http.get('/api/youtube/channelInfo')
       .toPromise();
   }
 

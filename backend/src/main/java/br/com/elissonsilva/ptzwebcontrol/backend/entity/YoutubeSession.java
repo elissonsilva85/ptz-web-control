@@ -3,10 +3,9 @@ package br.com.elissonsilva.ptzwebcontrol.backend.entity;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Data
@@ -25,6 +24,9 @@ public class YoutubeSession implements Serializable {
     private Long expiresInSeconds;
 
     private String refreshToken;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastTokenRequest;
 
     public void setTokenResponse(TokenResponse token) {
         this.accessToken = token.getAccessToken();
