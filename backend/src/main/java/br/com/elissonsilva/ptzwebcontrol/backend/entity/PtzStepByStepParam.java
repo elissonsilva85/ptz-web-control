@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Entity
 @Data
-@Table(name = "ActionParam")
+@Table(name = "PtzSbsActionParam")
 public class PtzStepByStepParam implements Serializable {
 
     @Id
@@ -20,11 +20,7 @@ public class PtzStepByStepParam implements Serializable {
     private String shortLabel;
     private String type;
 
-    /*
     @OneToMany
-    @JoinColumns({
-        @JoinColumn(name = "paramId", insertable = false, updatable = false)
-    })
+    @JoinColumn(name = "paramId", insertable = false, updatable = false)
     Set<PtzStepByStepParamOption> options = new LinkedHashSet<>();
-    */
 }

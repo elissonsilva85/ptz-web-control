@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 @Entity
 @Data
-@Table(name = "ActionParamOption")
+@Table(name = "PtzSbsActionParamOption")
 public class PtzStepByStepParamOption implements Serializable {
 
     @Id

@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Entity
 @Data
-@Table(name = "Action")
+@Table(name = "PtzSbsAction")
 public class PtzStepByStepAction implements Serializable {
 
     @Id
@@ -21,11 +21,7 @@ public class PtzStepByStepAction implements Serializable {
     private String description;
     private String functionName;
 
-    /*
     @OneToMany
-    @JoinColumns({
-        @JoinColumn(name = "actionId", insertable = false, updatable = false)
-    })
+    @JoinColumn(name = "actionId", insertable = false, updatable = false)
     Set<PtzStepByStepParam> params = new LinkedHashSet<>();
-    */
 }

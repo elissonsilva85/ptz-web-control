@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Entity
 @Data
-@Table(name = "Timeline")
+@Table(name = "PtzSbsTimeline")
 public class PtzStepByStepTimeline implements Serializable {
 
     @Id
@@ -20,12 +20,8 @@ public class PtzStepByStepTimeline implements Serializable {
     private String label;
     //private int order;
 
-    /*
     @OneToMany
-    @JoinColumns({
-            @JoinColumn(name = "timelineId", insertable = false, updatable = false)
-    })
+    @JoinColumn(name = "timelineId", insertable = false, updatable = false)
     Set<PtzStepByStepAction> actions = new LinkedHashSet<>();
-    */
 
 }
