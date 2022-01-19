@@ -9,12 +9,12 @@ export class YoutubeService {
   constructor(private _http: HttpClient) {  }
 
   public isConnected() {
-    return this._http.get('/youtube/isConnected')
+    return this._http.get('/api/youtube/isConnected')
       .toPromise();
   }
 
   public channelInfo() {
-    return this._http.get('/youtube/channelsList')
+    return this._http.get('/api/youtube/channelsList')
       .toPromise();
   }
 
