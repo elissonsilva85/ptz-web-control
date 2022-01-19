@@ -4,51 +4,46 @@ import com.google.common.io.CharStreams;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
+import javax.servlet.http.HttpServletRequest;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 
-import java.io.*;
-import java.security.Principal;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Locale;
-import java.util.Map;
-
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORM_BODY_WRAPPER_FILTER_ORDER;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.POST_TYPE;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SEND_RESPONSE_FILTER_ORDER;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
-public class CustomZuulFilter extends ZuulFilter {
+public class PostZuulFilter extends ZuulFilter {
 
-    private static Logger log = LoggerFactory.getLogger(CustomZuulFilter.class);
+    private static Logger log = LoggerFactory.getLogger(PostZuulFilter.class);
 
-    //@Override
+    @Override
     public String filterType() {
-        log.info("filterType");
         return POST_TYPE;
     }
 
-    //@Override
+    @Override
     public int filterOrder() {
-        log.info("filterOrder");
-        return SEND_RESPONSE_FILTER_ORDER + 1;
+        return FORM_BODY_WRAPPER_FILTER_ORDER;
     }
 
     //@Override
     public boolean shouldFilter() {
-        log.info("shouldFilter");
         return true;
     }
 
     //@Override
+    @SneakyThrows
     public Object run() throws ZuulException {
         log.info("run");
         RequestContext context = RequestContext.getCurrentContext();
-        HttpServletResponse servletResponse = context.getResponse();
         HttpServletRequest servletRequest = context.getRequest();
+        log.info("RequestURL: " + servletRequest.getRequestURL());
 
         try (final InputStream responseDataStream = context.getResponseDataStream()) {
 
@@ -63,9 +58,8 @@ public class CustomZuulFilter extends ZuulFilter {
             context.setResponseBody(responseData);
         }
         catch (Exception e) {
-            log.error(e.getMessage());
-            return null;
-            //throw new ZuulException(e, INTERNAL_SERVER_ERROR.value(), e.getMessage());
+            log.error(e.getMessage(), e);
+            throw new ZuulException(e, INTERNAL_SERVER_ERROR.value(), e.getMessage());
         }
 
         log.info(String.format("%s request to %s", servletRequest.getMethod(), servletRequest.getRequestURL().toString()));

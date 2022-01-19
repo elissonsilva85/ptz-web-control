@@ -1,5 +1,5 @@
 server:
-  port: 80
+  port: 8080
 
 ribbon:
   eureka:
@@ -15,42 +15,41 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
+  h2:
     console:
       enabled: true
-      path: /api/h2
+      path: /api/h2/
 
 zuul:
-  decodeUrl: false
-  prefix: /api/ptz
   routes:
-    ptz1:
-      path: /PTZ1/**
-      url: http://localhost:3000/
-    ptz2:
-      path: /PTZ2/**
-      url: http://localhost:3000/
-    ptz3:
-      path: /PTZ3/**
-      url: http://localhost:3000/
+    ptz:
+      path: /ptz/**
+      url: ""
+    vmix:
+      path: /vmix/**
+      url: ""
 
 config:
-  ptzBrand: dahua
-  ptzConnection:
-    PTZ1:
-      label: "PTZ-1"
-      ip: "http://localhost:3000/"
-      user: "<user>"
-      password: "<pass>"
-    PTZ2:
-      label: "PTZ-2"
-      ip: "http://localhost:3000/"
-      user: "<user>"
-      password: "<pass>"
-    PTZ3:
-      label: "PTZ-3"
-      ip: "http://localhost:3000/"
-      user: "<username>"
-      password: "<password>"
+  vmixUrl: "http://localhost/"
+  blackMagicIP: "192.168.0.100"
+  ptz:
+    brand: dahua
+    connection:
+      PTZ1:
+        label: "PTZ-1"
+        url: "http://localhost:3000/"
+        user: "<user>"
+        password: "<pass>"
+      PTZ2:
+        label: "PTZ-2"
+        url: "http://localhost:3000/"
+        user: "<user>"
+        password: "<pass>"
+      PTZ3:
+        label: "PTZ-3"
+        url: "http://localhost:3000/"
+        user: "<username>"
+        password: "<password>"
   startStreaming:
     - ''
   stopStreaming:

@@ -13,7 +13,7 @@ public class URLRewriteFilter implements Filter {
 
     private static Logger log = LoggerFactory.getLogger(URLRewriteFilter.class);
 
-    private final String API_PATTERN = "^\\/(api)\\/(.+)$";
+    private final String API_PATTERN = "^\\/(api|ptz|vmix)\\/(.+)$";
     private final String POINT_EXCLUSION_PATTERN = "^([^.]+)$";
 
     @Override
