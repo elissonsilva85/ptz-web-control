@@ -69,6 +69,7 @@
 
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
+		<finalName>ptzWebControl</finalName>
         <plugins>
 
             <!-- Compile the project's source -->
