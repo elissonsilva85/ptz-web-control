@@ -3,10 +3,10 @@ package br.com.elissonsilva.ptzwebcontrol.backend.entity;
 import lombok.Data;
 
 @Data
-public class ConfigConnection {
+public class ConfigPtzConnection {
 
     private String label;
-    private String ip;
+    private String url;
     private String user;
     private String password;
 

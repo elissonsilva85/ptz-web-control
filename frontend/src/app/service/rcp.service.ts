@@ -27,11 +27,11 @@ export class RcpService {
     return this._http.get('/api/config/')
       .toPromise()
       .then( (data: any) => {
-        this.urlBase = data.urlBase + "api/ptz/";
-        this.ptzBrand = data.ptzBrand;
+        this.urlBase = data.urlBase + "ptz/";
+        this.ptzBrand = data.ptz.brand;
         this.startStreamingCommands = data.startStreaming;
         this.stopStreamingCommands = data.stopStreaming;
-        this.ptzConnection = data.ptzConnection;
+        this.ptzConnection = data.ptz.connection;
         this.customShortcuts = data.shortcuts;
 
         console.log("devMode:", isDevMode());

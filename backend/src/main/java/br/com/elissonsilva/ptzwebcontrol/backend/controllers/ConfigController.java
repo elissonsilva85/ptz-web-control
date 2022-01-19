@@ -2,11 +2,6 @@ package br.com.elissonsilva.ptzwebcontrol.backend.controllers;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.component.Config;
 import br.com.elissonsilva.ptzwebcontrol.backend.component.EnvUtil;
-import br.com.elissonsilva.ptzwebcontrol.backend.entity.PtzName;
-import br.com.elissonsilva.ptzwebcontrol.backend.filters.CustomZuulFilter;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.net.UnknownHostException;
-import java.util.List;
 
 @Controller
 @ResponseBody
@@ -48,7 +42,7 @@ public class ConfigController {
 
     @GetMapping("/brand")
     public String getBrand() throws UnknownHostException {
-        return config.getPtzBrand();
+        return config.getPtz().getBrand();
     }
 
 }
