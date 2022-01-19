@@ -10,6 +10,7 @@ import java.io.Serializable;
 public class PtzStepByStepParamOption implements Serializable {
 
     @Id
+    @GeneratedValue
     private long optionId;
 
     private int paramId;

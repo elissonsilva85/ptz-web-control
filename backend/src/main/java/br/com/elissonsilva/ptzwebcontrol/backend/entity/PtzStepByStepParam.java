@@ -13,6 +13,7 @@ import java.util.Set;
 public class PtzStepByStepParam implements Serializable {
 
     @Id
+    @GeneratedValue
     private long paramId;
 
     private int actionId;

@@ -13,6 +13,7 @@ import java.util.Set;
 public class PtzStepByStepAction implements Serializable {
 
     @Id
+    @GeneratedValue
     private long actionId;
 
     private int timelineId;

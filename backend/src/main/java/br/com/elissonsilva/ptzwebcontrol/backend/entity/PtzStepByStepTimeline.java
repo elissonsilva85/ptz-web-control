@@ -14,6 +14,7 @@ import java.util.Set;
 public class PtzStepByStepTimeline implements Serializable {
 
     @Id
+    @GeneratedValue
     private long timelineId;
 
     private String ptz;
