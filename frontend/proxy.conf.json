@@ -1,26 +1,12 @@
 {
-  "/app/PTZ1": {
-    "target": "http://192.168.0.110/",
+  "/ptz": {
+    "target": "http://localhost/",
     "secure": false,
-    "pathRewrite": {
-      "^/app/PTZ1": ""
-    },
     "logLevel": "debug"
   },
-  "/app/PTZ2": {
-    "target": "http://192.168.0.111/",
+  "/api": {
+    "target": "http://localhost/",
     "secure": false,
-    "pathRewrite": {
-      "^/app/PTZ2": ""
-    },
-    "logLevel": "debug"
-  },
-  "/app/PTZ3": {
-    "target": "http://192.168.0.112/",
-    "secure": false,
-    "pathRewrite": {
-      "^/app/PTZ3": ""
-    },
     "logLevel": "debug"
   }
 }

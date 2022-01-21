@@ -1,8 +1,11 @@
 package br.com.elissonsilva.ptzwebcontrol.backend;
 
+import br.com.elissonsilva.ptzwebcontrol.backend.filters.OkHttpRoutingFilter;
+import br.com.elissonsilva.ptzwebcontrol.backend.filters.PostZuulFilter;
 import br.com.elissonsilva.ptzwebcontrol.backend.filters.RoutePtzZuulFilter;
 import br.com.elissonsilva.ptzwebcontrol.backend.filters.RouteVmixZuulFilter;
 import org.springframework.boot.SpringApplication;
+
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
@@ -26,8 +29,7 @@ public class ApplicationBootstrap extends SpringBootServletInitializer {
         return new RouteVmixZuulFilter();
     }
 
-    //@Bean
-    //public PostZuulFilter postZuulFilter() {
-    //    return new PostZuulFilter();
-    //}
+    @Bean
+    public OkHttpRoutingFilter okHttpRoutingFilter() { return new OkHttpRoutingFilter(); }
+
 }

@@ -1,7 +1,26 @@
 {
-  "/ptz": {
-    "target": "http://localhost/",
+  "/ptz/PTZ1": {
+    "target": "http://localhost:3000/",
     "secure": false,
+    "pathRewrite": {
+      "^/ptz/PTZ1": ""
+    },
+    "logLevel": "debug"
+  },
+  "/ptz/PTZ2": {
+    "target": "http://localhost:3000/",
+    "secure": false,
+    "pathRewrite": {
+      "^/ptz/PTZ2": ""
+    },
+    "logLevel": "debug"
+  },
+  "/ptz/PTZ3": {
+    "target": "http://localhost:3000/",
+    "secure": false,
+    "pathRewrite": {
+      "^/ptz/PTZ3": ""
+    },
     "logLevel": "debug"
   },
   "/api": {
