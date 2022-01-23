@@ -21,8 +21,6 @@ spring:
       path: /api/h2/
 
 zuul:
-  debug:
-    request: true
   routes:
     ptz:
       path: /ptz/**
@@ -30,3 +28,8 @@ zuul:
     vmix:
       path: /vmix/**
       url: ""
+
+# logging:
+#   level:
+#     org.springframework.web: DEBUG
+#     com.netflix.zuul: DEBUG
