@@ -30,7 +30,7 @@
     <mat-card [ngClass]="{ 'blur': stepByStepService.isTimelineRunning(ptz), 'shortcutActivated': isShortcutActivated(ptz) }">
         <table width="100%">
             <tr>
-                <td style="width: 75px; padding-top: 10px; position: relative;">
+                <td style="width: 95px; padding-top: 10px; position: relative;">
                     <mat-card-title>{{rcp.ptzConnection[ptz].label}} <img src="./assets/{{ this.rcp.getStatusSvg(ptz) }}" class="status-svg"></mat-card-title>
                 </td>
                 <td style="text-align: right">
