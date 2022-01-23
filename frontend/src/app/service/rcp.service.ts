@@ -98,4 +98,16 @@ export class RcpService {
     this.logs = [];
   }
 
+  public simplePost( page: string, body : any ): Promise<any> {
+    return this._http
+      .post<any>(this.urlBase + page, body)
+      .toPromise();
+  }
+
+  public simpleGet( page: string, params : string ): Promise<any> {
+    return this._http
+      .get<any>(this.urlBase + page + "?" + params)
+      .toPromise();
+  }
+
 }
