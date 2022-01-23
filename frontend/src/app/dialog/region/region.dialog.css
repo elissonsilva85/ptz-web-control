@@ -1,0 +1,11 @@
+.imageCell {
+    width: 45px;
+    height: 45px;
+    border: solid 1px #aaa;
+    padding:  0;
+    margin: 0;
+}
+
+.imageCell:hover {
+    border: solid 1px red;
+}

@@ -1,0 +1,50 @@
+<h1 mat-dialog-title>Youtube</h1>
+<mat-dialog-content *ngIf="loading">
+    <table style="height: 200px">
+    <tr>
+        <td align="center">
+            CARREGANDO ...
+        </td>
+    </tr>
+    </table>
+</mat-dialog-content>
+<mat-dialog-content *ngIf="!loading && youtubeIsConnected">
+    <table *ngFor="let channelInfo of channelInfoList">
+    <tr>
+      <td [width]="channelInfo?.snippet.thumbnails.default.width + 20" valign="top" align="left" rowspan="3">
+        <img
+          [src]="channelInfo?.snippet.thumbnails.default.url"
+          [width]="channelInfo?.snippet.thumbnails.default.width"
+          [height]="channelInfo?.snippet.thumbnails.default.height" />
+      </td>
+      <td>
+        <span style="font-weight: bold;">{{ channelInfo?.snippet.title }}</span>
+        <span style="font-style: italic;">{{ channelInfo?.snippet.description }}</span>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <hr>
+        Inscritos: {{ channelInfo?.statistics.subscriberCount }} <br />
+        Videos publicados: {{ channelInfo?.statistics.videoCount }} <br />
+        Visualizações: {{ channelInfo?.statistics.viewCount }}
+        <hr>
+      </td>
+    </tr>
+  </table>
+  <!-- -->
+  <a target="_blank" href="/api/youtube/disconnect" mat-raised-button style="margin-bottom: 10px">DESCONECTAR</a>
+  <!-- -->
+</mat-dialog-content>
+<mat-dialog-content *ngIf="!loading && !youtubeIsConnected">
+    <table style="height: 200px">
+    <tr>
+        <td>
+            <a target="_blank" href="/api/youtube/connect" mat-raised-button>Você não está conectado. Clique aqui para conectar.</a>
+        </td>
+    </tr>
+    </table>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-stroked-button mat-dialog-close>Sair</button>
+</mat-dialog-actions>

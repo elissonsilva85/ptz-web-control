@@ -1,0 +1,150 @@
+.blur {
+  filter: blur(3px);
+  -webkit-filter: blur(3px);
+}
+
+.ptzBox {
+    display: inline-block;
+    position: relative;
+    padding: 10px;
+}
+
+.ptzBox mat-card {
+    padding-bottom: 30px;
+    width: 330px;
+    height: 527px;
+}
+
+.ptzBox .shortcutActivated {
+  outline: 1px solid rgb(255, 0, 0);
+  outline-offset: -5px;
+}
+
+.timelineExecution {
+    position: absolute;
+    background-color: rgba(100,100,100, 0.05);
+    width: 365px;
+    height: 97%;
+    z-index: 999;
+    overflow: hidden;
+}
+
+.timelineExecution button {
+    width: 325px;
+    margin: 20px;
+}
+
+.timelineExecution mat-list-item {
+    background-color: gainsboro;
+    width: 345px;
+    margin: 10px;
+    border-radius: 4px;
+    box-shadow: 0px 2px 1px -1px rgb(0 0 0 / 20%),
+                0px 1px 1px  0px rgb(0 0 0 / 14%),
+                0px 1px 3px  0px rgb(0 0 0 / 12%);
+}
+
+.timelineExecution mat-list-item .title {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.timelineExecution mat-list-item .subhead {
+    font-size: 12px;
+    font-style: italic;
+    color: rgb(70, 70, 70);
+}
+
+.timelineExecution mat-list-item .time {
+    font-size: 12px;
+    position: absolute;
+    padding: 10px;
+    right: 20px;
+}
+
+.timelineExecution .step-pending {
+    background-color:#999;
+}
+.timelineExecution .step-pending .title,
+.timelineExecution .step-pending .subhead,
+.timelineExecution .step-pending .time {
+    color:rgb(214, 212, 212);
+}
+.timelineExecution .step-running {
+    background-color: lightpink;
+}
+.timelineExecution .step-done {
+    display: none;
+}
+
+.config-btn {
+    width: 100%;
+    margin: 10px;
+}
+
+.config-btn mat-icon {
+  float: right;
+  margin-top: 5px;
+}
+
+.progress-bar {
+  /* Height & width depends on how you want to reveal the overlay (see JS below) */
+  height: 100%;
+  width: 100%;
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  background-color: rgb(0,0,0); /* Black fallback color */
+  background-color: rgba(0,0,0, 0.9); /* Black w/opacity */
+  overflow-x: hidden; /* Disable horizontal scroll */
+  transition: 0.5s; /* 0.5 second transition effect to slide in or slide down the overlay (height or width, depending on reveal) */
+}
+
+.progress-bar-spinner {
+    position: relative;
+    top: 25%; /* 25% from the top */
+    width: 100%; /* 100% width */
+    text-align: center; /* Centered text/links */
+    margin-top: 30px; /* 30px top margin to avoid conflict with the close button on smaller screens */
+}
+
+.progress-bar span {
+    position: relative;
+    font-size: 1.5em;
+    top: 40px;
+    color: white;
+}
+
+.status-svg {
+    width: 10px;
+    position: absolute;
+    top: 16px;
+    right: -8px;
+}
+
+.mat-icon-button {
+    width: 30px;
+}
+
+.key__container {
+  float: right;
+  margin-left: 10px;
+}
+
+.key {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px 12px;
+  margin-right: 5px;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.connected {
+    background-color: rgb(180, 255, 180);
+}
+
+.notConnected {
+    background-color: rgb(252, 186, 186);
+}

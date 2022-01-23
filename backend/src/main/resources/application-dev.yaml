@@ -1,0 +1,34 @@
+config:
+  vmixUrl: "http://localhost/"
+  blackMagicIP: "192.168.0.100"
+  ptz:
+    brand: dahua
+    connection:
+      PTZ1:
+        label: "PTZ-1"
+        url: "http://localhost:3000/"
+        user: "<user>"
+        password: "<pass>"
+      PTZ2:
+        label: "PTZ-2"
+        url: "http://localhost:3000/"
+        user: "<user>"
+        password: "<pass>"
+      PTZ3:
+        label: "PTZ-3"
+        url: "http://localhost:3000/"
+        user: "<username>"
+        password: "<password>"
+  startStreaming:
+    - "console.log('startStreaming')"
+  stopStreaming:
+    - "console.log('stopStreaming')"
+  shortcuts:
+    - key: q
+      action:
+        - this.runPresetByNumpad('PTZ1', 1);
+        - this.activateShortcutPtz('PTZ1');
+    - key: b
+      action:
+        - this.runPresetByNumpad('PTZ3', 9);
+        - this.activateShortcutPtz('PTZ3');

@@ -1,0 +1,108 @@
+<h1 mat-dialog-title>{{ ptz }} - PARÂMETROS</h1>
+<mat-dialog-content>
+    <mat-tab-group mat-align-tabs="start">
+        <mat-tab label="Brilho/Contraste">
+            <table class="first">
+                <tr>
+                    <td class="label">Brilho</td>
+                    <td class="value">{{ brightness.value }}</td>
+                    <td class="slider"><mat-slider
+                        class="margin"
+                        [max]="brightness.max"
+                        [min]="brightness.min"
+                        [step]="brightness.step"
+                        [thumbLabel]="true"
+                        [(ngModel)]="brightness.value">
+                    </mat-slider></td>
+                </tr>
+                <tr>
+                    <td class="label">Contraste</td>
+                    <td class="value">{{ contrast.value }}</td>
+                    <td class="slider"><mat-slider
+                        class="margin"
+                        [max]="contrast.max"
+                        [min]="contrast.min"
+                        [step]="contrast.step"
+                        [thumbLabel]="true"
+                        [(ngModel)]="contrast.value">
+                    </mat-slider></td>
+                </tr>
+                <tr>
+                    <td class="label">Iris</td>
+                    <td class="value">{{ iris.value }}</td>
+                    <td class="slider"><mat-slider
+                        class="margin"
+                        [max]="iris.max"
+                        [min]="iris.min"
+                        [step]="iris.step"
+                        [thumbLabel]="true"
+                        [(ngModel)]="iris.value">
+                    </mat-slider></td>
+                </tr>
+            </table>  
+        </mat-tab>
+        <mat-tab label="Temperatura">
+            <table class="second">
+                <tr>
+                    <td class="label">Modo</td>
+                    <td class="value">&nbsp;</td>
+                    <td class="slider"><mat-select style="width: 100px;">
+                        <mat-option value="option">Option</mat-option>
+                    </mat-select></td>
+                </tr>
+                <tr>
+                    <td class="label">Temperatura</td>
+                    <td class="value">{{ brightness.value }}</td>
+                    <td class="slider"><mat-slider
+                        class="margin"
+                        [max]="brightness.max"
+                        [min]="brightness.min"
+                        [step]="brightness.step"
+                        [thumbLabel]="true"
+                        [(ngModel)]="brightness.value">
+                    </mat-slider></td>
+                </tr>
+                <tr>
+                    <td class="label">Azul</td>
+                    <td class="value">{{ brightness.value }}</td>
+                    <td class="slider"><mat-slider
+                        class="margin"
+                        [max]="brightness.max"
+                        [min]="brightness.min"
+                        [step]="brightness.step"
+                        [thumbLabel]="true"
+                        [(ngModel)]="brightness.value">
+                    </mat-slider></td>
+                </tr>
+                <tr>
+                    <td class="label">Verde</td>
+                    <td class="value">{{ contrast.value }}</td>
+                    <td class="slider"><mat-slider
+                        class="margin"
+                        [max]="contrast.max"
+                        [min]="contrast.min"
+                        [step]="contrast.step"
+                        [thumbLabel]="true"
+                        [(ngModel)]="contrast.value">
+                    </mat-slider></td>
+                </tr>
+                <tr>
+                    <td class="label">Vermelho</td>
+                    <td class="value">{{ iris.value }}</td>
+                    <td class="slider"><mat-slider
+                        class="margin"
+                        [max]="iris.max"
+                        [min]="iris.min"
+                        [step]="iris.step"
+                        [thumbLabel]="true"
+                        [(ngModel)]="iris.value">
+                    </mat-slider></td>
+                </tr>
+            </table>  
+        </mat-tab>
+        <mat-tab label="Third">Content 3</mat-tab>
+    </mat-tab-group>  
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-stroked-button mat-dialog-close>Fechar</button>
+</mat-dialog-actions>

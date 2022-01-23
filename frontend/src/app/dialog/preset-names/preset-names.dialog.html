@@ -1,0 +1,21 @@
+<h1 mat-dialog-title>{{ data.ptz }} - NOME DOS PRESETS</h1>
+<mat-dialog-content>
+  <table>
+    <tr *ngFor="let row of [0,3,6,9]">
+      <td *ngFor="let col of [1,2,3]">
+        <mat-form-field appearance="outline" [floatLabel]="'always'">
+          <mat-label>Preset {{ row + col }}</mat-label>
+          <input matInput 
+            placeholder="Vazio" 
+            (keydown.enter)="salvar()"
+            [(ngModel)]="options[row + col - 1].value"
+            [value]="options[row + col - 1].value">
+        </mat-form-field>      
+      </td>
+    </tr>
+  </table>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-raised-button color="primary" (click)="salvar()">Salvar</button>
+  <button mat-stroked-button mat-dialog-close>Cancelar</button>
+</mat-dialog-actions>
