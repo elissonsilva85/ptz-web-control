@@ -1,7 +1,6 @@
 package br.com.elissonsilva.ptzwebcontrol.backend;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.filters.OkHttpRoutingFilter;
-import br.com.elissonsilva.ptzwebcontrol.backend.filters.PostZuulFilter;
 import br.com.elissonsilva.ptzwebcontrol.backend.filters.RoutePtzZuulFilter;
 import br.com.elissonsilva.ptzwebcontrol.backend.filters.RouteVmixZuulFilter;
 import org.springframework.boot.SpringApplication;

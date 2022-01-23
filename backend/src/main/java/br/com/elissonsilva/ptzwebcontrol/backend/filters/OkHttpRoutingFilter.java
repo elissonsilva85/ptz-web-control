@@ -4,6 +4,8 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import okhttp3.*;
 import okhttp3.internal.http.HttpMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.util.LinkedMultiValueMap;
@@ -23,6 +25,9 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SIMPLE_HOST_ROUTING_FILTER_ORDER;
 
 public class OkHttpRoutingFilter extends ZuulFilter {
+
+    private static Logger log = LoggerFactory.getLogger(OkHttpRoutingFilter.class);
+
     @Autowired
     private ProxyRequestHelper helper;
 
@@ -51,8 +56,11 @@ public class OkHttpRoutingFilter extends ZuulFilter {
 
             HttpServletRequest request = context.getRequest();
             String method = request.getMethod();
-            String url = context.getRouteHost() + this.helper.buildZuulRequestURI(request);
+            String uri = this.helper.buildZuulRequestURI(request);
+            String queryParam = request.getQueryString();
+            String url = context.getRouteHost() + uri + (queryParam != null ? "?" + queryParam : "");
 
+            log.debug("--- HEADERS ---------------------------");
             Headers.Builder headers = new Headers.Builder();
             Enumeration<String> headerNames = request.getHeaderNames();
             while (headerNames.hasMoreElements()) {
@@ -62,8 +70,10 @@ public class OkHttpRoutingFilter extends ZuulFilter {
                 while (values.hasMoreElements()) {
                     String value = values.nextElement();
                     headers.add(name, value);
+                    log.debug(name + ": " + value);
                 }
             }
+            log.debug("---------------------------------------");
 
             InputStream inputStream = request.getInputStream();
             String postBody = new String(StreamUtils.copyToByteArray(inputStream), StandardCharsets.UTF_8);

@@ -17,10 +17,10 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 
 public class RoutePtzZuulFilter extends ZuulFilter {
 
+    private static Logger log = LoggerFactory.getLogger(RoutePtzZuulFilter.class);
+
     @Autowired
     private Config config;
-
-    private static Logger log = LoggerFactory.getLogger(RoutePtzZuulFilter.class);
 
     @Override
     public String filterType() {
