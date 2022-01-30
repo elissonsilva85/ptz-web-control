@@ -2,6 +2,7 @@ package br.com.elissonsilva.ptzwebcontrol.backend.component;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.ConfigPtz;
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.ConfigShortcut;
+
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

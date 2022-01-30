@@ -29,6 +29,14 @@ zuul:
       path: /vmix/**
       url: ""
 
+secrets:
+  youtube:
+    client_id: ${PTZ_YOUTUBE_CLIENT_ID}
+    client_secret: ${PTZ_YOUTUBE_CLIENT_SECRET}
+  facebook:
+    client_id: ${PTZ_FACEBOOK_CLIENT_ID}
+    client_secret: ${PTZ_FACEBOOK_CLIENT_SECRET}
+
 # logging:
 #   level:
 #     org.springframework.web: DEBUG
