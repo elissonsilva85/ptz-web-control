@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class SecretsYoutube {
 
-    private String client_id;
-    private String client_secret;
+    private String clientId;
+    private String clientSecret;
 
 }
