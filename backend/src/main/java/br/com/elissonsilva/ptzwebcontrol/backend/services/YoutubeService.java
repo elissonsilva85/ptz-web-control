@@ -9,6 +9,7 @@ package br.com.elissonsilva.ptzwebcontrol.backend.services;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.YoutubeLiveBroadcast;
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.YoutubeSession;
+import br.com.elissonsilva.ptzwebcontrol.backend.component.Secrets;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.*;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -20,6 +21,7 @@ import com.google.api.client.util.DateTime;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.*;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -31,8 +33,10 @@ import java.util.Collection;
 
 @Service
 public class YoutubeService {
-    private static final String CLIENT_ID = "";
-    private static final String CLIENT_SECRET = "";
+
+    @Autowired
+    private Secrets secrets;
+
     private static final Collection<String> SCOPES = Arrays.asList("https://www.googleapis.com/auth/youtube");
     private static final String APPLICATION_NAME = "PTZ Web Control";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -63,7 +67,7 @@ public class YoutubeService {
 
     public String getClientRequestUrl(String redirectUrl) {
         return new GoogleBrowserClientRequestUrl(
-                CLIENT_ID,
+                secrets.getYoutube().getClientId(),
                 redirectUrl,
                 SCOPES).setResponseTypes(Arrays.asList("code")).build();
     }
@@ -73,8 +77,8 @@ public class YoutubeService {
         return new GoogleAuthorizationCodeTokenRequest(
                 httpTransport,
                 JSON_FACTORY,
-                CLIENT_ID,
-                CLIENT_SECRET,
+                secrets.getYoutube().getClientId(),
+                secrets.getYoutube().getClientSecret(),
                 code,
                 "http://localhost/api/youtube/callback/").execute();
     }
