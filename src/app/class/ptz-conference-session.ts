@@ -116,10 +116,6 @@ export class PtzConferenceSession extends PtzAbstractSession {
       return this._szCmd("preset_set", id);
     }
 
-    public setZoomSpeed(value) : Promise<any> {
-      return Promise.resolve();
-    }
-
     public startZoomIn() : Promise<any> {
       if( !this.isConnected() )
         return this._getPromiseRejectWithText(`startZoomIn: ${this._ptz} is not connected`);

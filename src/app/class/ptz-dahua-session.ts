@@ -201,39 +201,6 @@ export class PtzDahuaSession extends PtzAbstractSession {
       });
     }
 
-    private _systemMulticall(params: any[]) : Promise<any> {
-      if( !this.isConnected() )
-        return this._getPromiseRejectWithText(`_systemMulticall: ${this._ptz} is not connected`);
-
-      var body = {
-        "method": "system.multicall",
-        "params": params,
-        "id": this._sessionData.id + 1,
-        "session": this._sessionData.session
-      };
-      //
-      this._addLog(this._ptz, "_systemMulticall : " + JSON.stringify(body));
-      return this._post("RPC2", body).then( r => {
-        this._addLog(this._ptz, "_systemMulticall return: " + JSON.stringify(r));
-        this._sessionData.id = r.id;
-      });
-    }
-
-    private _getConfigManagerSetConfigStructure(name: string, table: any[], options: any[] = []) {
-      var body = {
-        "method": "configManager.setConfig",
-        "params": {
-          "name": name,
-          "table": table,
-          "options": options
-        },
-        "id": this._sessionData.id + 1,
-        "session": this._sessionData.session
-      };
-      //
-      return body;
-    }
-
     /////// PUBLIC METHODS ///////////
 
     public isConnected() : boolean {
@@ -266,29 +233,24 @@ export class PtzDahuaSession extends PtzAbstractSession {
 
     public setZoomSpeed(value) : Promise<any> {
       //
-      let table = [
-        [
-          {
-            "DigitalZoom": false,
-            "Speed": value,
-            "ZoomLimit": 4
-          },
-          {
-            "DigitalZoom": false,
-            "Speed": 100,
-            "ZoomLimit": 4
-          },
-          {
-            "DigitalZoom": false,
-            "Speed": 100,
-            "ZoomLimit": 4
-          }
-        ]
-      ];
+      return this.setConfig([ "VideoInZoom" ], [ [
+            {
+              "DigitalZoom": false,
+              "Speed": value,
+              "ZoomLimit": 4
+            },
+            {
+              "DigitalZoom": false,
+              "Speed": value,
+              "ZoomLimit": 4
+            },
+            {
+              "DigitalZoom": false,
+              "Speed": value,
+              "ZoomLimit": 4
+            }
+          ] ]);
       //
-      let body = this._getConfigManagerSetConfigStructure("VideoInZoom", table);
-      //
-      return this._systemMulticall([ body ]);
     }
 
     public startZoomIn() : Promise<any> {

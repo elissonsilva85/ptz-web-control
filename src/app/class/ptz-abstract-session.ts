@@ -57,8 +57,6 @@ export abstract class PtzAbstractSession {
 
   public abstract savePreset(id: number) : Promise<any>;
 
-  public abstract setZoomSpeed(value) : Promise<any>;
-
   public abstract startZoomIn() : Promise<any>;
 
   public abstract stopZoomIn() : Promise<any>;

@@ -13,6 +13,7 @@ import { StepByStepService } from '../service/step-by-step.service';
 import { StepByStepAction } from '../class/step-by-step-action';
 import { NumpadComponent } from '../component/numpad/numpad.component';
 import { JoystickComponent, JoystickDirection } from '../component/joystick/joystick.component';
+import { PtzDahuaSession } from '../class/ptz-dahua-session';
 
 @Component({
   selector: 'app-main',
@@ -394,7 +395,8 @@ export class MainComponent implements AfterViewInit {
   }
 
   setZoomSpeed(ptz, value) {
-    this.rcp.getSession(ptz).setZoomSpeed(value);
+    (this.rcp.getSession(ptz) as PtzDahuaSession)
+      .setZoomSpeed(value);
   }
 
   startStreaming() {
