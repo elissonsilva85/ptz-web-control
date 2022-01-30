@@ -1,0 +1,46 @@
+table.first {
+    height: 180px; 
+    margin-top: 20px;
+}
+.first td.label, td.value, td.slider {
+    padding: 5px 0px;
+}
+
+.first td.label {
+    width: 95px;
+}
+
+.first td.value {
+    width: 30px;
+    text-align: center;
+}
+
+.first td.slider {
+    width: 200px;
+}
+
+table.second {
+    height: 180px; 
+    margin-top: 20px;
+}
+
+.second td.label, td.value, td.slider {
+    padding: 5px 0px;
+}
+
+.second td.label {
+    width: 95px;
+}
+
+.second td.value {
+    width: 30px;
+    text-align: center;
+}
+
+.second td.slider {
+    width: 200px;
+}
+
+mat-slider {
+    width: 215px;
+}

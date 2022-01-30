@@ -1,0 +1,1 @@
+ptzWebControl.exe stop

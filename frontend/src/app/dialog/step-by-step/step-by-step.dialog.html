@@ -1,0 +1,118 @@
+<h1 mat-dialog-title>{{ data.ptz }} - PASSO A PASSO</h1>
+<mat-dialog-content cdkDropListGroup>
+
+  <div class="panel" style="height: 60vh;">
+    <h3>LINHA DO TEMPO</h3>
+
+    <form>
+      <table style="width: 100%">
+        <tr>
+          <td>
+            <mat-form-field class="full-width">
+              <mat-label>Nome da configuração</mat-label>
+              <input type="text" matInput [formControl]="timelineNameControl" [matAutocomplete]="auto">
+              <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+                <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+                  {{option}}
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+          </td>
+          <td width="110" align="right">
+            <button mat-icon-button matTooltip="Carregar" (click)="loadTimeline()">
+              <mat-icon>upload</mat-icon>
+            </button>
+            <button mat-icon-button matTooltip="Salvar" (click)="saveTimeline()">
+              <mat-icon>save</mat-icon>
+            </button>
+            <button mat-icon-button matTooltip="Excluir" (click)="removeTimeline()">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </tr>
+      </table>
+    </form>
+
+    <div
+      cdkDropList
+      [cdkDropListData]="stepByStepService.getTimelineCurrentAction(data.ptz)"
+      (cdkDropListDropped)="itemDropped($event)"
+      class="list">
+
+      <mat-accordion class="example-headers-align">
+        <mat-expansion-panel
+          *ngFor="let action of stepByStepService.getTimelineCurrentAction(data.ptz); let i = index;"
+          cdkDrag
+          [expanded]="step === i" 
+          (opened)="setStep(i)" 
+          [ngClass]="getClasses(action)" 
+          hideToggle>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              {{ action.getTitle() }} <br/>
+              <span class="mat-caption" style="font-style: italic; color: gray;">
+                {{ action.getParamsToString() }}
+              </span>
+            </mat-panel-title>
+            <mat-panel-description>
+              Inicio: {{ action.getStartTime() }} <br/>
+              Duração: {{ action.getDuration() }}
+
+              <div class="handle" cdkDragHandle>
+                <svg width="24px" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"></path>
+                  <path d="M0 0h24v24H0z" fill="none"></path>
+                </svg>
+              </div>
+
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+      
+          <step-by-step-action [action]="action"></step-by-step-action>
+
+          <mat-action-row>
+            <mat-form-field class="full-width">
+              <mat-label>Aguardar (ms)</mat-label>
+              <input type="text" matInput [formControl]="waitingTimeControl[i]">
+            </mat-form-field>
+
+            <button mat-icon-button matTooltip="Testar essa ação" (click)="testItem(i)" color="primary"> <mat-icon>directions_run</mat-icon> </button>
+            <button mat-icon-button matTooltip="Excluir" (click)="removeItem(i)" color="warn"> <mat-icon>delete_outline</mat-icon> </button>
+            <button mat-icon-button matTooltip="Voltar" (click)="prevStep()" *ngIf="i > 0"> <mat-icon>navigate_before</mat-icon> </button>
+            <button mat-icon-button matTooltip="Avançar" (click)="nextStep()" *ngIf="i < (stepByStepService.getTimelineCurrentAction(data.ptz).length - 1)"> <mat-icon>navigate_next</mat-icon> </button>
+          </mat-action-row>
+        </mat-expansion-panel>
+      
+      </mat-accordion>
+
+    </div>
+   
+  </div>
+
+  <div class="panel">
+    <h3>AÇÕES DISPONÍVEIS</h3>
+
+    <div
+      cdkDropList
+      #availableActionsList>
+      <div 
+        *ngFor="let action of stepByStepService.availableActions" 
+        class="box" 
+        [cdkDragData]="action" 
+        (cdkDragStarted)="dragStart($event)"
+        (cdkDragMoved)="moved($event)"
+        cdkDrag>
+        <span class="mat-title"> {{ action.getTitle() }}</span> <br/>
+        <span class="mat-caption">{{ action.getDescription() }}</span>
+        <div *cdkDragPlaceholder class="placeholder"></div>
+      </div>
+    </div>
+
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-raised-button [color]="stepByStepService.isTimelineRunning(data.ptz) ? 'warn' : 'primary'" (click)="runTimeline()">{{ stepByStepService.isTimelineRunning(data.ptz) ? 'INTERROMPER' : 'Executar' }}</button>
+  <button mat-stroked-button (click)="clearTimeline()">Limpar</button>
+  <button mat-stroked-button mat-dialog-close>Fechar</button>
+  <span class="currentTime" *ngIf="stepByStepService.isTimelineRunning(data.ptz)">Tempo de execução: {{ stepByStepService.getCurrentExecutionTime(data.ptz) | milisecondFormat }}</span>
+</mat-dialog-actions>

@@ -1,0 +1,35 @@
+server:
+  port: 80
+
+ribbon:
+  eureka:
+    enabled: false
+
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/data
+    driverClassName: org.h2.Driver
+    username: ptz
+    password: ptz
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+  h2:
+    console:
+      enabled: true
+      path: /api/h2/
+
+zuul:
+  routes:
+    ptz:
+      path: /ptz/**
+      url: ""
+    vmix:
+      path: /vmix/**
+      url: ""
+
+# logging:
+#   level:
+#     org.springframework.web: DEBUG
+#     com.netflix.zuul: DEBUG

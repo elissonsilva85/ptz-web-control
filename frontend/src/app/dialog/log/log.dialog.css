@@ -1,0 +1,18 @@
+.log span {
+    margin: 0px;
+    padding: 0px;
+    color: #ccc;
+}
+
+.log pre {
+    margin: 0 0 15px 0;
+    padding: 0;
+}
+
+[mat-dialog-title] {
+    margin: -24px -24px 0px -24px !important;
+    padding: 10px 24px;
+    background: #369;
+    color: #fff;
+    cursor: move;
+  }
