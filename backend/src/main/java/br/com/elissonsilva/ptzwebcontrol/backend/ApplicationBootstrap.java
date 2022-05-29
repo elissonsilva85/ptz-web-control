@@ -9,6 +9,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.Bean;
+import org.springframework.integration.dsl.IntegrationFlow;
+import org.springframework.integration.dsl.IntegrationFlows;
+import org.springframework.integration.ip.udp.UnicastReceivingChannelAdapter;
 
 @EnableZuulProxy
 @SpringBootApplication
@@ -30,5 +33,13 @@ public class ApplicationBootstrap extends SpringBootServletInitializer {
 
     @Bean
     public OkHttpRoutingFilter okHttpRoutingFilter() { return new OkHttpRoutingFilter(); }
+
+    @Bean
+    public IntegrationFlow processUniCastUdpMessage() {
+        return IntegrationFlows
+                .from(new UnicastReceivingChannelAdapter(11111))
+                .handle("UDPServer", "handleMessage")
+                .get();
+    }
 
 }
