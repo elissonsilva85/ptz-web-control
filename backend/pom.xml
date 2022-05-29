@@ -52,6 +52,17 @@
             <artifactId>spring-cloud-starter-netflix-zuul</artifactId>
             <version>2.2.10.RELEASE</version>
         </dependency>
+        <!-- UDP Server -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-integration</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.integration</groupId>
+            <artifactId>spring-integration-ip</artifactId>
+            <version>5.1.0.RELEASE</version>
+        </dependency>
 
         <!-- Youtube -->
         <dependency>
