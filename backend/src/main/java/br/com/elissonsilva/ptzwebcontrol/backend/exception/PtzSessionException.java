@@ -6,7 +6,7 @@ public abstract class PtzSessionException extends Exception {
         super();
     }
 
-    public PtzSessionException(String message) {
-        super(message);
-    }
+    public PtzSessionException(String message) { super(message); }
+
+    public PtzSessionException(Exception e) { super(e); }
 }
