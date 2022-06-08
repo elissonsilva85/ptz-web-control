@@ -3,7 +3,6 @@ package br.com.elissonsilva.ptzwebcontrol.backend.controllers;
 // https://www.bezkoder.com/spring-boot-jpa-crud-rest-api/
 
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.PtzName;
-import br.com.elissonsilva.ptzwebcontrol.backend.entity.PtzNameId;
 import br.com.elissonsilva.ptzwebcontrol.backend.repository.PtzNameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

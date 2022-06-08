@@ -2,8 +2,9 @@ package br.com.elissonsilva.ptzwebcontrol.backend.component;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.JoystickQueueData;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionException;
-import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionManagerException;
+import okhttp3.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,10 @@ public abstract class PtzSessionAbstract {
     protected String _httpOptions = "";
     protected String _http; //: HttpClient,
 
+    protected OkHttpClient httpClient;
+
+    protected Headers.Builder headers;
+
     protected String _ptz;
     protected String _urlBase;
     protected String _user;
@@ -20,11 +25,20 @@ public abstract class PtzSessionAbstract {
 
     protected List<JoystickQueueData> joystickQueueDataList = new ArrayList<JoystickQueueData>();
 
-    public PtzSessionAbstract(String ptz, String user, String pass) {
+    public PtzSessionAbstract(String ptz, String user, String pass, String url) {
         this._user = user;
         this._pass = pass;
         this._ptz = ptz;
-        this._urlBase = "http://localhost/ptz/";
+        this._urlBase = url;
+        this.httpClient = new OkHttpClient.Builder().build();
+
+        //log.debug("--- HEADERS ---------------------------");
+        this.headers = new Headers.Builder();
+        headers.add("X-Requested-With", "XMLHttpRequest");
+        headers.add("Accept", "application/json, text/javascript, */*; q=0.01");
+        headers.add("Accept-Language", "pt-PT,pt;q=0.9,en-US;q=0.8,en;q=0.7");
+        headers.add("Content-Type", "application/x-www-form-urlencoded");
+        //log.debug("---------------------------------------");
     }
 
     //protected _addLog = (p:string, t:string) => {}) {
@@ -50,42 +64,31 @@ protected _pass : string,
 protected _addLog = (p:string, t:string) => {}) {
         }
 
-////////// INTERNAL METHODS /////////////////
-
-protected _getPromiseRejectWithText(text: string): Promise<any> {
-        return new Promise<any>( (resolve, reject) => {
-        reject(text);
-        });
-        }
-
-protected _post( page: string, body : any ): Promise<any> {
-        return this._http
-        .post<any>(this._getUrl(page), body, this._httpOptions)
-        .toPromise();
-        }
-
-protected _get( page: string, params : string ): Promise<any> {
-        return this._http
-        .get<any>(this._getUrl(page) + "?" + params, this._httpOptions)
-        .toPromise();
-        }
-
-protected _getUrl(page: string): string {
-        return this._urlBase + this._ptz + "/" + page;
-        }
 */
 
-    protected void _getPromiseRejectWithText(String text) {
+    protected Response _post( String page, String postBody ) throws IOException {
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), postBody);
+
+        Request.Builder builder = new Request.Builder()
+                .headers(headers.build())
+                .url(this._getUrl(page))
+                .method("POST", requestBody);
+
+        return httpClient.newCall(builder.build()).execute();
     }
 
-    protected void _post( String page, String body ) {
-    }
+    protected Response _get(String page, String params) throws IOException {
+        Request.Builder builder = new Request.Builder()
+                .headers(headers.build())
+                .url(this._getUrl(page) + "?" + params)
+                .method("GET", null);
 
-    protected void _get( String page, String params) {
+        return httpClient.newCall(builder.build()).execute();
     }
 
     protected String _getUrl(String page) {
-        return "";
+        //  return this._urlBase + this._ptz + "/" + page;
+        return this._urlBase + page;
     }
     ////////// PUBLIC METHODS /////////////////
 
@@ -97,21 +100,21 @@ protected _getUrl(page: string): string {
 
     public abstract void savePreset(int id) throws PtzSessionException;
 
-    public abstract void startZoomIn() throws PtzSessionException;
+    public abstract void startZoomIn(int amount ) throws PtzSessionException;
 
-    public abstract void stopZoomIn() throws PtzSessionException;
+    public abstract void stopZoomIn(int amount ) throws PtzSessionException;
 
-    public abstract void startZoomOut() throws PtzSessionException;
+    public abstract void startZoomOut(int amount ) throws PtzSessionException;
 
-    public abstract void stopZoomOut() throws PtzSessionException;
+    public abstract void stopZoomOut(int amount ) throws PtzSessionException;
 
-    public abstract void startFocusIn() throws PtzSessionException;
+    public abstract void startFocusIn(int amount ) throws PtzSessionException;
 
-    public abstract void stopFocusIn() throws PtzSessionException;
+    public abstract void stopFocusIn(int amount ) throws PtzSessionException;
 
-    public abstract void startFocusOut() throws PtzSessionException;
+    public abstract void startFocusOut(int amount ) throws PtzSessionException;
 
-    public abstract void stopFocusOut() throws PtzSessionException;
+    public abstract void stopFocusOut(int amount ) throws PtzSessionException;
 
     public abstract void startJoystick(String direction, int speed1, int speed2) throws PtzSessionException;
 

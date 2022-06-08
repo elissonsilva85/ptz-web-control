@@ -1,8 +1,9 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.controllers;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.component.PtzSessionAbstract;
-import br.com.elissonsilva.ptzwebcontrol.backend.component.PtzSessionManager;
+import br.com.elissonsilva.ptzwebcontrol.backend.services.PtzSessionManagerService;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionManagerException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -13,10 +14,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/ptz/operate")
 public class PtzOperateController {
 
+    @Autowired
+    private PtzSessionManagerService ptzSessionManagerService;
+
     @PostMapping("/{ptz}/connect")
     public ResponseEntity<Void> connect(@PathVariable("ptz") String ptz) {
         try {
-            PtzSessionManager.connect(ptz);
+            ptzSessionManagerService.getSession(ptz);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -28,7 +32,7 @@ public class PtzOperateController {
     @GetMapping("/{ptz}/connected")
     public ResponseEntity<Boolean> connected(@PathVariable("ptz") String ptz) {
         try {
-            PtzSessionAbstract ptzSession = PtzSessionManager.getPtz(ptz);
+            PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
             return new ResponseEntity<>(ptzSession.isConnected(), HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -41,7 +45,7 @@ public class PtzOperateController {
     public ResponseEntity<Void> getPreset(@PathVariable("ptz") String ptz, @PathVariable("id") int id) {
         // LOAD
         try {
-            PtzSessionAbstract ptzSession = PtzSessionManager.getPtz(ptz);
+            PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
             ptzSession.loadPreset(id);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
@@ -55,7 +59,7 @@ public class PtzOperateController {
     public ResponseEntity<Void> setPreset(@PathVariable("ptz") String ptz, @PathVariable("id") int id) {
         // SAVE
         try {
-            PtzSessionAbstract ptzSession = PtzSessionManager.getPtz(ptz);
+            PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
             ptzSession.savePreset(id);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
@@ -65,11 +69,11 @@ public class PtzOperateController {
         }
     }
 
-    @PostMapping("/{ptz}/zoomIn/start")
-    public ResponseEntity<Void> zoomInStart(@PathVariable("ptz") String ptz) {
+    @PostMapping("/{ptz}/zoomIn/start/{amount}")
+    public ResponseEntity<Void> zoomInStart(@PathVariable("ptz") String ptz, @PathVariable("amount") int amount) {
         try {
-            PtzSessionAbstract ptzSession = PtzSessionManager.getPtz(ptz);
-            ptzSession.startZoomIn();
+            PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
+            ptzSession.startZoomIn(amount);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -78,11 +82,11 @@ public class PtzOperateController {
         }
     }
 
-    @PostMapping("/{ptz}/zoomIn/stop")
-    public ResponseEntity<Void> zoomInStop(@PathVariable("ptz") String ptz) {
+    @PostMapping("/{ptz}/zoomIn/stop/{amount}")
+    public ResponseEntity<Void> zoomInStop(@PathVariable("ptz") String ptz, @PathVariable("amount") int amount) {
         try {
-            PtzSessionAbstract ptzSession = PtzSessionManager.getPtz(ptz);
-            ptzSession.stopZoomIn();
+            PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
+            ptzSession.stopZoomIn(amount);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -91,11 +95,11 @@ public class PtzOperateController {
         }
     }
 
-    @PostMapping("/{ptz}/zoomOut/start")
-    public ResponseEntity<Void> zoomOutStart(@PathVariable("ptz") String ptz) {
+    @PostMapping("/{ptz}/zoomOut/start/{amount}")
+    public ResponseEntity<Void> zoomOutStart(@PathVariable("ptz") String ptz, @PathVariable("amount") int amount) {
         try {
-            PtzSessionAbstract ptzSession = PtzSessionManager.getPtz(ptz);
-            ptzSession.startZoomOut();
+            PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
+            ptzSession.startZoomOut(amount);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -104,11 +108,11 @@ public class PtzOperateController {
         }
     }
 
-    @PostMapping("/{ptz}/zoomOut/stop")
-    public ResponseEntity<Void> zoomOutStop(@PathVariable("ptz") String ptz) {
+    @PostMapping("/{ptz}/zoomOut/stop/{amount}")
+    public ResponseEntity<Void> zoomOutStop(@PathVariable("ptz") String ptz, @PathVariable("amount") int amount) {
         try {
-            PtzSessionAbstract ptzSession = PtzSessionManager.getPtz(ptz);
-            ptzSession.stopZoomOut();
+            PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
+            ptzSession.stopZoomOut(amount);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -117,11 +121,11 @@ public class PtzOperateController {
         }
     }
 
-    @PostMapping("/{ptz}/focusIn/start")
-    public ResponseEntity<Void> focusInStart(@PathVariable("ptz") String ptz) {
+    @PostMapping("/{ptz}/focusIn/start/{amount}")
+    public ResponseEntity<Void> focusInStart(@PathVariable("ptz") String ptz, @PathVariable("amount") int amount) {
         try {
-            PtzSessionAbstract ptzSession = PtzSessionManager.getPtz(ptz);
-            ptzSession.startFocusIn();
+            PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
+            ptzSession.startFocusIn(amount);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -130,11 +134,11 @@ public class PtzOperateController {
         }
     }
 
-    @PostMapping("/{ptz}/focusIn/stop")
-    public ResponseEntity<Void> focusInStop(@PathVariable("ptz") String ptz) {
+    @PostMapping("/{ptz}/focusIn/stop/{amount}")
+    public ResponseEntity<Void> focusInStop(@PathVariable("ptz") String ptz, @PathVariable("amount") int amount) {
         try {
-            PtzSessionAbstract ptzSession = PtzSessionManager.getPtz(ptz);
-            ptzSession.stopFocusIn();
+            PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
+            ptzSession.stopFocusIn(amount);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -143,11 +147,11 @@ public class PtzOperateController {
         }
     }
 
-    @PostMapping("/{ptz}/focusOut/start")
-    public ResponseEntity<Void> focusOutStart(@PathVariable("ptz") String ptz) {
+    @PostMapping("/{ptz}/focusOut/start/{amount}")
+    public ResponseEntity<Void> focusOutStart(@PathVariable("ptz") String ptz, @PathVariable("amount") int amount) {
         try {
-            PtzSessionAbstract ptzSession = PtzSessionManager.getPtz(ptz);
-            ptzSession.startFocusOut();
+            PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
+            ptzSession.startFocusOut(amount);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -156,11 +160,11 @@ public class PtzOperateController {
         }
     }
 
-    @PostMapping("/{ptz}/focusOut/stop")
-    public ResponseEntity<Void> focusOutStop(@PathVariable("ptz") String ptz) {
+    @PostMapping("/{ptz}/focusOut/stop/{amount}")
+    public ResponseEntity<Void> focusOutStop(@PathVariable("ptz") String ptz, @PathVariable("amount") int amount) {
         try {
-            PtzSessionAbstract ptzSession = PtzSessionManager.getPtz(ptz);
-            ptzSession.stopFocusOut();
+            PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
+            ptzSession.stopFocusOut(amount);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -176,7 +180,7 @@ public class PtzOperateController {
         int speed1 = 0;
         int speed2 = 0;
         try {
-            PtzSessionAbstract ptzSession = PtzSessionManager.getPtz(ptz);
+            PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
             ptzSession.startJoystick(direction, speed1, speed2);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
@@ -193,7 +197,7 @@ public class PtzOperateController {
         int speed1 = 0;
         int speed2 = 0;
         try {
-            PtzSessionAbstract ptzSession = PtzSessionManager.getPtz(ptz);
+            PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
             ptzSession.stopJoystick(direction, speed1, speed2);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
@@ -206,7 +210,7 @@ public class PtzOperateController {
     @PostMapping("/{ptz}/stopLastCall")
     public ResponseEntity<Void> stopLastCall(@PathVariable("ptz") String ptz) {
         try {
-            PtzSessionAbstract ptzSession = PtzSessionManager.getPtz(ptz);
+            PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
             ptzSession.stopLastCall();
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
@@ -225,7 +229,7 @@ public class PtzOperateController {
         int vertical = 0;
         int zoom = 0;
         try {
-            PtzSessionAbstract ptzSession = PtzSessionManager.getPtz(ptz);
+            PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
             ptzSession.specificPosition(horizontal, vertical, zoom);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
@@ -239,7 +243,7 @@ public class PtzOperateController {
     public ResponseEntity<Void> getConfig(@PathVariable("ptz") String ptz) {
         // list: any[] (query param)
         try {
-            PtzSessionAbstract ptzSession = PtzSessionManager.getPtz(ptz);
+            PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
             ptzSession.getConfig();
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
@@ -253,7 +257,7 @@ public class PtzOperateController {
     public ResponseEntity<Void> setConfig(@PathVariable("ptz") String ptz) {
         // list: any[] (json body)
         try {
-            PtzSessionAbstract ptzSession = PtzSessionManager.getPtz(ptz);
+            PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
             ptzSession.setConfig();
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
@@ -269,7 +273,7 @@ public class PtzOperateController {
         int[] coord = new int[2];
         int speed = 0;
         try {
-            PtzSessionAbstract ptzSession = PtzSessionManager.getPtz(ptz);
+            PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
             ptzSession.moveDirectly(coord, speed);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
