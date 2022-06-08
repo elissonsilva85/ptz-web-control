@@ -127,8 +127,56 @@ public class TestsPtzSessionDahua {
     public void _004_shouldLoadPreset() {
 
         try {
-            sessionDahua.loadPreset(3);
+            sessionDahua.loadPreset(1);
         } catch (PtzSessionException e) {
+            fail(e.getMessage());
+        }
+
+    }
+
+    @Test
+    public void _005_shouldZoomIn() {
+
+        try {
+            sessionDahua.startZoomIn(5);
+            Thread.sleep(500);
+            sessionDahua.stopZoomIn(5);
+            Thread.sleep(1000);
+        } catch (PtzSessionException e) {
+            fail(e.getMessage());
+        } catch (InterruptedException e) {
+            fail(e.getMessage());
+        }
+
+    }
+
+    @Test
+    public void _006_shouldZoomOut() {
+
+        try {
+            sessionDahua.startZoomOut(5);
+            Thread.sleep(500);
+            sessionDahua.stopZoomOut(5);
+            Thread.sleep(1000);
+        } catch (PtzSessionException e) {
+            fail(e.getMessage());
+        } catch (InterruptedException e) {
+            fail(e.getMessage());
+        }
+
+    }
+
+    @Test
+    public void _007_shouldJoystickRight() {
+
+        try {
+            sessionDahua.startJoystick("Right",1, 1);
+            Thread.sleep(500);
+            sessionDahua.stopJoystick("Right", 1, 1);
+            Thread.sleep(1000);
+        } catch (PtzSessionException e) {
+            fail(e.getMessage());
+        } catch (InterruptedException e) {
             fail(e.getMessage());
         }
 

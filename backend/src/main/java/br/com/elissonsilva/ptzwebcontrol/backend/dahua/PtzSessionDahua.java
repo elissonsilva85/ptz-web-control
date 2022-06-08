@@ -7,6 +7,9 @@ import br.com.elissonsilva.ptzwebcontrol.backend.entity.DahuaSessionData;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import okhttp3.Response;
 
 import javax.xml.bind.DatatypeConverter;
@@ -29,11 +32,15 @@ public class PtzSessionDahua extends PtzSessionAbstract {
         if(requestBase instanceof DahuaRequestStart)
             this.lastCall = (DahuaRequestStart) requestBase;
 
+        //SimpleBeanPropertyFilter theFilter = SimpleBeanPropertyFilter.serializeAllExcept("intValue");
+        //FilterProvider filters = new SimpleFilterProvider().addFilter("filterArg", theFilter);
+        //mapper.writer(filters).writeValueAsString(requestBase);
+
         String body = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
             body = mapper.writeValueAsString(requestBase);
-             return super._post(page, body);
+            return super._post(page, body);
         } catch (JsonProcessingException e) {
             throw new PtzSessionDahuaException(e);
         } catch (IOException e) {
@@ -56,8 +63,20 @@ public class PtzSessionDahua extends PtzSessionAbstract {
         String session = this._sessionData.getSession();
         String onlyNumbers = session.replaceAll("[^0-9]", "");
 
+        // converte pra numero seguindo o comportamento do parsetInt no Javascript
+        // https://262.ecma-international.org/6.0/#sec-parseint-string-radix
+        BigInteger num = null;
+        if(onlyNumbers.length() > 20)
+        {
+            num = new BigInteger(onlyNumbers.substring(0,20));
+            int rest = Integer.parseInt(onlyNumbers.substring(20));
+        }
+        else
+        {
+            num = new BigInteger(onlyNumbers);
+        }
+
         // pega os primeiros 24 bits
-        BigInteger num = new BigInteger(onlyNumbers);
         String fullBinary = num.toString(2);
         String last24bits = fullBinary.substring(fullBinary.length() - 24);
 
@@ -230,14 +249,14 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                 );
     }
 
-    protected void ptzStart(String code, String arg1, String arg2, String arg3, String arg4, String channel) throws PtzSessionException {
+    protected void ptzStart(String code, int arg1, int arg2, int arg3, int arg4, String channel) throws PtzSessionException {
 
         DahuaRequestStart requestStart = new DahuaRequestStart();
         requestStart.getParams().setCode(code);
-        if(arg1 != null) requestStart.getParams().setArg1(arg1);
-        if(arg2 != null) requestStart.getParams().setArg2(arg2);
-        if(arg3 != null) requestStart.getParams().setArg3(arg3);
-        if(arg4 != null) requestStart.getParams().setArg4(arg4);
+        requestStart.getParams().setArg1(arg1);
+        requestStart.getParams().setArg2(arg2);
+        requestStart.getParams().setArg3(arg3);
+        requestStart.getParams().setArg4(arg4);
         //
         requestStart.setId(this.getSessionData().getNextId());
         requestStart.setSession(this.getSessionData().getSession());
@@ -269,14 +288,14 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                 );
     }
 
-    protected void ptzStop(String code, String arg1, String arg2, String arg3, String arg4, String channel) throws PtzSessionException {
+    protected void ptzStop(String code, int arg1, int arg2, int arg3, int arg4, String channel) throws PtzSessionException {
 
         DahuaRequestStop requestStop = new DahuaRequestStop();
         requestStop.getParams().setCode(code);
-        if(arg1 != null) requestStop.getParams().setArg1(arg1);
-        if(arg2 != null) requestStop.getParams().setArg2(arg2);
-        if(arg3 != null) requestStop.getParams().setArg3(arg3);
-        if(arg4 != null) requestStop.getParams().setArg4(arg4);
+        requestStop.getParams().setArg1(arg1);
+        requestStop.getParams().setArg2(arg2);
+        requestStop.getParams().setArg3(arg3);
+        requestStop.getParams().setArg4(arg4);
         //
         requestStop.setId(this.getSessionData().getNextId());
         requestStop.setSession(this.getSessionData().getSession());
@@ -326,10 +345,10 @@ public class PtzSessionDahua extends PtzSessionAbstract {
     public void loadPreset(int id) throws PtzSessionException {
         this.ptzStart(
                 "GotoPreset",
-                String.valueOf(id),
-                String.valueOf(0),
-                String.valueOf(0),
-                null,
+                id,
+                0,
+                0,
+                0,
                 null);
     }
 
@@ -337,10 +356,10 @@ public class PtzSessionDahua extends PtzSessionAbstract {
     public void savePreset(int id) throws PtzSessionException {
         this.ptzStart(
                 "SetPreset",
-                String.valueOf(id),
-                String.valueOf(0),
-                String.valueOf(0),
-                null,
+                id,
+                0,
+                0,
+                0,
                 null);
     }
 
@@ -372,10 +391,10 @@ public class PtzSessionDahua extends PtzSessionAbstract {
     public void startZoomIn(int amount) throws PtzSessionException {
         this.ptzStart(
                 "ZoomTele",
-                String.valueOf(amount),
-                String.valueOf(0),
-                String.valueOf(0),
-                null,
+                amount,
+                0,
+                0,
+                0,
                 null);
     }
 
@@ -383,10 +402,10 @@ public class PtzSessionDahua extends PtzSessionAbstract {
     public void stopZoomIn(int amount) throws PtzSessionException {
         this.ptzStop(
                 "ZoomTele",
-                String.valueOf(amount),
-                String.valueOf(0),
-                String.valueOf(0),
-                null,
+                amount,
+                0,
+                0,
+                0,
                 null);
     }
 
@@ -394,10 +413,10 @@ public class PtzSessionDahua extends PtzSessionAbstract {
     public void startZoomOut(int amount) throws PtzSessionException {
         this.ptzStart(
                 "ZoomWide",
-                String.valueOf(amount),
-                String.valueOf(0),
-                String.valueOf(0),
-                null,
+                amount,
+                0,
+                0,
+                0,
                 null);
     }
 
@@ -405,10 +424,10 @@ public class PtzSessionDahua extends PtzSessionAbstract {
     public void stopZoomOut(int amount) throws PtzSessionException {
         this.ptzStop(
                 "ZoomWide",
-                String.valueOf(amount),
-                String.valueOf(0),
-                String.valueOf(0),
-                null,
+                amount,
+                0,
+                0,
+                0,
                 null);
     }
 
@@ -416,10 +435,10 @@ public class PtzSessionDahua extends PtzSessionAbstract {
     public void startFocusIn(int amount ) throws PtzSessionException {
         this.ptzStart(
                 "FocusNear",
-                String.valueOf(amount),
-                String.valueOf(0),
-                String.valueOf(0),
-                null,
+                amount,
+                0,
+                0,
+                0,
                 null);
     }
 
@@ -427,10 +446,10 @@ public class PtzSessionDahua extends PtzSessionAbstract {
     public void stopFocusIn(int amount ) throws PtzSessionException {
         this.ptzStop(
                 "FocusNear",
-                String.valueOf(amount),
-                String.valueOf(0),
-                String.valueOf(0),
-                null,
+                amount,
+                0,
+                0,
+                0,
                 null);
     }
 
@@ -438,10 +457,10 @@ public class PtzSessionDahua extends PtzSessionAbstract {
     public void startFocusOut(int amount ) throws PtzSessionException {
         this.ptzStart(
                 "FocusFar",
-                String.valueOf(amount),
-                String.valueOf(0),
-                String.valueOf(0),
-                null,
+                amount,
+                0,
+                0,
+                0,
                 null);
     }
 
@@ -449,10 +468,10 @@ public class PtzSessionDahua extends PtzSessionAbstract {
     public void stopFocusOut(int amount ) throws PtzSessionException {
         this.ptzStop(
                 "FocusFar",
-                String.valueOf(amount),
-                String.valueOf(0),
-                String.valueOf(0),
-                null,
+                amount,
+                0,
+                0,
+                0,
                 null);
     }
 
@@ -460,10 +479,10 @@ public class PtzSessionDahua extends PtzSessionAbstract {
     public void startJoystick(String direction, int speed1, int speed2) throws PtzSessionException {
         this.ptzStart(
                 direction,
-                String.valueOf(speed1),
-                String.valueOf(speed2),
-                String.valueOf(0),
-                null,
+                speed1,
+                speed2,
+                0,
+                0,
                 null);
     }
 
@@ -471,10 +490,10 @@ public class PtzSessionDahua extends PtzSessionAbstract {
     public void stopJoystick(String direction, int speed1, int speed2) throws PtzSessionException {
         this.ptzStop(
                 direction,
-                String.valueOf(speed1),
-                String.valueOf(speed2),
-                String.valueOf(0),
-                null,
+                speed1,
+                speed2,
+                0,
+                0,
                 null);
     }
 
