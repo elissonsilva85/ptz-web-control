@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgxJoystickModule } from 'ngx-joystick';
+//import { NgxJoystickModule } from 'ngx-joystick';
 import { KeyboardShortcutsModule } from 'ng-keyboard-shortcuts';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -66,12 +66,12 @@ import { YoutubeDialog } from './dialog/youtube/youtube.dialog';
     YoutubeDialog,
   ],
   imports: [
+    FormsModule,
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    FormsModule,
     ReactiveFormsModule,
-    NgxJoystickModule,
+    // NgxJoystickModule,
     KeyboardShortcutsModule.forRoot(),
     //
     BrowserAnimationsModule,
