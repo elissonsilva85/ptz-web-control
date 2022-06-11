@@ -21,6 +21,7 @@ public class PtzOperateController {
     public ResponseEntity<Void> connect(@PathVariable("ptz") String ptz) {
         try {
             ptzSessionManagerService.getSession(ptz);
+            ptzSessionManagerService.getPtz(ptz).connect();
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);

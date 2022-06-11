@@ -217,7 +217,7 @@ public class PtzSessionDahua extends PtzSessionAbstract {
 
     }
 
-    protected void keepAlive() throws PtzSessionException {
+    public void keepAlive() throws PtzSessionException {
 
         DahuaRequestKeepAlive keepAlive = new DahuaRequestKeepAlive();
         keepAlive.setId(this.getSessionData().getNextId());
