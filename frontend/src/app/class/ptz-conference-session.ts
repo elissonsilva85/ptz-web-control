@@ -1,9 +1,7 @@
+import { of } from 'rxjs';
 import { PtzAbstractSession } from './ptz-abstract-session';
 
 export class PtzConferenceSession extends PtzAbstractSession {
-
-    private _isConnected : boolean = false;
-
 
     protected _post( page: string, body : any ): Promise<any> {
       return super._post(page, body);
@@ -93,10 +91,6 @@ export class PtzConferenceSession extends PtzAbstractSession {
     }
 
     /////// PUBLIC METHODS ///////////
-
-    public isConnected() : boolean {
-      return this._isConnected;
-    }
 
     public connect() : Promise<any> {
       return this._login();

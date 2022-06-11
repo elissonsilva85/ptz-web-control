@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 
 export abstract class PtzAbstractSession {
 
+  protected _isConnected : boolean = false;
   protected _lastCallBody : any = {};
   protected _httpOptions = {
       headers: new HttpHeaders({
@@ -49,35 +50,106 @@ export abstract class PtzAbstractSession {
 
   ////////// PUBLIC METHODS /////////////////
 
-  public abstract isConnected() : boolean;
+  public isConnected() : boolean {
+    return this._isConnected;
+  }
 
-  public abstract connect() : Promise<any>;
+  public connect() : Promise<any> {
 
-  public abstract loadPreset(id: number) : Promise<any>;
+    return this._post("connect", "").then( r => {
+      this._addLog(this._ptz, "login return: " + JSON.stringify(r));
+      this._isConnected = true;
+    }).catch( e => {
+      this._addLog(this._ptz, "login return: " + JSON.stringify(e));
+      this._isConnected = false;
+    });
 
-  public abstract savePreset(id: number) : Promise<any>;
+  }
 
-  public abstract startZoomIn() : Promise<any>;
+  public loadPreset(id: number) : Promise<any> {
+    if( !this.isConnected() )
+      return this._getPromiseRejectWithText(`loadPreset: ${this._ptz} is not connected`);
 
-  public abstract stopZoomIn() : Promise<any>;
+    return this._get("preset/" + id, "")
+    .then( r => {
+      this._addLog(this._ptz, "loadPreset return: " + JSON.stringify(r));
+    });
+  }
 
-  public abstract startZoomOut() : Promise<any>;
+  public savePreset(id: number) : Promise<any> {
+    return this._post("preset/" + id, "")
+      .then( r => {
+        this._addLog(this._ptz, "savePreset return: " + JSON.stringify(r));
+      });
+  }
 
-  public abstract stopZoomOut() : Promise<any>
+  public startZoomIn() : Promise<any> {
+    let amount = 5;
+    return this._post("zoomIn/start/" + amount, "");
+  }
 
-  public abstract startFocusIn() : Promise<any>;
+  public stopZoomIn() : Promise<any> {
+    let amount = 5;
+    return this._post("zoomIn/stop/" + amount, "");
+  }
 
-  public abstract stopFocusIn() : Promise<any>;
+  public startZoomOut() : Promise<any> {
+    let amount = 5;
+    return this._post("zoomOut/start/" + amount, "");
+  }
 
-  public abstract startFocusOut() : Promise<any>;
+  public stopZoomOut() : Promise<any> {
+    let amount = 5;
+    return this._post("zoomOut/stop/" + amount, "");
+  }
 
-  public abstract stopFocusOut() : Promise<any>;
+  public startFocusIn() : Promise<any> {
+    let amount = 5;
+    return this._post("focusIn/start/" + amount, "");
+  }
 
-  public abstract startJoystick(direction: string, speed1: number, speed2: number) : Promise<any>;
+  public stopFocusIn() : Promise<any> {
+    let amount = 5;
+    return this._post("focusIn/stop/" + amount, "");
+  }
 
-  public abstract stopJoystick(direction: string, speed1: number, speed2: number) : Promise<any>
+  public startFocusOut() : Promise<any> {
+    let amount = 5;
+    return this._post("focusOut/start/" + amount, "");
+  }
 
-  public abstract stopLastCall() : Promise<any>;
+  public stopFocusOut() : Promise<any> {
+    let amount = 5;
+    return this._post("focusOut/stop/" + amount, "");
+  }
+
+  public startJoystick(direction: string, speed1: number, speed2: number) : Promise<any> {
+
+    let body = {
+      "direction": direction,
+      "speed1": speed1,
+      "speed2": speed2
+    };
+
+    return this._post("joystick/start", body);
+  }
+
+  public stopJoystick(direction: string, speed1: number, speed2: number) : Promise<any> {
+    
+    let body = {
+      "direction": direction,
+      "speed1": speed1,
+      "speed2": speed2
+    };
+
+    return this._post("joystick/stop", body);
+  }
+
+  public stopLastCall() : Promise<any> {
+
+    return this._post("stopLastCall", "");
+
+  }
 
   /////// UNDER DEVELOPMENT ////////////
 
