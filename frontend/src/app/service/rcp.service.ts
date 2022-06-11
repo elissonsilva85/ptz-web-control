@@ -30,7 +30,7 @@ export class RcpService {
     return this._http.get('/api/config/')
       .toPromise()
       .then( (data: any) => {
-        this.urlBase = this._router.url + "ptz/";
+        this.urlBase = this._router.url + "api/ptz/operate/";
         this.ptzBrand = data.ptz.brand;
         this.startStreamingCommands = data.startStreaming;
         this.stopStreamingCommands = data.stopStreaming;
