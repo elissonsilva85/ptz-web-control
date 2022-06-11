@@ -88,7 +88,7 @@ protected _addLog = (p:string, t:string) => {}) {
 
     protected String _getUrl(String page) {
         //  return this._urlBase + this._ptz + "/" + page;
-        return this._urlBase + page;
+        return this._urlBase + "/" + page;
     }
     ////////// PUBLIC METHODS /////////////////
 
