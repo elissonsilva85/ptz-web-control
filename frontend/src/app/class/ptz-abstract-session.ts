@@ -151,13 +151,31 @@ export abstract class PtzAbstractSession {
 
   }
 
+  public setConfig(list: any[], table: any[]) : Promise<any> {
+    if( !this.isConnected() )
+      return this._getPromiseRejectWithText(`setConfig: ${this._ptz} is not connected`);
+
+    var body: any =  list.map( (name, i) => { 
+      return {
+          "name": name,
+          "table": [ table[i] ],
+          "options": []
+        }
+    });
+
+    //
+    this._addLog(this._ptz, "setConfig : " + JSON.stringify(body));
+    return this._post("config", body).then( r => {
+      this._addLog(this._ptz, "setConfig return: " + JSON.stringify(r));
+      return r; 
+    });
+  }
+
   /////// UNDER DEVELOPMENT ////////////
 
   public abstract specificPosition(horizontal: number, vertical: number, zoom: number) : Promise<any>;
 
   public abstract getConfig(list: any[]) : Promise<any>;
-
-  public abstract setConfig(list: any[], table: any[]) : Promise<any>;
 
   public abstract moveDirectly(coord: number[], speed: number) : Promise<any>;
 
