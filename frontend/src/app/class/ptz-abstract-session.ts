@@ -9,7 +9,7 @@ export abstract class PtzAbstractSession {
         'X-Requested-With': 'XMLHttpRequest',
         'Accept': 'application/json, text/javascript, */*; q=0.01',
         'Accept-Language': 'pt-PT,pt;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
       }),
       withCredentials: false,
       params: null

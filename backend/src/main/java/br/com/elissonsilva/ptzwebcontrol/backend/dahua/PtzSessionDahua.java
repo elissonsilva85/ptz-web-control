@@ -2,14 +2,12 @@ package br.com.elissonsilva.ptzwebcontrol.backend.dahua;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.component.PtzSessionAbstract;
 import br.com.elissonsilva.ptzwebcontrol.backend.dahua.entity.*;
+import br.com.elissonsilva.ptzwebcontrol.backend.dahua.entity.param.DahuaParamRequestSetConfig;
 import br.com.elissonsilva.ptzwebcontrol.backend.dahua.exception.PtzSessionDahuaException;
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.DahuaSessionData;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import okhttp3.Response;
 
 import javax.xml.bind.DatatypeConverter;
@@ -17,6 +15,10 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class PtzSessionDahua extends PtzSessionAbstract {
 
@@ -587,62 +589,83 @@ public class PtzSessionDahua extends PtzSessionAbstract {
     }
 
     @Override
-    public void setConfig() {
-        // list: any[], table: any[]
-        /*
-        if( !this.isConnected() )
-            return this._getPromiseRejectWithText(`setConfig: ${this._ptz} is not connected`);
+    public void setConfig(List<DahuaParamRequestSetConfig> setConfigList) throws PtzSessionDahuaException {
 
-        var body: any = {};
+        DahuaResponseBase responseSetConfig = null;
 
-        if(list.length == 1) {
+        // processing request
+        if(setConfigList.size() == 1)
+        {
+            DahuaRequestSetConfig requestSetConfig = new DahuaRequestSetConfig();
+            requestSetConfig.setParams(setConfigList.get(0));
+            //
+            requestSetConfig.setId(this.getSessionData().getNextId());
+            requestSetConfig.setSession(this.getSessionData().getSession());
 
-            body = {
-                    "method": "configManager.setConfig",
-                    "params": {
-                "name": list[0],
-                        "table": [
-                table[0]
-            ],
-                "options": []
-            },
-            "id": this._sessionData.id + 1,
-                    "session": this._sessionData.session
-        };
+            String sessionReturn = "";
+            try {
+                Response response = this._post( "RPC2", requestSetConfig);
+                sessionReturn = response.body().string();
+            } catch (Exception e) {
+                throw new PtzSessionDahuaException(e);
+            }
+
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                responseSetConfig = mapper.readValue(sessionReturn, DahuaResponseSetConfig.class);
+            } catch (JsonProcessingException e) {
+                throw new PtzSessionDahuaException(e);
+            }
 
         }
-        else {
-            body = {
-                    "method": "system.multicall",
-                    "params": [ ],
-            "id": 0,
-                    "session": this._sessionData.session
-        };
+        else if(setConfigList.size() > 1)
+        {
+            AtomicInteger id = new AtomicInteger(this.getSessionData().getNextId());
+            String session = this.getSessionData().getSession();
 
-            body.params = list.map( (name, i) => { return {
-                    "method": "configManager.setConfig",
-                    "params": {
-                "name": name,
-                        "table": [ table[i] ],
-                "options": []
-            },
-                "id": this._sessionData.id + 1 + i,
-                        "session": this._sessionData.session
-          }
-            });
+            DahuaRequestMultiConfig requestMultiConfig = new DahuaRequestMultiConfig();
+            requestMultiConfig.setParams(setConfigList
+                    .stream()
+                    .map(setConfigItem -> {
+                        return new DahuaRequestSetConfig(){{
+                            setParams(setConfigItem);
+                            setId(id.getAndIncrement());
+                            setSession(session);
+                        }};
+                    })
+                    .collect(Collectors.toCollection(ArrayList<DahuaRequestBase>::new))
+            );
+            //
+            requestMultiConfig.setId(id.getAndIncrement());
+            requestMultiConfig.setSession(session);
 
-            body.id = this._sessionData.id + 1 + list.length;
+            String sessionReturn = "";
+            try {
+                Response response = this._post( "RPC2", requestMultiConfig);
+                sessionReturn = response.body().string();
+            } catch (Exception e) {
+                throw new PtzSessionDahuaException(e);
+            }
+
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                responseSetConfig = mapper.readValue(sessionReturn, DahuaResponseMultiConfig.class);
+            } catch (JsonProcessingException e) {
+                throw new PtzSessionDahuaException(e);
+            }
         }
 
-        //
-        this._addLog(this._ptz, "setConfig : " + JSON.stringify(body));
-        return this._post("RPC2", body).then( r => {
-                this._addLog(this._ptz, "setConfig return: " + JSON.stringify(r));
-        this._sessionData.id = r.id;
-        return r;
-      });
+        // error handling
+        if(setConfigList.size() > 0) {
 
-         */
+            if (responseSetConfig.getError() != null)
+                throw new PtzSessionDahuaException(responseSetConfig.getError().getMessage());
+
+            this.getSessionData()
+                    .updateSession(
+                            responseSetConfig.getId()
+                    );
+        }
     }
 
     public void setVideoColor() {

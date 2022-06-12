@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public abstract class DahuaResponseBase<T extends DahuaParamBase> {
+public abstract class DahuaResponseBase<T> {
 
     @JsonProperty("id")
     private int id;
