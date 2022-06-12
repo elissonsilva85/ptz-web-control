@@ -1,6 +1,10 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.controllers;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.component.PtzSessionAbstract;
+import br.com.elissonsilva.ptzwebcontrol.backend.dahua.entity.DahuaRequestSetConfig;
+import br.com.elissonsilva.ptzwebcontrol.backend.dahua.entity.param.DahuaParamBase;
+import br.com.elissonsilva.ptzwebcontrol.backend.dahua.entity.param.DahuaParamRequestSetConfig;
+import br.com.elissonsilva.ptzwebcontrol.backend.entity.JoystickRequest;
 import br.com.elissonsilva.ptzwebcontrol.backend.services.PtzSessionManagerService;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionManagerException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @ResponseBody
@@ -175,11 +181,11 @@ public class PtzOperateController {
     }
 
     @PostMapping("/{ptz}/joystick/start")
-    public ResponseEntity<Void> joystickStart(@PathVariable("ptz") String ptz) {
+    public ResponseEntity<Void> joystickStart(@PathVariable("ptz") String ptz, @RequestBody JoystickRequest payload) {
         // speed1: number, speed2: number (json body)
-        String direction = "";
-        int speed1 = 0;
-        int speed2 = 0;
+        String direction = payload.getDirection();
+        int speed1 = payload.getSpeed1();
+        int speed2 = payload.getSpeed2();
         try {
             PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
             ptzSession.startJoystick(direction, speed1, speed2);
@@ -192,11 +198,11 @@ public class PtzOperateController {
     }
 
     @PostMapping("/{ptz}/joystick/stop")
-    public ResponseEntity<Void> joystickStop(@PathVariable("ptz") String ptz) {
+    public ResponseEntity<Void> joystickStop(@PathVariable("ptz") String ptz, @RequestBody JoystickRequest payload) {
         // speed1: number, speed2: number (json body)
-        String direction = "";
-        int speed1 = 0;
-        int speed2 = 0;
+        String direction = payload.getDirection();
+        int speed1 = payload.getSpeed1();
+        int speed2 = payload.getSpeed2();
         try {
             PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
             ptzSession.stopJoystick(direction, speed1, speed2);
@@ -255,11 +261,10 @@ public class PtzOperateController {
     }
 
     @PostMapping("/{ptz}/config")
-    public ResponseEntity<Void> setConfig(@PathVariable("ptz") String ptz) {
-        // list: any[] (json body)
+    public ResponseEntity<Void> setConfig(@PathVariable("ptz") String ptz, @RequestBody List<DahuaParamRequestSetConfig> payload) {
         try {
             PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
-            ptzSession.setConfig();
+            ptzSession.setConfig(payload);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);

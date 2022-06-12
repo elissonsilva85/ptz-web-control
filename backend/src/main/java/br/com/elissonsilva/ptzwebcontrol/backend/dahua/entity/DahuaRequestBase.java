@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import lombok.Data;
 
 @Data
-public abstract class DahuaRequestBase<T extends DahuaParamBase> {
+public abstract class DahuaRequestBase<T> {
 
     private String method;
     private T params;

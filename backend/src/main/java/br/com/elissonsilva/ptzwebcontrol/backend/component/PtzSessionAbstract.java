@@ -1,5 +1,8 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.component;
 
+import br.com.elissonsilva.ptzwebcontrol.backend.dahua.entity.DahuaRequestSetConfig;
+import br.com.elissonsilva.ptzwebcontrol.backend.dahua.entity.param.DahuaParamBase;
+import br.com.elissonsilva.ptzwebcontrol.backend.dahua.entity.param.DahuaParamRequestSetConfig;
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.JoystickQueueData;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionException;
 import okhttp3.*;
@@ -128,7 +131,7 @@ protected _addLog = (p:string, t:string) => {}) {
 
     public abstract void getConfig() throws PtzSessionException; // list: any[]
 
-    public abstract void setConfig() throws PtzSessionException; // list: any[], table: any[]
+    public abstract void setConfig(List<DahuaParamRequestSetConfig> setConfigList) throws PtzSessionException; // list: any[], table: any[]
 
     public abstract void moveDirectly(int[] coord, int speed) throws PtzSessionException;
 
