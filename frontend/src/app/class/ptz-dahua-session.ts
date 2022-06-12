@@ -108,60 +108,6 @@ export class PtzDahuaSession extends PtzAbstractSession {
       });
     }
 
-    public setConfig(list: any[], table: any[]) : Promise<any> {
-      if( !this.isConnected() )
-        return this._getPromiseRejectWithText(`setConfig: ${this._ptz} is not connected`);
-
-      var body: any = {};
-
-      if(list.length == 1) {
-
-        body = {
-          "method": "configManager.setConfig",
-          "params": {
-            "name": list[0],
-            "table": [
-              table[0]
-            ],
-            "options": []
-          },
-          "id": this._sessionData.id + 1,
-          "session": this._sessionData.session
-        };
-
-      }
-      else {
-        body = {  
-          "method": "system.multicall",
-          "params": [ ],
-          "id": 0,
-          "session": this._sessionData.session
-        };
-
-        body.params = list.map( (name, i) => { return {
-            "method": "configManager.setConfig",
-            "params": {
-              "name": name,
-              "table": [ table[i] ],
-              "options": []
-            },
-            "id": this._sessionData.id + 1 + i,
-            "session": this._sessionData.session
-          }
-        });
-
-        body.id = this._sessionData.id + 1 + list.length;
-      }
-
-      //
-      this._addLog(this._ptz, "setConfig : " + JSON.stringify(body));
-      return this._post("RPC2", body).then( r => {
-        this._addLog(this._ptz, "setConfig return: " + JSON.stringify(r));
-        this._sessionData.id = r.id;
-        return r; 
-      });
-    }
-
     public setVideoColor(videoColorTable: any[]) : Promise<any> {
       if( !this.isConnected() )
         return this._getPromiseRejectWithText(`setVideoColor: ${this._ptz} is not connected`);
