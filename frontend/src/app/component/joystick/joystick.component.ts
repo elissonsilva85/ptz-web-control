@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, HostListener } from '@angular/core';
-import { JoystickEvent } from 'ngx-joystick';
-import { JoystickManagerOptions } from 'nipplejs';
+// import { JoystickEvent } from 'ngx-joystick';
+// import { JoystickManagerOptions } from 'nipplejs';
 import { Subject } from 'rxjs';
 import { RcpService } from '../../service/rcp.service';
 import { JoystickQueueData } from '../../class/joystick-queue-data';
@@ -24,11 +24,13 @@ export class JoystickComponent implements OnInit {
   showX: number;
   showY: number;
 
+  /*
   joysctickOptions: JoystickManagerOptions = {
     mode: 'dynamic',
     color: 'blue',
     multitouch: true
   };
+  */
 
   joystickOn: boolean = false;
   joystickQueue = new Subject<JoystickQueueData>();
@@ -113,6 +115,7 @@ export class JoystickComponent implements OnInit {
     this.stopAll();
   }
 
+  /*
   onMoveDynamic(event: JoystickEvent) {
     let xPos = this.showX = event.data.instance.frontPosition.x;
     let yPos = this.showY =  event.data.instance.frontPosition.y;
@@ -133,6 +136,7 @@ export class JoystickComponent implements OnInit {
 
     this. moveByXandYSpeed(direction, xSpeed, ySpeed);
   }
+  */
 
   moveByXandYSpeed(direction: JoystickDirection, xSpeed: number, ySpeed: number) {
 
