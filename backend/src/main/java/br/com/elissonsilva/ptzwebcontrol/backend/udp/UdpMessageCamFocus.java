@@ -1,5 +1,7 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.udp;
 
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzSessionAbstract;
+
 public class UdpMessageCamFocus extends UdpMessageBase {
 
     private final String FILTER = "81010408";
@@ -10,7 +12,7 @@ public class UdpMessageCamFocus extends UdpMessageBase {
     }
 
     @Override
-    public void doAction() {
+    public void doAction(PtzSessionAbstract session) {
         String command = "";
         //
         // UP: 8x 01 04 07 VW 01 FF

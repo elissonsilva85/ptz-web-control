@@ -2,15 +2,16 @@ package br.com.elissonsilva.ptzwebcontrol.tests;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.ApplicationBootstrap;
 import br.com.elissonsilva.ptzwebcontrol.backend.component.Config;
-import br.com.elissonsilva.ptzwebcontrol.backend.dahua.entity.config.DahuaParamRequestSetConfigVideoInWhiteBalance;
-import br.com.elissonsilva.ptzwebcontrol.backend.dahua.entity.config.DahuaParamRequestSetConfigVideoInZoom;
-import br.com.elissonsilva.ptzwebcontrol.backend.dahua.entity.param.DahuaParamRequestSetConfig;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzJoystickDirection;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamRequestSetConfigVideoInWhiteBalance;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamRequestSetConfigVideoInZoom;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetConfig;
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.ConfigPtz;
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.ConfigPtzConnection;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionException;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionManagerException;
 import br.com.elissonsilva.ptzwebcontrol.backend.services.PtzSessionManagerService;
-import br.com.elissonsilva.ptzwebcontrol.backend.dahua.PtzSessionDahua;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.PtzSessionDahua;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
@@ -22,7 +23,6 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.util.Arrays;
@@ -185,9 +185,9 @@ public class TestsPtzSessionDahua {
     public void _007_shouldJoystickRight() {
 
         try {
-            sessionDahua.startJoystick("Right",1, 1);
+            sessionDahua.startJoystick(PtzJoystickDirection.Right,1, 1);
             Thread.sleep(500);
-            sessionDahua.stopJoystick("Right", 1, 1);
+            sessionDahua.stopJoystick(PtzJoystickDirection.Right, 1, 1);
             Thread.sleep(1000);
         } catch (PtzSessionException e) {
             fail(e.getMessage());

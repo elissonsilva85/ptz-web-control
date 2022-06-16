@@ -1,10 +1,9 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.udp;
 
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzSessionAbstract;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 
 @Data
 public abstract class UdpMessageBase {
@@ -37,7 +36,7 @@ public abstract class UdpMessageBase {
         return getData().startsWith(getFilterBase());
     }
 
-    public void doAction() {
+    public void doAction(PtzSessionAbstract session) {
         //
         this.logger.info("Running " + this.getName());
         //

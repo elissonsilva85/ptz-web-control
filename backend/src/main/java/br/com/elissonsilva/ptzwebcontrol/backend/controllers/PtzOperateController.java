@@ -1,9 +1,8 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.controllers;
 
-import br.com.elissonsilva.ptzwebcontrol.backend.component.PtzSessionAbstract;
-import br.com.elissonsilva.ptzwebcontrol.backend.dahua.entity.DahuaRequestSetConfig;
-import br.com.elissonsilva.ptzwebcontrol.backend.dahua.entity.param.DahuaParamBase;
-import br.com.elissonsilva.ptzwebcontrol.backend.dahua.entity.param.DahuaParamRequestSetConfig;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzJoystickDirection;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzSessionAbstract;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetConfig;
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.JoystickRequest;
 import br.com.elissonsilva.ptzwebcontrol.backend.services.PtzSessionManagerService;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionManagerException;
@@ -183,7 +182,7 @@ public class PtzOperateController {
     @PostMapping("/{ptz}/joystick/start")
     public ResponseEntity<Void> joystickStart(@PathVariable("ptz") String ptz, @RequestBody JoystickRequest payload) {
         // speed1: number, speed2: number (json body)
-        String direction = payload.getDirection();
+        PtzJoystickDirection direction = payload.getDirection();
         int speed1 = payload.getSpeed1();
         int speed2 = payload.getSpeed2();
         try {
@@ -200,7 +199,7 @@ public class PtzOperateController {
     @PostMapping("/{ptz}/joystick/stop")
     public ResponseEntity<Void> joystickStop(@PathVariable("ptz") String ptz, @RequestBody JoystickRequest payload) {
         // speed1: number, speed2: number (json body)
-        String direction = payload.getDirection();
+        PtzJoystickDirection direction = payload.getDirection();
         int speed1 = payload.getSpeed1();
         int speed2 = payload.getSpeed2();
         try {

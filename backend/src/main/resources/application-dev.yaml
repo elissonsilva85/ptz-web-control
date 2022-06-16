@@ -2,19 +2,24 @@ config:
   vmixUrl: "http://localhost/"
   blackMagicIP: "192.168.0.100"
   ptz:
-    brand: dahua
     connection:
       PTZ1:
+        brand: dahua
+        udpPort: 10001
         label: "PTZ-1"
         url: "http://localhost:3000/"
         user: "<user>"
         password: "<pass>"
       PTZ2:
+        brand: dahua
+        udpPort: 10002
         label: "PTZ-2"
         url: "http://localhost:3000/"
         user: "<user>"
         password: "<pass>"
       PTZ3:
+        brand: dahua
+        udpPort: 10003
         label: "PTZ-3"
         url: "http://localhost:3000/"
         user: "<username>"
