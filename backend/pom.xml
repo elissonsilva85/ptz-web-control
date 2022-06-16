@@ -59,6 +59,11 @@
             <artifactId>spring-integration-ip</artifactId>
             <version>5.3.10.RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.10.2</version>
+        </dependency>
 
         <!-- Youtube -->
         <dependency>
