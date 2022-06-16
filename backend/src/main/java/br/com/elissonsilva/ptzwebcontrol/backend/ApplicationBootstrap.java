@@ -38,7 +38,7 @@ public class ApplicationBootstrap extends SpringBootServletInitializer {
     public IntegrationFlow processUniCastUdpMessage() {
         return IntegrationFlows
                 .from(new UnicastReceivingChannelAdapter(11111))
-                .handle("UDPServer", "handleMessage")
+                .handle("UDPServerService", "handleMessage")
                 .get();
     }
 
