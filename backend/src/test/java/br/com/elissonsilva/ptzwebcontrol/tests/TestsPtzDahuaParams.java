@@ -1,13 +1,11 @@
 package br.com.elissonsilva.ptzwebcontrol.tests;
 
-import br.com.elissonsilva.ptzwebcontrol.backend.dahua.entity.*;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.math.BigInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

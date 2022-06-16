@@ -1,30 +1,30 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.services;
 
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzSessionAbstract;
 import br.com.elissonsilva.ptzwebcontrol.backend.udp.UdpMessageBase;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.ip.udp.UnicastSendingMessageHandler;
 import org.springframework.integration.support.MessageBuilder;
-import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Set;
 
 @Service
 public class UDPServerService {
 
+    @Autowired
+    private PtzSessionManagerService ptzSessionManagerService;
 
+    private final static Logger logger = LoggerFactory.getLogger(UDPServerService.class);
 
+    private final static byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
 
-    Logger logger = LoggerFactory.getLogger(UDPServerService.class);
-
-    private final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
-
-    private final Set<Class<? extends UdpMessageBase>> udpMessageClasses = (new Reflections("br.com.elissonsilva.ptzwebcontrol")).getSubTypesOf(UdpMessageBase.class);
+    private final static Set<Class<? extends UdpMessageBase>> udpMessageClasses = (new Reflections("br.com.elissonsilva.ptzwebcontrol")).getSubTypesOf(UdpMessageBase.class);
 
     private String bytesToHex(byte[] bytes) {
         byte[] hexChars = new byte[bytes.length * 2];
@@ -93,25 +93,28 @@ public class UDPServerService {
                 .get();
     }
 
-    public void handleMessage(Message message)
+    public void handleMessage(Object payload, Map<String, Object> headers)
     {
         //
-        String address = message.getHeaders().get("ip_address").toString();
-        int port = Integer.valueOf(message.getHeaders().get("ip_port").toString());
+        String address = headers.get("ip_address").toString();
+        int port = Integer.valueOf(headers.get("ip_port").toString());
 
-        //
-        String data = bytesToHex((byte[]) message.getPayload());
-        logger.info("Received [" + data + "]");
-
-        //
         try {
+            //
+            String ptz = headers.get("destPTZ").toString();
+            PtzSessionAbstract ptzSession = ptzSessionManagerService.getSession(ptz);
+            //
+            String data = bytesToHex((byte[]) payload);
+            logger.info("Received [" + data + "] for " + ptz);
+            //
             UdpMessageBase udpMessage = findClass(data);
             if(udpMessage == null) {
                 logger.warn("handleMessage error : Nenhuma classe encontrada para a mensagem [" + data + "]");
             } else {
-                udpMessage.doAction();
+                udpMessage.doAction(ptzSession);
                 this.sendResponse(address, port, udpMessage.getResponse());
             }
+            //
         } catch (Exception e) {
             logger.warn("handleMessage exception : " + e.getMessage(), e);
         }

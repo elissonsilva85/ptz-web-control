@@ -1,6 +1,6 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.controllers;
 
-import br.com.elissonsilva.ptzwebcontrol.backend.dahua.PtzSessionDahua;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.PtzSessionDahua;
 import br.com.elissonsilva.ptzwebcontrol.backend.services.PtzSessionManagerService;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionManagerException;
 import org.springframework.beans.factory.annotation.Autowired;

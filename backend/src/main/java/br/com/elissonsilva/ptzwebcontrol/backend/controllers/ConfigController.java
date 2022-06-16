@@ -40,9 +40,10 @@ public class ConfigController {
         return new ResponseEntity<>(config, HttpStatus.OK);
     }
 
+    /*
     @GetMapping("/brand")
     public String getBrand() throws UnknownHostException {
         return config.getPtz().getBrand();
     }
-
+    */
 }
