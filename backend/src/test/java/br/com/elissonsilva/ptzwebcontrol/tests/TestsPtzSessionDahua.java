@@ -13,6 +13,7 @@ import br.com.elissonsilva.ptzwebcontrol.backend.services.PtzSessionManagerServi
 import br.com.elissonsilva.ptzwebcontrol.backend.dahua.PtzSessionDahua;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -24,7 +25,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +37,7 @@ import static org.springframework.test.util.AssertionErrors.fail;
 @SpringBootTest(classes = ApplicationBootstrap.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @WebAppConfiguration
+@Ignore
 public class TestsPtzSessionDahua {
 
     @Spy
@@ -47,28 +48,6 @@ public class TestsPtzSessionDahua {
     private PtzSessionManagerService ptzSessionManagerService;
 
     private static PtzSessionDahua sessionDahua;
-
-    /*
-    private class TestPtz extends PtzSessionDahua {
-
-        public TestPtz(String ptz, String user, String pass, String random, String realm, String session) {
-            super(ptz, user, pass);
-            this.setSessionData(
-                    new DahuaSessionData(
-                            random,
-                            realm,
-                            session,
-                            true));
-        }
-
-        public String getHashPassword() {
-            return this._getHashPassword();
-        }
-
-    }
-
-    private TestPtz testPtz;
-   */
 
     @Before
     public void setup() throws PtzSessionManagerException {
@@ -92,15 +71,6 @@ public class TestsPtzSessionDahua {
 
         ptzSessionManagerService = new PtzSessionManagerService(configSpy);
 
-        /*
-        testPtz = new TestPtz(
-                "PTZ1",
-                "username",
-                "password",
-                "1618173075",
-                "Login to c8de6f5505ddde548b269d05de712bc5",
-                "");
-        */
     }
 
     @Test
