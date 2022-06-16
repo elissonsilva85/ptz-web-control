@@ -334,6 +334,7 @@ public class PtzSessionDahua extends PtzSessionAbstract {
 
     @Override
     public boolean isConnected() {
+        if(this._sessionData == null) return false;
         return this._sessionData.isConnected();
     }
 
