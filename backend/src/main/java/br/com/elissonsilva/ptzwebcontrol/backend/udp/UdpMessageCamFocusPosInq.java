@@ -18,7 +18,7 @@ public class UdpMessageCamFocusPosInq extends UdpMessageBase {
         //
         try {
             this.logger.info("Running " + getName() + " " + "Connection");
-            session.connect();
+            if(!session.isConnected()) session.connect();
         } catch (PtzSessionException e) {
             this.logger.warn("doAction exception : " + e.getMessage(), e);
         }

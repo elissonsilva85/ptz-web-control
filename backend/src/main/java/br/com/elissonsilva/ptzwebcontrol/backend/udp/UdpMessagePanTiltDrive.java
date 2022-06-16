@@ -63,11 +63,13 @@ public class UdpMessagePanTiltDrive extends UdpMessageBase {
         //
         try {
             if (stop) {
+                //
                 this.logger.info("Running " + getName() + " " + "STOP");
-                session.stopLastCall();
+                if(session.isConnected()) session.stopLastCall();
             } else {
+                //
                 this.logger.info("Running " + getName() + " " + direction.toString());
-                session.startJoystick(direction, speed1, speed2);
+                if(session.isConnected()) session.startJoystick(direction, speed1, speed2);
             }
         } catch (PtzSessionException e) {
             this.logger.warn("doAction exception : " + e.getMessage(), e);
