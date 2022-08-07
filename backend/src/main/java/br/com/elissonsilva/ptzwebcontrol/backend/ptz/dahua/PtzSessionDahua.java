@@ -652,7 +652,7 @@ public class PtzSessionDahua extends PtzSessionAbstract {
             requestMultiConfig.setParams(setConfigList
                     .stream()
                     .map(setConfigItem -> {
-                        return new DahuaRequestSetConfig<>(){{
+                        return new DahuaRequestSetConfig(){{
                             setParams(setConfigItem);
                             setId(id.getAndIncrement());
                             setSession(session);
