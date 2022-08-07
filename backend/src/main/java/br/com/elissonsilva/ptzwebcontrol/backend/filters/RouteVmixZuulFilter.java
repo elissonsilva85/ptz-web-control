@@ -3,15 +3,12 @@ package br.com.elissonsilva.ptzwebcontrol.backend.filters;
 import br.com.elissonsilva.ptzwebcontrol.backend.component.Config;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-import com.netflix.zuul.exception.ZuulException;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.URL;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.*;
 
@@ -20,7 +17,7 @@ public class RouteVmixZuulFilter extends ZuulFilter {
     @Autowired
     private Config config;
 
-    private static Logger log = LoggerFactory.getLogger(RouteVmixZuulFilter.class);
+    private final static Logger log = LoggerFactory.getLogger(RouteVmixZuulFilter.class);
 
     @Override
     public String filterType() {
@@ -39,7 +36,7 @@ public class RouteVmixZuulFilter extends ZuulFilter {
 
     //@Override
     @SneakyThrows
-    public Object run() throws ZuulException {
+    public Object run() {
         log.debug("run");
         RequestContext ctx = RequestContext.getCurrentContext();
 
