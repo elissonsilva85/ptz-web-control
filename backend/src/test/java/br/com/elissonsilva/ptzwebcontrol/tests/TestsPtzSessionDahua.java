@@ -2,16 +2,18 @@ package br.com.elissonsilva.ptzwebcontrol.tests;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.ApplicationBootstrap;
 import br.com.elissonsilva.ptzwebcontrol.backend.component.Config;
-import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzJoystickDirection;
-import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamRequestSetConfigVideoInWhiteBalance;
-import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamRequestSetConfigVideoInZoom;
-import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetConfig;
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.ConfigPtz;
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.ConfigPtzConnection;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionException;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionManagerException;
-import br.com.elissonsilva.ptzwebcontrol.backend.services.PtzSessionManagerService;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzJoystickDirection;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.PtzSessionDahua;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamRequestSetConfigVideoColorTable;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamRequestSetConfigVideoInWhiteBalance;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamRequestSetConfigVideoInZoom;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetConfig;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetTemporaryConfig;
+import br.com.elissonsilva.ptzwebcontrol.backend.services.PtzSessionManagerService;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
@@ -29,7 +31,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.AssertionErrors.fail;
 
@@ -50,7 +52,7 @@ public class TestsPtzSessionDahua {
     private static PtzSessionDahua sessionDahua;
 
     @Before
-    public void setup() throws PtzSessionManagerException {
+    public void setup() {
 
         // Prepare Mock
         configSpy = Mockito.spy(new Config());
@@ -58,13 +60,13 @@ public class TestsPtzSessionDahua {
         // Mock Config data
         when(configSpy.getPtz())
                 .thenReturn(new ConfigPtz() {{
-                    setBrand("dahua");
-                    setConnection(new HashMap<String, ConfigPtzConnection>() {{
+                    setConnection(new HashMap<>() {{
                         put("PTZ1", new ConfigPtzConnection() {{
+                            setBrand("dahua");
                             setLabel("PTZ1");
                             setUser("user");
                             setPassword("pass");
-                            setUrl("http://ip/");
+                            setUrl("http://127.0.0.1");
                         }});
                     }});
                 }});
@@ -78,7 +80,7 @@ public class TestsPtzSessionDahua {
 
         String pass = "128CDAD12C6B9F8966F4B23F5F26AD76";
         //String currentPass = sessionDahua.getHashPassword();
-        assertTrue("128CDAD12C6B9F8966F4B23F5F26AD76".equals(pass), "PtzSessionDahua.getHashPassword with wrong result");
+        assertEquals("128CDAD12C6B9F8966F4B23F5F26AD76", pass, "PtzSessionDahua.getHashPassword with wrong result");
 
     }
 
@@ -106,9 +108,7 @@ public class TestsPtzSessionDahua {
         try {
             sessionDahua.loadPreset(1);
             Thread.sleep(2000);
-        } catch (PtzSessionException e) {
-            fail(e.getMessage());
-        } catch (InterruptedException e) {
+        } catch (PtzSessionException | InterruptedException e) {
             fail(e.getMessage());
         }
 
@@ -122,9 +122,7 @@ public class TestsPtzSessionDahua {
             Thread.sleep(500);
             sessionDahua.stopZoomIn(5);
             Thread.sleep(1000);
-        } catch (PtzSessionException e) {
-            fail(e.getMessage());
-        } catch (InterruptedException e) {
+        } catch (PtzSessionException | InterruptedException e) {
             fail(e.getMessage());
         }
 
@@ -137,7 +135,7 @@ public class TestsPtzSessionDahua {
 
             int zoomSpeed = 10;
 
-            List list = Arrays.asList(
+            List<List<DahuaParamRequestSetConfigVideoInZoom>> list = Arrays.asList(
                     Arrays.asList(
                             new DahuaParamRequestSetConfigVideoInZoom() {{
                                 setSpeed(zoomSpeed);
@@ -157,54 +155,75 @@ public class TestsPtzSessionDahua {
 
             sessionDahua.setConfig(Arrays.asList(setConfig));
             Thread.sleep(1000);
-        } catch (PtzSessionException e) {
-            fail(e.getMessage());
-        } catch (InterruptedException e) {
+        } catch (PtzSessionException | InterruptedException e) {
             fail(e.getMessage());
         }
 
     }
 
     @Test
-    public void _007_shouldZoomOut() {
+    public void _007_shouldSetTemporaryConfigVideoColor() {
+
+        try {
+
+            int zoomSpeed = 10;
+
+            List<List<DahuaParamRequestSetConfigVideoColorTable>> list = Arrays.asList(
+                    Arrays.asList(
+                            new DahuaParamRequestSetConfigVideoColorTable(),
+                            new DahuaParamRequestSetConfigVideoColorTable(),
+                            new DahuaParamRequestSetConfigVideoColorTable()
+                    )
+            );
+
+            DahuaParamRequestSetTemporaryConfig<List<DahuaParamRequestSetConfigVideoColorTable>> setConfig = new DahuaParamRequestSetTemporaryConfig<>();
+            setConfig.setName("VideoColor");
+            setConfig.setTable(list);
+
+            sessionDahua.setTemporaryConfig(setConfig);
+            Thread.sleep(1000);
+        } catch (PtzSessionException | InterruptedException e) {
+            fail(e.getMessage());
+        }
+
+    }
+
+    @Test
+    public void _008_shouldZoomOut() {
 
         try {
             sessionDahua.startZoomOut(5);
             Thread.sleep(1000);
             sessionDahua.stopZoomOut(5);
             Thread.sleep(1000);
-        } catch (PtzSessionException e) {
-            fail(e.getMessage());
-        } catch (InterruptedException e) {
+        } catch (PtzSessionException | InterruptedException e) {
             fail(e.getMessage());
         }
 
     }
 
     @Test
-    public void _007_shouldJoystickRight() {
+    public void _009_shouldJoystickRight() {
 
         try {
             sessionDahua.startJoystick(PtzJoystickDirection.Right,1, 1);
             Thread.sleep(500);
             sessionDahua.stopJoystick(PtzJoystickDirection.Right, 1, 1);
             Thread.sleep(1000);
-        } catch (PtzSessionException e) {
-            fail(e.getMessage());
-        } catch (InterruptedException e) {
+        } catch (PtzSessionException | InterruptedException e) {
             fail(e.getMessage());
         }
 
     }
 
     @Test
-    public void _008_shouldMultiCall() {
+    public void _010_shouldMultiCall() {
 
         try {
 
             int zoomSpeed = 100;
 
-            List list1 = Arrays.asList(
+            List<List<DahuaParamRequestSetConfigVideoInZoom>> list1 = Arrays.asList(
                     Arrays.asList(
                             new DahuaParamRequestSetConfigVideoInZoom() {{
                                 setSpeed(zoomSpeed);
@@ -218,7 +237,7 @@ public class TestsPtzSessionDahua {
                     )
             );
 
-            List list2 = Arrays.asList(
+            List<List<DahuaParamRequestSetConfigVideoInWhiteBalance>> list2 = Arrays.asList(
                     Arrays.asList(
                             new DahuaParamRequestSetConfigVideoInWhiteBalance() {{
                                 setColorTemperatureLevel(50);
@@ -254,25 +273,21 @@ public class TestsPtzSessionDahua {
 
             sessionDahua.setConfig(Arrays.asList(setConfig1, setConfig2));
             Thread.sleep(1000);
-        } catch (PtzSessionException e) {
-            fail(e.getMessage());
-        } catch (InterruptedException e) {
+        } catch (PtzSessionException | InterruptedException e) {
             fail(e.getMessage());
         }
 
     }
 
     @Test
-    public void _009_shouldZoomOut() {
+    public void _011_shouldZoomOut() {
 
         try {
             sessionDahua.startZoomOut(5);
             Thread.sleep(500);
             sessionDahua.stopZoomOut(5);
             Thread.sleep(1000);
-        } catch (PtzSessionException e) {
-            fail(e.getMessage());
-        } catch (InterruptedException e) {
+        } catch (PtzSessionException | InterruptedException e) {
             fail(e.getMessage());
         }
 
