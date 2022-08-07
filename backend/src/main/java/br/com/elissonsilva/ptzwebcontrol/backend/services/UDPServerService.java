@@ -2,133 +2,96 @@ package br.com.elissonsilva.ptzwebcontrol.backend.services;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzSessionAbstract;
 import br.com.elissonsilva.ptzwebcontrol.backend.udp.UdpMessageBase;
-import org.reflections.Reflections;
+import br.com.elissonsilva.ptzwebcontrol.backend.udp.UdpMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.integration.ip.udp.UnicastSendingMessageHandler;
-import org.springframework.integration.support.MessageBuilder;
-import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Set;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
 
-@Service
-public class UDPServerService {
-
-    @Autowired
-    private PtzSessionManagerService ptzSessionManagerService;
+public class UDPServerService extends Thread {
 
     private final static Logger logger = LoggerFactory.getLogger(UDPServerService.class);
 
-    private final static byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
+    private final PtzSessionManagerService ptzSessionManagerService;
 
-    private final static Set<Class<? extends UdpMessageBase>> udpMessageClasses = (new Reflections("br.com.elissonsilva.ptzwebcontrol")).getSubTypesOf(UdpMessageBase.class);
+    private final DatagramSocket socket;
 
-    private String bytesToHex(byte[] bytes) {
-        byte[] hexChars = new byte[bytes.length * 2];
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-        }
-        return new String(hexChars, StandardCharsets.UTF_8);
+    private final String ptz;
+
+    private boolean running;
+
+    public UDPServerService(PtzSessionManagerService ptzSessionManagerService, String ptz, int port) throws SocketException {
+        this.ptz = ptz;
+        this.ptzSessionManagerService = ptzSessionManagerService;
+        socket = new DatagramSocket(port);
+        logger.info(ptz + " UDP Receive: Listening " + port);
     }
 
-    /* s must be an even-length string. */
-    private byte[] hexStringToBytes(String s) {
-        int len = s.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                    + Character.digit(s.charAt(i+1), 16));
-        }
-        return data;
+    public void close() {
+        running = false;
+        socket.close();
     }
 
-    /*
-    Received .: (5 bytes) <Buffer 81 09 06 12 ff>
-    From .....: 192.168.0.101:59720
-    Command ..: Pan-tiltPosInq
-    Sent .....: (11 bytes) <Buffer 90 50 00 00 00 00 00 00 00 00 ff>
-    Success ..: OK
+    public void run() {
+        running = true;
+        byte[] buf = new byte[256];
 
-
-    Received .: (5 bytes) <Buffer 81 09 04 47 ff>
-    From .....: 192.168.0.101:59720
-    Command ..: CAM_ZoomPosInq
-    Sent .....: (7 bytes) <Buffer 90 50 00 00 00 00 ff>
-    Success ..: OK
-
-
-    Received .: (5 bytes) <Buffer 81 09 04 48 ff>
-    From .....: 192.168.0.101:59720
-    Command ..: CAM_FocusPosInq
-    Sent .....: (7 bytes) <Buffer 90 50 00 00 00 00 ff>
-    Success ..: OK
-
-
-    Received .: (6 bytes) <Buffer 81 01 04 38 02 ff>
-    From .....: 192.168.0.101:59720
-    Command ..: Auto Focus
-     */
-
-    private UdpMessageBase findClass(String data) throws Exception {
-
-        return udpMessageClasses
-                .stream()
-                .map(c -> {
-                    try {
-                        return (UdpMessageBase) c.getConstructor().newInstance();
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .filter(udp -> {
-                    udp.setData(data);
-                    return udp.doFilter();
-                })
-                .findFirst()
-                .get();
-    }
-
-    public void handleMessage(Object payload, Map<String, Object> headers)
-    {
-        //
-        String address = headers.get("ip_address").toString();
-        int port = Integer.valueOf(headers.get("ip_port").toString());
-
-        try {
-            //
-            String ptz = headers.get("destPTZ").toString();
-            PtzSessionAbstract ptzSession = ptzSessionManagerService.getSession(ptz);
-            //
-            String data = bytesToHex((byte[]) payload);
-            logger.info("Received [" + data + "] for " + ptz);
-            //
-            UdpMessageBase udpMessage = findClass(data);
-            if(udpMessage == null) {
-                logger.warn("handleMessage error : Nenhuma classe encontrada para a mensagem [" + data + "]");
-            } else {
-                udpMessage.doAction(ptzSession);
-                this.sendResponse(address, port, udpMessage.getResponse());
+        while (running) {
+            DatagramPacket packet = new DatagramPacket(buf, buf.length);
+            try {
+                socket.receive(packet);
+                logger.info(ptz + " UDP Receive: -------------------------");
+            } catch (IOException e) {
+                logger.info(ptz + " UDP Receive: " + e.getMessage());
+                running = false;
+                continue;
             }
-            //
-        } catch (Exception e) {
-            logger.warn("handleMessage exception : " + e.getMessage(), e);
+
+            InetAddress address = packet.getAddress();
+            int port = packet.getPort();
+            String received = UdpMessageUtils.bytesToHex(packet.getData(), packet.getLength());
+
+            packet = new DatagramPacket(buf, buf.length, address, port);
+            logger.info(ptz + " UDP Receive: msg [" + received + "]");
+
+            try {
+                if (received.equals("FF")) {
+                    running = false;
+                    packet.setData(new byte[0], 0, 0);
+                    socket.send(packet);
+                    socket.close();
+                    logger.info(ptz + " UDP Receive: socket closed");
+                    continue;
+                }
+                //
+                UdpMessageBase udpMessage = UdpMessageUtils.findClass(received);
+                if (udpMessage == null) {
+                    logger.warn(ptz + " UDP Receive: Nenhuma classe encontrada para a mensagem [" + received + "]");
+                    packet.setData(new byte[0], 0, 0);
+                    socket.send(packet);
+                } else {
+                    //
+                    PtzSessionAbstract ptzSession = null;
+                    if (ptzSessionManagerService != null)
+                        ptzSession = ptzSessionManagerService.getSession(ptz);
+                    //
+                    logger.info(ptz + " UDP Receive: running " + udpMessage.getName());
+                    String response = udpMessage.getResponse();
+                    byte[] tmp = UdpMessageUtils.hexStringToBytes(response);
+                    packet.setData(tmp, 0, tmp.length);
+                    socket.send(packet);
+                    logger.info(ptz + " UDP Receive: response [" + response + "]");
+                    //
+                    if(ptzSession != null)
+                        udpMessage.doAction(ptzSession);
+                }
+            } catch (Exception e) {
+                logger.warn(ptz + " UDP Receive: " + e.getMessage(), e);
+            }
         }
-
     }
-
-    private void sendResponse(String address, int port, String payload) {
-        if(payload != null)
-        {
-            logger.info("sendResponse : " + address + ":" + port + " : " + payload);
-            UnicastSendingMessageHandler handler =
-                    new UnicastSendingMessageHandler(address, port);
-            handler.handleMessage(MessageBuilder.withPayload(hexStringToBytes(payload)).build());
-        }
-    }
-
 }

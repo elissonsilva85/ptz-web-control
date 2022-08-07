@@ -2,13 +2,16 @@ package br.com.elissonsilva.ptzwebcontrol.backend.udp;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzJoystickDirection;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzSessionAbstract;
-import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UdpMessagePanTiltDrive extends UdpMessageBase {
 
-    private final String FILTER = "81010601";
+    protected Logger logger = LoggerFactory.getLogger(UdpMessagePanTiltDrive.class);
 
     public UdpMessagePanTiltDrive() {
+        String FILTER = "81010601";
+
         this.setName("Pan_tiltDrive");
         this.setFilterBase(FILTER);
     }
@@ -17,10 +20,6 @@ public class UdpMessagePanTiltDrive extends UdpMessageBase {
     public void doAction(PtzSessionAbstract session) {
         PtzJoystickDirection direction = null;
         boolean stop = false;
-        //
-        // UP: 8x 01 06 01 VV WW 03 01 FF
-        // VV: Pan speed 0x01 (low speed) to 0x18 (high speed)
-        // WW: Tilt speed 0x01 (low speed) to 0x14 (high speed)
         //
         switch(getData().substring(getData().length() - 6)) {
             // --------------------------------
@@ -58,20 +57,32 @@ public class UdpMessagePanTiltDrive extends UdpMessageBase {
                 this.logger.warn("Action not found for " + getName());
         }
         //
-        int speed1 = 0;
-        int speed2 = 0;
+        // UP: 8x 01 06 01 VV WW 03 01 FF
+        // VV: Pan speed 0x01 (low speed) to 0x18 (high speed)
+        // WW: Tilt speed 0x01 (low speed) to 0x14 (high speed)
+        //
+        int panSpeed = Integer.valueOf(getData().substring(8, 10), 16);
+        int tiltSpeed = Integer.valueOf(getData().substring(10, 12), 16);
+
         //
         try {
             if (stop) {
                 //
-                this.logger.info("Running " + getName() + " " + "STOP");
+                this.logger.info("Stop movement");
                 if(session.isConnected()) session.stopLastCall();
-            } else {
+            } else if(direction != null) {
                 //
-                this.logger.info("Running " + getName() + " " + direction.toString());
-                if(session.isConnected()) session.startJoystick(direction, speed1, speed2);
+                this.logger.info("Moving " + direction);
+                if(session.isConnected()) {
+                    panSpeed = UdpMessageUtils.speedConverter(panSpeed, Integer.valueOf("01", 16), Integer.valueOf("18", 16), 1, 8);
+                    tiltSpeed = UdpMessageUtils.speedConverter(tiltSpeed, Integer.valueOf("01", 16), Integer.valueOf("14", 16), 1, 8);
+                    //
+                    session.startJoystick(direction, panSpeed, tiltSpeed);
+                }
+            } else {
+                this.logger.info("Direction is null!");
             }
-        } catch (PtzSessionException e) {
+        } catch (Exception e) {
             this.logger.warn("doAction exception : " + e.getMessage(), e);
         }
         //

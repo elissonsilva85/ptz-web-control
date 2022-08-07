@@ -24,7 +24,7 @@ public abstract class PtzSessionAbstract {
     protected String _user;
     protected String _pass;
 
-    protected List<JoystickQueueData> joystickQueueDataList = new ArrayList<JoystickQueueData>();
+    protected List<JoystickQueueData> joystickQueueDataList = new ArrayList<>();
 
     public PtzSessionAbstract(String ptz, String user, String pass, String url) {
         this._user = user;
@@ -68,11 +68,11 @@ protected _addLog = (p:string, t:string) => {}) {
 */
 
     protected Response _post( String page, String postBody ) throws IOException {
-        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), postBody);
+        RequestBody requestBody = RequestBody.create(postBody, MediaType.parse("application/json; charset=utf-8"));
 
         Request.Builder builder = new Request.Builder()
                 .headers(headers.build())
-                .url(this._getUrl(page))
+                .url(page)
                 .method("POST", requestBody);
 
         return httpClient.newCall(builder.build()).execute();
@@ -131,6 +131,6 @@ protected _addLog = (p:string, t:string) => {}) {
 
     public abstract void setConfig(List<DahuaParamRequestSetConfig> setConfigList) throws PtzSessionException; // list: any[], table: any[]
 
-    public abstract void moveDirectly(int[] coord, int speed) throws PtzSessionException;
+    public abstract void moveDirectly(int[] coord) throws PtzSessionException;
 
 }

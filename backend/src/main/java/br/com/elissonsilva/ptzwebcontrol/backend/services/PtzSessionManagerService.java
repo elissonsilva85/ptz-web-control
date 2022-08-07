@@ -7,16 +7,18 @@ import br.com.elissonsilva.ptzwebcontrol.backend.entity.ConfigPtzConnection;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionManagerBrandNotFoundException;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionManagerException;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionManagerPtzNotFoundException;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 
 @Service
+@Scope("singleton")
 public class PtzSessionManagerService {
 
-    private Config config;
+    private final Config config;
 
-    private HashMap<String, PtzSessionAbstract> sessionList = new HashMap<String, PtzSessionAbstract>();
+    private final static HashMap<String, PtzSessionAbstract> sessionList = new HashMap<>();
 
     public PtzSessionManagerService(Config config) {
         this.config = config;
