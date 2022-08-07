@@ -1,6 +1,5 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.entity;
 
-import com.google.api.client.auth.oauth2.TokenResponse;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -10,7 +9,6 @@ import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Entity
 @Data
