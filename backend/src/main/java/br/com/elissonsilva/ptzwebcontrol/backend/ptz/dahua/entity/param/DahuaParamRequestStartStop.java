@@ -2,9 +2,10 @@ package br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
-//@JsonFilter("filterArg")
+@EqualsAndHashCode(callSuper = true)
 public class DahuaParamRequestStartStop extends DahuaParamBase {
 
     private String code;
