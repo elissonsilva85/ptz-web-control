@@ -275,11 +275,10 @@ public class PtzOperateController {
     @PostMapping("/{ptz}/moveDirectly")
     public ResponseEntity<Void> moveDirectly(@PathVariable("ptz") String ptz) {
         // coord: number[], speed: number (json body)
-        int[] coord = new int[2];
-        int speed = 0;
+        int[] coord = new int[]{ 1, 2, 3 };
         try {
             PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
-            ptzSession.moveDirectly(coord, speed);
+            ptzSession.moveDirectly(coord);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);

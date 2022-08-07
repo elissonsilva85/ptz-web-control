@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 @Data
 public abstract class UdpMessageBase {
 
-    Logger logger = LoggerFactory.getLogger(UdpMessageBase.class);
+    private Logger logger = LoggerFactory.getLogger(UdpMessageBase.class);
 
     private String name;
 

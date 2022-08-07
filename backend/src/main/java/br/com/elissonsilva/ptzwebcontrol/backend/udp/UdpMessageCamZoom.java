@@ -1,21 +1,27 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.udp;
 
-import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionException;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzSessionAbstract;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.PtzSessionDahua;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UdpMessageCamZoom extends UdpMessageBase {
 
-    private final String FILTER = "81010407";
+    protected Logger logger = LoggerFactory.getLogger(UdpMessageCamZoom.class);
+
+    private static int lastSpeed = 7; // standard speed 100%
 
     public UdpMessageCamZoom() {
+        String FILTER = "81010407";
+
         this.setName("CAM_Zoom");
         this.setFilterBase(FILTER);
     }
 
     @Override
     public void doAction(PtzSessionAbstract session) {
-        String teleWide = "";
-        int speed = 5; // standard speed
+        String teleWide = null;
+        int speed = lastSpeed;
         //
         // UP: 8x 01 04 07 VW 01 FF
         // V: Wide / Tele
@@ -36,31 +42,40 @@ public class UdpMessageCamZoom extends UdpMessageBase {
             // --------------------------------
             default:
                 // by speed
-                /*
-                String variable = msg.subarray(4,5).readUInt8();
-                teleWide = ( (variable & 0x30) == 0x30 ? "Wide" : ( (variable & 0x20) == 0x20 ? "Tele" : "unknow"));
-                speed = 0;
-                speed += (variable & 1) == 1 ? 1 : 0;
-                speed += (variable & 2) == 2 ? 2 : 0;
-                speed += (variable & 4) == 4 ? 4 : 0;
-                */
+                String teleWideFlag = getData().substring(8,9);
+                teleWide = ( "3".equals(teleWideFlag) ? "Wide" : ( "2".equals(teleWideFlag) ? "Tele" : "unknow" ) );
+                //
+                speed = Integer.valueOf(getData().substring(9,10), 16);
         }
         //
         try {
-            if ("STOP".equals(teleWide)) {
-                //
-                this.logger.info("Running " + getName() + " " + "STOP");
-                if(session.isConnected()) session.stopLastCall();
-            } else if ("Tele".equals(teleWide)) {
-                //
-                this.logger.info("Running " + getName() + " " + teleWide);
-                if(session.isConnected()) session.startZoomIn(speed);
-            } else if ("Wide".equals(teleWide)) {
-                //
-                this.logger.info("Running " + getName() + " " + teleWide);
-                if(session.isConnected()) session.startZoomOut(speed);
+            //
+            if(lastSpeed != speed) {
+                lastSpeed = speed;
+                int convertedSpeed = UdpMessageUtils.speedConverter(speed, 0, 7, 1, 100);
+                this.logger.info("Setting Zoom Speed to " + convertedSpeed);
+                if("PtzSessionDahua".equals(session.getClass().getSimpleName()))
+                    ((PtzSessionDahua) session).setZoomSpeed(convertedSpeed);
             }
-        } catch (PtzSessionException e) {
+            //
+            switch(teleWide)
+            {
+                case "STOP":
+                    this.logger.info("Running " + getName() + " " + "STOP");
+                    if(session.isConnected()) session.stopLastCall();
+                    break;
+                case "Tele":
+                    this.logger.info("Running " + getName() + " " + "STOP");
+                    if(session.isConnected()) session.startZoomIn(5);
+                    break;
+                case "Wide":
+                    this.logger.info("Running " + getName() + " " + "STOP");
+                    if(session.isConnected()) session.startZoomOut(5);
+                    break;
+                default:
+                    this.logger.info("Action [" + teleWide + "] not defined!");
+            }
+        } catch (Exception e) {
             this.logger.warn("doAction exception : " + e.getMessage(), e);
         }
         //

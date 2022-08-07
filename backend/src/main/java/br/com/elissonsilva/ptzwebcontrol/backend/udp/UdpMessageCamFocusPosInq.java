@@ -1,24 +1,33 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.udp;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionException;
-import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzJoystickDirection;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzSessionAbstract;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UdpMessageCamFocusPosInq extends UdpMessageBase {
 
-    private final String FILTER = "81090448FF";
+    protected Logger logger = LoggerFactory.getLogger(UdpMessageCamFocusPosInq.class);
+
+    private int focus;
 
     public UdpMessageCamFocusPosInq() {
+        String FILTER = "81090448FF";
+
         this.setName("CAM_FocusPosInq");
-        this.setFilterBase("81090448FF");
+        this.setFilterBase(FILTER);
     }
 
     @Override
     public void doAction(PtzSessionAbstract session) {
         //
         try {
-            this.logger.info("Running " + getName() + " " + "Connection");
-            if(!session.isConnected()) session.connect();
+            focus = 0;
+
+            if(!session.isConnected()) {
+                this.logger.info("Connecting");
+                session.connect();
+            }
         } catch (PtzSessionException e) {
             this.logger.warn("doAction exception : " + e.getMessage(), e);
         }
@@ -31,8 +40,17 @@ public class UdpMessageCamFocusPosInq extends UdpMessageBase {
         // y0 50 0p 0q 0r 0s FF
         // pqrs: Focus Position
         //
-        String response = "9050" + "00000000" + "FF";
-        return response;
+
+        int[] f = new int[]{
+                focus/1000, // milhar
+                (focus%1000)/100, // centena
+                (focus%100)/10, // dezena
+                (focus%10) // unidade
+        };
+
+        return "9050" +
+                "0"+ f[0] + "0" + f[1] + "0" + f[2] + "0" + f[3] +
+                "FF";
     }
 
 }

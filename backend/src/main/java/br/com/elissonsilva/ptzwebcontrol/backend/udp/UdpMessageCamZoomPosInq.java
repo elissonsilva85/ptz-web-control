@@ -2,12 +2,18 @@ package br.com.elissonsilva.ptzwebcontrol.backend.udp;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionException;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzSessionAbstract;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UdpMessageCamZoomPosInq extends UdpMessageBase {
 
-    private final String FILTER = "81090447FF";
+    protected Logger logger = LoggerFactory.getLogger(UdpMessageCamZoomPosInq.class);
+
+    private int zoom;
 
     public UdpMessageCamZoomPosInq() {
+        String FILTER = "81090447FF";
+
         this.setName("CAM_ZoomPosInq");
         this.setFilterBase(FILTER);
     }
@@ -16,8 +22,12 @@ public class UdpMessageCamZoomPosInq extends UdpMessageBase {
     public void doAction(PtzSessionAbstract session) {
         //
         try {
-            this.logger.info("Running " + getName() + " " + "Connection");
-            if(!session.isConnected()) session.connect();
+            zoom = 0;
+
+            if(!session.isConnected()) {
+                this.logger.info("Connecting");
+                session.connect();
+            }
         } catch (PtzSessionException e) {
             this.logger.warn("doAction exception : " + e.getMessage(), e);
         }
@@ -30,8 +40,17 @@ public class UdpMessageCamZoomPosInq extends UdpMessageBase {
         // y0 50 0p 0q 0r 0s FF
         // pqrs: Zoom Position
         //
-        String response = "9050" + "00000000" + "FF";
-        return response;
+
+        int[] z = new int[]{
+                zoom/1000, // milhar
+                (zoom%1000)/100, // centena
+                (zoom%100)/10, // dezena
+                (zoom%10) // unidade
+        };
+
+        return "9050" +
+                "0"+ z[0] + "0" + z[1] + "0" + z[2] + "0" + z[3] +
+                "FF";
     }
 
 }
