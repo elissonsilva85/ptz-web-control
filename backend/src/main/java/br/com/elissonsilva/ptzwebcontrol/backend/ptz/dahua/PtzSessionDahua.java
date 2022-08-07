@@ -30,6 +30,8 @@ public class PtzSessionDahua extends PtzSessionAbstract {
 
     private DahuaRequestStart lastCall;
 
+    private final String INVALID_SESSION_IN_REQUEST_DATA = "Invalid session in request data!";
+
     public PtzSessionDahua(String ptz, String user, String pass, String url) {
         super(ptz, user, pass, url);
     }
@@ -180,8 +182,11 @@ public class PtzSessionDahua extends PtzSessionAbstract {
             throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
         }
 
-        if(responseLogin.getError() != null)
+        if(responseLogin.getError() != null) {
+            if ("Invalid session in request data!".equals(responseLogin.getError().getMessage()))
+                this._sessionData.setConnected(false);
             throw new PtzSessionDahuaException(responseLogin.getError().getMessage());
+        }
 
         this.getSessionData()
                 .updateSession(
@@ -215,8 +220,11 @@ public class PtzSessionDahua extends PtzSessionAbstract {
             throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
         }
 
-        if(responseFactoryInstance.getError() != null)
+        if(responseFactoryInstance.getError() != null) {
+            if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseFactoryInstance.getError().getMessage()))
+                this._sessionData.setConnected(false);
             throw new PtzSessionDahuaException(responseFactoryInstance.getError().getMessage());
+        }
 
         this.getSessionData()
                 .updateSession(
@@ -251,9 +259,11 @@ public class PtzSessionDahua extends PtzSessionAbstract {
             throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
         }
 
-        if(responseKeepAlive.getError() != null)
+        if(responseKeepAlive.getError() != null) {
+            if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseKeepAlive.getError().getMessage()))
+                this._sessionData.setConnected(false);
             throw new PtzSessionDahuaException(responseKeepAlive.getError().getMessage());
-
+        }
 
         this.getSessionData()
                 .updateSession(
@@ -294,8 +304,11 @@ public class PtzSessionDahua extends PtzSessionAbstract {
             throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
         }
 
-        if(responseStart.getError() != null)
+        if(responseStart.getError() != null) {
+            if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseStart.getError().getMessage()))
+                this._sessionData.setConnected(false);
             throw new PtzSessionDahuaException(responseStart.getError().getMessage());
+        }
 
         this.getSessionData()
                 .updateSession(
@@ -337,7 +350,7 @@ public class PtzSessionDahua extends PtzSessionAbstract {
         }
 
         if(responseStop.getError() != null) {
-            if("Invalid session in request data!".equals(responseStop.getError().getMessage()))
+            if(INVALID_SESSION_IN_REQUEST_DATA.equals(responseStop.getError().getMessage()))
                 this._sessionData.setConnected(false);
             throw new PtzSessionDahuaException(responseStop.getError().getMessage());
         }
@@ -548,7 +561,7 @@ public class PtzSessionDahua extends PtzSessionAbstract {
             }
 
             if(responseStop.getError() != null) {
-                if("Invalid session in request data!".equals(responseStop.getError().getMessage()))
+                if(INVALID_SESSION_IN_REQUEST_DATA.equals(responseStop.getError().getMessage()))
                     this._sessionData.setConnected(false);
                 throw new PtzSessionDahuaException(responseStop.getError().getMessage());
             }
@@ -621,7 +634,7 @@ public class PtzSessionDahua extends PtzSessionAbstract {
         // processing request
         if(setConfigList.size() == 1)
         {
-            DahuaRequestSetConfig<DahuaParamRequestSetConfig> requestSetConfig = new DahuaRequestSetConfig<>();
+            DahuaRequestSetConfig requestSetConfig = new DahuaRequestSetConfig();
             requestSetConfig.setParams(setConfigList.get(0));
             //
             requestSetConfig.setId(this.getSessionData().getNextId());
@@ -683,8 +696,11 @@ public class PtzSessionDahua extends PtzSessionAbstract {
         // error handling
         if(setConfigList.size() > 0) {
 
-            if (responseSetConfig.getError() != null)
+            if(responseSetConfig.getError() != null) {
+                if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseSetConfig.getError().getMessage()))
+                    this._sessionData.setConnected(false);
                 throw new PtzSessionDahuaException(responseSetConfig.getError().getMessage());
+            }
 
             this.getSessionData()
                     .updateSession(
@@ -713,8 +729,11 @@ public class PtzSessionDahua extends PtzSessionAbstract {
             ObjectMapper mapper = new ObjectMapper();
             DahuaResponseSetTemporaryConfig responseSetConfig = mapper.readValue(sessionReturn, DahuaResponseSetTemporaryConfig.class);
 
-            if (responseSetConfig.getError() != null)
+            if(responseSetConfig.getError() != null) {
+                if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseSetConfig.getError().getMessage()))
+                    this._sessionData.setConnected(false);
                 throw new PtzSessionDahuaException(responseSetConfig.getError().getMessage());
+            }
 
             this.getSessionData()
                     .updateSession(

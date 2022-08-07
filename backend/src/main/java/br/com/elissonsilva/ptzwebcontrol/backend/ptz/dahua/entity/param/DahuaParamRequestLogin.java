@@ -2,8 +2,10 @@ package br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class DahuaParamRequestLogin extends DahuaParamBase {
 
     private String userName = "";
