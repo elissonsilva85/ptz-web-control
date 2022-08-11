@@ -99,7 +99,7 @@ protected _addLog = (p:string, t:string) => {}) {
 
     public abstract void loadPreset(int id) throws PtzSessionException;
 
-    public abstract void savePreset(int id) throws PtzSessionException;
+    public abstract void savePreset(int id, String name) throws PtzSessionException;
 
     public abstract void startZoomIn(int amount ) throws PtzSessionException;
 

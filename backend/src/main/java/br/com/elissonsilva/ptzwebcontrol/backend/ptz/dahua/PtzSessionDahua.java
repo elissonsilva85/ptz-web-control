@@ -388,14 +388,8 @@ public class PtzSessionDahua extends PtzSessionAbstract {
     }
 
     @Override
-    public void savePreset(int id) throws PtzSessionException {
-        this.ptzStart(
-                "SetPreset",
-                id,
-                0,
-                0,
-                0,
-                null);
+    public void savePreset(int id, String name) throws PtzSessionException {
+        this.setPreset(id, name);
     }
 
     public void setZoomSpeed(int value) throws PtzSessionDahuaException {
@@ -419,6 +413,179 @@ public class PtzSessionDahua extends PtzSessionAbstract {
         setConfig.setTable(list);
 
         this.setConfig(Arrays.asList(setConfig));
+    }
+
+    public int getZoomValue() throws PtzSessionDahuaException {
+
+        DahuaRequestGetZoom requestGetZoom = new DahuaRequestGetZoom();
+        requestGetZoom.setId(this.getSessionData().getNextId());
+        requestGetZoom.setSession(this.getSessionData().getSession());
+        requestGetZoom.setObject(this.getSessionData().getResult());
+        requestGetZoom.setSeq(this.getSeq());
+        //
+
+        String sessionReturn = null;
+        try(Response response = this._post( "RPC2", requestGetZoom)) {
+            if(response.body() != null)
+                sessionReturn = response.body().string();
+        } catch (IOException | PtzSessionException e) {
+            throw new PtzSessionDahuaException(e);
+        }
+
+        if(sessionReturn == null)
+            throw new PtzSessionDahuaException("sessionReturn could not be null");
+
+        DahuaResponseGetZoom responseStart = null;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            responseStart = mapper.readValue(sessionReturn, DahuaResponseGetZoom.class);
+        } catch (JsonProcessingException e) {
+            throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
+        }
+
+        if(responseStart.getError() != null) {
+            if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseStart.getError().getMessage()))
+                this._sessionData.setConnected(false);
+            throw new PtzSessionDahuaException(responseStart.getError().getMessage());
+        }
+
+        this.getSessionData()
+                .updateSession(
+                        responseStart.getId()
+                );
+
+        return responseStart.getParams().getValue();
+
+    }
+
+    public DahuaParamResponseGetViewRangeStatus getViewRange() throws PtzSessionDahuaException {
+
+        DahuaRequestGetViewRange requestGetZoom = new DahuaRequestGetViewRange();
+        requestGetZoom.setId(this.getSessionData().getNextId());
+        requestGetZoom.setSession(this.getSessionData().getSession());
+        requestGetZoom.setObject(this.getSessionData().getResult());
+        requestGetZoom.setSeq(this.getSeq());
+        //
+
+        String sessionReturn = null;
+        try(Response response = this._post( "RPC2", requestGetZoom)) {
+            if(response.body() != null)
+                sessionReturn = response.body().string();
+        } catch (IOException | PtzSessionException e) {
+            throw new PtzSessionDahuaException(e);
+        }
+
+        if(sessionReturn == null)
+            throw new PtzSessionDahuaException("sessionReturn could not be null");
+
+        DahuaResponseGetViewRange responseStart = null;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            responseStart = mapper.readValue(sessionReturn, DahuaResponseGetViewRange.class);
+        } catch (JsonProcessingException e) {
+            throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
+        }
+
+        if(responseStart.getError() != null) {
+            if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseStart.getError().getMessage()))
+                this._sessionData.setConnected(false);
+            throw new PtzSessionDahuaException(responseStart.getError().getMessage());
+        }
+
+        this.getSessionData()
+                .updateSession(
+                        responseStart.getId()
+                );
+
+        return responseStart.getParams().getStatus();
+
+    }
+
+    public List<DahuaParamResponseGetPresetPresets> getPresets() throws PtzSessionDahuaException {
+
+        DahuaRequestGetPreset requestGetPreset = new DahuaRequestGetPreset();
+        requestGetPreset.setId(this.getSessionData().getNextId());
+        requestGetPreset.setSession(this.getSessionData().getSession());
+        requestGetPreset.setObject(this.getSessionData().getResult());
+        requestGetPreset.setSeq(this.getSeq());
+        //
+
+        String sessionReturn = null;
+        try(Response response = this._post( "RPC2", requestGetPreset)) {
+            if(response.body() != null)
+                sessionReturn = response.body().string();
+        } catch (IOException | PtzSessionException e) {
+            throw new PtzSessionDahuaException(e);
+        }
+
+        if(sessionReturn == null)
+            throw new PtzSessionDahuaException("sessionReturn could not be null");
+
+        DahuaResponseGetPreset responseStart = null;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            responseStart = mapper.readValue(sessionReturn, DahuaResponseGetPreset.class);
+        } catch (JsonProcessingException e) {
+            throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
+        }
+
+        if(responseStart.getError() != null) {
+            if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseStart.getError().getMessage()))
+                this._sessionData.setConnected(false);
+            throw new PtzSessionDahuaException(responseStart.getError().getMessage());
+        }
+
+        this.getSessionData()
+                .updateSession(
+                        responseStart.getId()
+                );
+
+        return responseStart.getParams().getPresets();
+
+    }
+
+    public void setPreset(int preset, String name) throws PtzSessionDahuaException {
+
+        DahuaRequestSetPreset requestSetPreset = new DahuaRequestSetPreset();
+        requestSetPreset.setId(this.getSessionData().getNextId());
+        requestSetPreset.setSession(this.getSessionData().getSession());
+        requestSetPreset.setObject(this.getSessionData().getResult());
+        requestSetPreset.setSeq(this.getSeq());
+        //
+        requestSetPreset.getParams().setIndex(preset);
+        requestSetPreset.getParams().setName(name);
+        //
+
+        String sessionReturn = null;
+        try(Response response = this._post( "RPC2", requestSetPreset)) {
+            if(response.body() != null)
+                sessionReturn = response.body().string();
+        } catch (IOException | PtzSessionException e) {
+            throw new PtzSessionDahuaException(e);
+        }
+
+        if(sessionReturn == null)
+            throw new PtzSessionDahuaException("sessionReturn could not be null");
+
+        DahuaResponseGetPreset responseStart = null;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            responseStart = mapper.readValue(sessionReturn, DahuaResponseGetPreset.class);
+        } catch (JsonProcessingException e) {
+            throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
+        }
+
+        if(responseStart.getError() != null) {
+            if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseStart.getError().getMessage()))
+                this._sessionData.setConnected(false);
+            throw new PtzSessionDahuaException(responseStart.getError().getMessage());
+        }
+
+        this.getSessionData()
+                .updateSession(
+                        responseStart.getId()
+                );
+
     }
 
     @Override

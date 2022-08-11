@@ -66,7 +66,7 @@ public class PtzOperateController {
         // SAVE
         try {
             PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
-            ptzSession.savePreset(id);
+            ptzSession.savePreset(id, "");
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
