@@ -80,4 +80,22 @@ public class TestsUDPMessageUtils {
         assertEquals(expectedOutput, actualOutput);
     }
 
+    @Test
+    public void whenSpeedConvertedReceiveReceivedMinGTZero10() throws Exception {
+
+        int expectedOutput = 1;
+        int actualOutput = UdpMessageUtils.speedConverter(10,10,300,1,128);
+
+        assertEquals(expectedOutput, actualOutput);
+    }
+
+    @Test
+    public void whenSpeedConvertedReceiveReceivedMinGTZero40() throws Exception {
+
+        int expectedOutput = 15;
+        int actualOutput = UdpMessageUtils.speedConverter(40,10,300,1,128);
+
+        assertEquals(expectedOutput, actualOutput);
+    }
+
 }

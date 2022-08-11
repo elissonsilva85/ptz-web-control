@@ -65,6 +65,10 @@ public class UdpMessageUtils {
             receivedMin += diff;
             receivedMax += diff;
         }
+        else if(receivedMin > 0) {
+            received -= receivedMin;
+            receivedMax -= receivedMin;
+        }
 
         int percentage = Math.round((float) received / (receivedMax - receivedMin) * 100);
 
