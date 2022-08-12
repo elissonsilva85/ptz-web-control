@@ -19,15 +19,15 @@ public class UdpMessageCamZoomPosInq extends UdpMessageBase {
     }
 
     @Override
-    public void doAction(PtzSessionAbstract session) {
+    public void doBefore(PtzSessionAbstract session) {
         //
         try {
             zoom = 0;
-
-            if(!session.isConnected()) {
-                this.logger.info("Connecting");
-                session.connect();
+            //
+            if(session.isConnected()) {
+                zoom = session.getZoomValue();
             }
+            //
         } catch (PtzSessionException e) {
             this.logger.warn("doAction exception : " + e.getMessage(), e);
         }

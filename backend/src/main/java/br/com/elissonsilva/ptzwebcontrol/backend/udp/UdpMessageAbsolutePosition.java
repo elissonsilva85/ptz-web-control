@@ -19,7 +19,7 @@ public class UdpMessageAbsolutePosition extends UdpMessageBase {
     }
 
     @Override
-    public void doAction(PtzSessionAbstract session) {
+    public void doAfter(PtzSessionAbstract session) {
         //
         // ex: 81 01 06 02 18 14 00 00 00 00 00 00 00 00 FF
         // 8x 01 06 02

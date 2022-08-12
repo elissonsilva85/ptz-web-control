@@ -2,6 +2,7 @@ package br.com.elissonsilva.ptzwebcontrol.backend.udp;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzJoystickDirection;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzSessionAbstract;
+import br.com.elissonsilva.ptzwebcontrol.backend.utils.PtzWebControlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,7 @@ public class UdpMessagePanTiltDrive extends UdpMessageBase {
     }
 
     @Override
-    public void doAction(PtzSessionAbstract session) {
+    public void doAfter(PtzSessionAbstract session) {
         PtzJoystickDirection direction = null;
         boolean stop = false;
         //
@@ -74,8 +75,8 @@ public class UdpMessagePanTiltDrive extends UdpMessageBase {
                 //
                 this.logger.info("Moving " + direction);
                 if(session.isConnected()) {
-                    panSpeed = UdpMessageUtils.speedConverter(panSpeed, Integer.valueOf("01", 16), Integer.valueOf("18", 16), 1, 8);
-                    tiltSpeed = UdpMessageUtils.speedConverter(tiltSpeed, Integer.valueOf("01", 16), Integer.valueOf("14", 16), 1, 8);
+                    panSpeed = PtzWebControlUtils.speedConverter(panSpeed, Integer.valueOf("01", 16), Integer.valueOf("18", 16), 1, 8);
+                    tiltSpeed = PtzWebControlUtils.speedConverter(tiltSpeed, Integer.valueOf("01", 16), Integer.valueOf("14", 16), 1, 8);
                     //
                     session.startJoystick(direction, panSpeed, tiltSpeed);
                 }

@@ -19,14 +19,13 @@ public class UdpMessageCamFocusPosInq extends UdpMessageBase {
     }
 
     @Override
-    public void doAction(PtzSessionAbstract session) {
+    public void doBefore(PtzSessionAbstract session) {
         //
         try {
             focus = 0;
-
-            if(!session.isConnected()) {
-                this.logger.info("Connecting");
-                session.connect();
+            //
+            if(session.isConnected()) {
+                //
             }
         } catch (PtzSessionException e) {
             this.logger.warn("doAction exception : " + e.getMessage(), e);

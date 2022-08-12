@@ -18,7 +18,7 @@ public class UdpMessageAutoFocus extends UdpMessageBase {
     }
 
     @Override
-    public void doAction(PtzSessionAbstract session) {
+    public void doAfter(PtzSessionAbstract session) {
 
         try {
             this.logger.info("Setting Automatic Focus");

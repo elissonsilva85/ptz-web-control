@@ -2,6 +2,7 @@ package br.com.elissonsilva.ptzwebcontrol.backend.udp;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzSessionAbstract;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.PtzSessionDahua;
+import br.com.elissonsilva.ptzwebcontrol.backend.utils.PtzWebControlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,7 @@ public class UdpMessageCamZoom extends UdpMessageBase {
     }
 
     @Override
-    public void doAction(PtzSessionAbstract session) {
+    public void doAfter(PtzSessionAbstract session) {
         String teleWide = null;
         int speed = lastSpeed;
         //
@@ -52,7 +53,7 @@ public class UdpMessageCamZoom extends UdpMessageBase {
             //
             if(lastSpeed != speed) {
                 lastSpeed = speed;
-                int convertedSpeed = UdpMessageUtils.speedConverter(speed, 0, 7, 1, 100);
+                int convertedSpeed = PtzWebControlUtils.speedConverter(speed, 0, 7, 1, 100);
                 this.logger.info("Setting Zoom Speed to " + convertedSpeed);
                 if("PtzSessionDahua".equals(session.getClass().getSimpleName()))
                     ((PtzSessionDahua) session).setZoomSpeed(convertedSpeed);

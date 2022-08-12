@@ -1,7 +1,7 @@
 package br.com.elissonsilva.ptzwebcontrol.tests;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.services.UDPServerService;
-import br.com.elissonsilva.ptzwebcontrol.backend.udp.UdpMessageUtils;
+import br.com.elissonsilva.ptzwebcontrol.backend.utils.UdpMessageUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

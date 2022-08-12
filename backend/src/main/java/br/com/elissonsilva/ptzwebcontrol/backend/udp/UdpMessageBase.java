@@ -36,13 +36,13 @@ public abstract class UdpMessageBase {
         return getData().startsWith(getFilterBase());
     }
 
-    public void doAction(PtzSessionAbstract session) {
-        //
-        this.logger.info("Running " + this.getName());
-        //
+    public void doBefore(PtzSessionAbstract session) {
     }
 
     public String getResponse() {
         return null;
+    }
+
+    public void doAfter(PtzSessionAbstract session) {
     }
 }
