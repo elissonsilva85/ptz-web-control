@@ -101,6 +101,10 @@ protected _addLog = (p:string, t:string) => {}) {
 
     public abstract void savePreset(int id, String name) throws PtzSessionException;
 
+    public abstract int getZoomValue() throws PtzSessionException;
+
+    public abstract int[] getViewAngles() throws PtzSessionException;
+
     public abstract void startZoomIn(int amount ) throws PtzSessionException;
 
     public abstract void stopZoomIn(int amount ) throws PtzSessionException;

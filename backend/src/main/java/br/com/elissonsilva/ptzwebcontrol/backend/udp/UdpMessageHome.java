@@ -17,7 +17,7 @@ public class UdpMessageHome extends UdpMessageBase {
     }
 
     @Override
-    public void doAction(PtzSessionAbstract session) {
+    public void doAfter(PtzSessionAbstract session) {
         //
         try {
             if(!session.isConnected()) {

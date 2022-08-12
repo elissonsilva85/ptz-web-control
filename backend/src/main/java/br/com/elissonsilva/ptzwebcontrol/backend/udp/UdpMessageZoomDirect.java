@@ -18,7 +18,7 @@ public class UdpMessageZoomDirect extends UdpMessageBase {
     }
 
     @Override
-    public void doAction(PtzSessionAbstract session) {
+    public void doAfter(PtzSessionAbstract session) {
         //
         // ex: 81 01 04 47 0A 0B 0C 0D 0D 0C 0B 0A FF
         // 8x 01 04 47

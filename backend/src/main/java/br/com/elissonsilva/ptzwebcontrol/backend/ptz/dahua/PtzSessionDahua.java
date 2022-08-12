@@ -9,6 +9,7 @@ import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.*;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetConfig;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetTemporaryConfig;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.exception.PtzSessionDahuaException;
+import br.com.elissonsilva.ptzwebcontrol.backend.utils.PtzWebControlUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.Response;
@@ -371,9 +372,11 @@ public class PtzSessionDahua extends PtzSessionAbstract {
 
     @Override
     public void connect() throws PtzSessionException {
-        this.startSession();
-        this.login();
-        this.factoryInstance();
+        if(!this.isConnected()) {
+            this.startSession();
+            this.login();
+            this.factoryInstance();
+        }
     }
 
     @Override
@@ -415,6 +418,7 @@ public class PtzSessionDahua extends PtzSessionAbstract {
         this.setConfig(Arrays.asList(setConfig));
     }
 
+    @Override
     public int getZoomValue() throws PtzSessionDahuaException {
 
         DahuaRequestGetZoom requestGetZoom = new DahuaRequestGetZoom();
@@ -435,11 +439,13 @@ public class PtzSessionDahua extends PtzSessionAbstract {
         if(sessionReturn == null)
             throw new PtzSessionDahuaException("sessionReturn could not be null");
 
+        int zoomValueConverted = 0;
         DahuaResponseGetZoom responseStart = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
             responseStart = mapper.readValue(sessionReturn, DahuaResponseGetZoom.class);
-        } catch (JsonProcessingException e) {
+            zoomValueConverted = PtzWebControlUtils.speedConverter(responseStart.getParams().getValue(), 10, 300, 1, 128);
+        } catch (Exception e) {
             throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
         }
 
@@ -454,11 +460,11 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                         responseStart.getId()
                 );
 
-        return responseStart.getParams().getValue();
-
+        return zoomValueConverted;
     }
 
-    public DahuaParamResponseGetViewRangeStatus getViewRange() throws PtzSessionDahuaException {
+    @Override
+    public int[] getViewAngles() throws PtzSessionDahuaException {
 
         DahuaRequestGetViewRange requestGetZoom = new DahuaRequestGetViewRange();
         requestGetZoom.setId(this.getSessionData().getNextId());
@@ -497,7 +503,14 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                         responseStart.getId()
                 );
 
-        return responseStart.getParams().getStatus();
+        DahuaParamResponseGetViewRangeStatus status = responseStart.getParams().getStatus();
+        int horizontal = Math.round(( status.getAzimuthH() >= 0.5 ?
+                            status.getAzimuthH() - (float) 0.5 :
+                            status.getAzimuthH() + (float) 1.5
+                        ) * 10 * 180);
+        int vertical = Math.round(Math.abs(status.getAzimuthV()) * 10 * 180);
+
+        return new int[]{ horizontal, vertical };
 
     }
 

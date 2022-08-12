@@ -17,7 +17,7 @@ public class UdpMessageCamFocus extends UdpMessageBase {
     }
 
     @Override
-    public void doAction(PtzSessionAbstract session) {
+    public void doAfter(PtzSessionAbstract session) {
         String farNear = null;
         //int speed = 5; // standard speed
         //

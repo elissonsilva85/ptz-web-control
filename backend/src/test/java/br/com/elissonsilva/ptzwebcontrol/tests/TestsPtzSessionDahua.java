@@ -8,11 +8,13 @@ import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionException;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionManagerException;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzJoystickDirection;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.PtzSessionDahua;
-import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.*;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamRequestSetConfigVideoColorTable;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamRequestSetConfigVideoInWhiteBalance;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamRequestSetConfigVideoInZoom;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamResponseGetPresetPresets;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetConfig;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetTemporaryConfig;
 import br.com.elissonsilva.ptzwebcontrol.backend.services.PtzSessionManagerService;
-import br.com.elissonsilva.ptzwebcontrol.backend.udp.UdpMessageUtils;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
@@ -50,10 +52,12 @@ public class TestsPtzSessionDahua {
 
     private static PtzSessionDahua sessionDahua;
 
-    private int zoomValue;
+    private static int zoomValue;
 
-    private float azimuthH;
-    private float azimuthV;
+    private static int[] angles;
+
+    private static final int presetIndex = 4;
+    private static final String presetName = "Teste";
 
     @Before
     public void setup() {
@@ -110,33 +114,33 @@ public class TestsPtzSessionDahua {
     public void _010_loadPreset() {
 
         try {
-            sessionDahua.loadPreset(1);
+            sessionDahua.loadPreset(presetIndex);
             Thread.sleep(2000);
-        } catch (PtzSessionException | InterruptedException e) {
+        } catch (Exception e) {
             fail(e.getMessage());
         }
 
     }
 
     @Test
-    public void _011_setPresets__() {
+    public void _011_setPresets() {
 
         try {
-            sessionDahua.setPreset(1, "Teste");
+            sessionDahua.setPreset(presetIndex, presetName);
             Thread.sleep(500);
-        } catch (PtzSessionException | InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
     @Test
-    public void _012_getPresets__() {
+    public void _012_getPresets() {
 
         try {
             List<DahuaParamResponseGetPresetPresets> list = sessionDahua.getPresets();
             list.forEach( p -> System.out.println(p) );
-            assertEquals("Teste", list.get(0).getName(), "PtzSessionDahua.getPresets[0] with wrong value");
+            assertEquals(presetName, list.get(presetIndex - 1).getName(), "PtzSessionDahua.getPresets[" + (presetIndex-1) + "] with wrong value");
             Thread.sleep(500);
         } catch (PtzSessionException | InterruptedException e) {
             e.printStackTrace();
@@ -145,11 +149,11 @@ public class TestsPtzSessionDahua {
     }
 
     @Test
-    public void _013_getZoomValue__() throws Exception {
+    public void _013_getZoomValue() throws Exception {
 
         try {
             zoomValue = sessionDahua.getZoomValue();
-            System.out.println("zoomValue = " + zoomValue + " (converted " + UdpMessageUtils.speedConverter(zoomValue, 10, 300, 1, 128) + ")");
+            System.out.println("zoomValue = " + zoomValue);
 
             Thread.sleep(500);
         } catch (PtzSessionException | InterruptedException e) {
@@ -159,14 +163,11 @@ public class TestsPtzSessionDahua {
     }
 
     @Test
-    public void _014_getViewRange__() {
+    public void _014_getViewRange() {
 
         try {
-            DahuaParamResponseGetViewRangeStatus status = sessionDahua.getViewRange();
-            System.out.println(status);
-
-            this.azimuthH = status.getAzimuthH();
-            this.azimuthV = status.getAzimuthV();
+            angles = sessionDahua.getViewAngles();
+            System.out.println(angles[0] + "," + angles[1]);
 
             Thread.sleep(500);
         } catch (PtzSessionException | InterruptedException e) {
@@ -176,26 +177,21 @@ public class TestsPtzSessionDahua {
     }
 
     @Test
-    public void _015_shouldSpecificPosition() throws Exception {
+    public void _015_specificPosition() throws Exception {
 
         try {
-            //azimuthH = (float) 0.6111111111111112;
-            //azimuthV = (float) -0.1111111111111111;
-            //zoomValue = 40;
+            int horizontal = angles[0];
+            int vertical = angles[1];
 
-            int horizontal = Math.round((azimuthH - (float) 0.5) * 10 * 180);
-            int vertical = Math.round(Math.abs(azimuthV) * 10 * 180);
-            int zoom = UdpMessageUtils.speedConverter(zoomValue, 10, 300, 1, 128);
+            System.out.println("horizontal = " + horizontal + " | vertical = " + vertical + " | zoom = " + zoomValue);
 
-            System.out.println("horizontal = " + horizontal + " | vertical = " + vertical + " | zoom = " + zoom);
-
-            sessionDahua.specificPosition(horizontal, vertical, zoom);
+            sessionDahua.specificPosition(horizontal, vertical, zoomValue);
             Thread.sleep(1000);
         } catch (PtzSessionException | InterruptedException e) {
             fail(e.getMessage());
         }
 
-        System.exit(0);
+        //System.exit(0);
 
     }
 
@@ -261,7 +257,7 @@ public class TestsPtzSessionDahua {
     }
 
     @Test
-    public void _024_shouldJoystickRight() {
+    public void _024_startStopJoystickRight() {
 
         try {
             sessionDahua.startJoystick(PtzJoystickDirection.Right,1, 1);
@@ -275,7 +271,7 @@ public class TestsPtzSessionDahua {
     }
 
     @Test
-    public void _030_shouldSetTemporaryConfigVideoColor() {
+    public void _030_setTemporaryConfigVideoColor() {
 
         try {
 
@@ -302,7 +298,7 @@ public class TestsPtzSessionDahua {
     }
 
     @Test
-    public void _031_shouldMultiCall() {
+    public void _031_setConfigMultiCall() {
 
         try {
 
@@ -365,7 +361,7 @@ public class TestsPtzSessionDahua {
     }
 
     @Test
-    public void _032_shouldZoomOut() {
+    public void _032_startStopZoomOut() {
 
         try {
             sessionDahua.startZoomOut(5);

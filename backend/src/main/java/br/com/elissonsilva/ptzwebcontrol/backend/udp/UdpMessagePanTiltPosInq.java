@@ -20,16 +20,18 @@ public class UdpMessagePanTiltPosInq extends UdpMessageBase {
     }
 
     @Override
-    public void doAction(PtzSessionAbstract session) {
+    public void doBefore(PtzSessionAbstract session) {
         //
         try {
             pan = 0;
             tilt = 0;
             //
-            if(!session.isConnected()) {
-                this.logger.info("Connecting");
-                session.connect();
+            if(session.isConnected()) {
+                int[] angles = session.getViewAngles();
+                pan = angles[0];
+                tilt = angles[1];
             }
+            //
         } catch (PtzSessionException e) {
             this.logger.warn("doAction exception : " + e.getMessage(), e);
         }
@@ -58,8 +60,8 @@ public class UdpMessagePanTiltPosInq extends UdpMessageBase {
         int[] t = new int[]{
                 ( tilt >= 0 ? 0 : 1 ), // 0 positivo / 1 - negativo
                 Math.abs(tilt/100), // centena
-                Math.abs((pan%100)/10), // dezena
-                Math.abs((pan%10)) // unidade
+                Math.abs((tilt%100)/10), // dezena
+                Math.abs((tilt%10)) // unidade
         };
 
         return "9050" +
@@ -67,4 +69,5 @@ public class UdpMessagePanTiltPosInq extends UdpMessageBase {
                 "0"+ t[0] + "0" + t[1] + "0" + t[2] + "0" + t[3] +
                 "FF";
     }
+
 }

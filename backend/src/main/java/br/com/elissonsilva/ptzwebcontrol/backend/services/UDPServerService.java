@@ -2,7 +2,7 @@ package br.com.elissonsilva.ptzwebcontrol.backend.services;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzSessionAbstract;
 import br.com.elissonsilva.ptzwebcontrol.backend.udp.UdpMessageBase;
-import br.com.elissonsilva.ptzwebcontrol.backend.udp.UdpMessageUtils;
+import br.com.elissonsilva.ptzwebcontrol.backend.utils.UdpMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,18 +76,26 @@ public class UDPServerService extends Thread {
                 } else {
                     //
                     PtzSessionAbstract ptzSession = null;
-                    if (ptzSessionManagerService != null)
+                    if (ptzSessionManagerService != null) {
                         ptzSession = ptzSessionManagerService.getSession(ptz);
+                        if(!ptzSession.isConnected())
+                            ptzSession.connect();
+                    }
                     //
                     logger.info(ptz + " UDP Receive: running " + udpMessage.getName());
+                    //
+                    if(ptzSession != null)
+                        udpMessage.doBefore(ptzSession);
+                    //
                     String response = udpMessage.getResponse();
+                    logger.info(ptz + " UDP Receive: response [" + response + "]");
                     byte[] tmp = UdpMessageUtils.hexStringToBytes(response);
                     packet.setData(tmp, 0, tmp.length);
                     socket.send(packet);
-                    logger.info(ptz + " UDP Receive: response [" + response + "]");
                     //
                     if(ptzSession != null)
-                        udpMessage.doAction(ptzSession);
+                        udpMessage.doAfter(ptzSession);
+                    //
                 }
             } catch (Exception e) {
                 logger.warn(ptz + " UDP Receive: " + e.getMessage(), e);
