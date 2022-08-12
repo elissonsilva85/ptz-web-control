@@ -1,8 +1,8 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.controllers;
 
-import br.com.elissonsilva.ptzwebcontrol.backend.dahua.PtzSessionDahua;
-import br.com.elissonsilva.ptzwebcontrol.backend.services.PtzSessionManagerService;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionManagerException;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.PtzSessionDahua;
+import br.com.elissonsilva.ptzwebcontrol.backend.services.PtzSessionManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +34,7 @@ public class PtzOperateDahuaController {
     public ResponseEntity<Void> setVideoColor(@PathVariable("ptz") String ptz) {
         try {
             PtzSessionDahua ptzSession = (PtzSessionDahua) ptzSessionManagerService.getPtz(ptz);
-            ptzSession.setVideoColor();
+            ptzSession.setVideoColor(false);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -47,7 +47,7 @@ public class PtzOperateDahuaController {
     public ResponseEntity<Void> setVideoInMode(@PathVariable("ptz") String ptz, @PathVariable("id") int id) {
         try {
             PtzSessionDahua ptzSession = (PtzSessionDahua) ptzSessionManagerService.getPtz(ptz);
-            ptzSession.setVideoInMode(id);
+            ptzSession.setVideoInMode(id, false);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -58,9 +58,12 @@ public class PtzOperateDahuaController {
 
     @PostMapping("/{ptz}/dahua/videoInWhiteBalance")
     public ResponseEntity<Void> setVideoInWhiteBalance(@PathVariable("ptz") String ptz) {
+        //
+
+        //
         try {
             PtzSessionDahua ptzSession = (PtzSessionDahua) ptzSessionManagerService.getPtz(ptz);
-            ptzSession.setVideoInWhiteBalance();
+            ptzSession.setVideoInWhiteBalance(false);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);

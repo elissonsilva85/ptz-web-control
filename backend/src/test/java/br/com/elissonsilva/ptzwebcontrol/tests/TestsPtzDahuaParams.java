@@ -1,16 +1,11 @@
 package br.com.elissonsilva.ptzwebcontrol.tests;
 
-import br.com.elissonsilva.ptzwebcontrol.backend.dahua.entity.*;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.math.BigInteger;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestsPtzDahuaParams {
@@ -57,41 +52,4 @@ public class TestsPtzDahuaParams {
         DahuaResponseStartStop response = mapper.readValue(json, DahuaResponseStartStop.class);
     }
 
-    @Test
-    public void getSeq1() {
-
-        // pega só os numeros
-        String session = "ca8c79b073ffef65cbf98229a1ee3c6b";
-        String onlyNumbers = session.replaceAll("[^0-9]", "");
-        assertEquals("8790736598229136", onlyNumbers);
-
-        // pega os primeiros 24 bits
-        BigInteger num = new BigInteger(onlyNumbers);
-        String fullBinary = num.toString(2);
-        String last24bits = fullBinary.substring(fullBinary.length() - 24);
-        assertEquals("010000000110000010010000", last24bits);
-
-        String plusZeroByte = last24bits + "00000000";
-        Long converted = Long.parseLong(plusZeroByte, 2);
-        assertEquals(1080070144, converted);
-    }
-
-    @Test
-    public void getSeq2() {
-
-        // pega só os numeros
-        String session = "1f38a0b22145e4ec72f951d19bfb01c";
-        String onlyNumbers = session.replaceAll("[^0-9]", "");
-        assertEquals("1380221454729511901", onlyNumbers);
-
-        // pega os primeiros 24 bits
-        BigInteger num = new BigInteger(onlyNumbers);
-        String fullBinary = num.toString(2);
-        String last24bits = fullBinary.substring(fullBinary.length() - 24);
-        assertEquals("100001101000001111011101", last24bits);
-
-        String plusZeroByte = last24bits + "00000000";
-        Long converted = Long.parseLong(plusZeroByte, 2);
-        assertEquals(2256797696L, converted);
-    }
 }

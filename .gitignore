@@ -4,3 +4,7 @@
 /backend/.idea/
 /backend/target/
 /backend/*.iml
+.DS_Store
+backend/.DS_Store
+backend/data/data.mv.db
+backend/src/main/resources/application-prod.yaml
