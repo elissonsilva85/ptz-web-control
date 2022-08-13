@@ -3,6 +3,7 @@ package br.com.elissonsilva.ptzwebcontrol.backend.ptz;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetConfig;
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.JoystickQueueData;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionException;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.exception.PtzSessionDahuaException;
 import okhttp3.*;
 
 import java.io.IOException;
@@ -101,25 +102,27 @@ protected _addLog = (p:string, t:string) => {}) {
 
     public abstract void savePreset(int id, String name) throws PtzSessionException;
 
+    public abstract void setZoomSpeed(int value) throws PtzSessionDahuaException;
+
     public abstract int getZoomValue() throws PtzSessionException;
 
     public abstract int[] getViewAngles() throws PtzSessionException;
 
-    public abstract void startZoomIn(int amount ) throws PtzSessionException;
+    public abstract void startZoomIn(int amount) throws PtzSessionException;
 
-    public abstract void stopZoomIn(int amount ) throws PtzSessionException;
+    public abstract void stopZoomIn(int amount) throws PtzSessionException;
 
-    public abstract void startZoomOut(int amount ) throws PtzSessionException;
+    public abstract void startZoomOut(int amount) throws PtzSessionException;
 
-    public abstract void stopZoomOut(int amount ) throws PtzSessionException;
+    public abstract void stopZoomOut(int amount) throws PtzSessionException;
 
-    public abstract void startFocusIn(int amount ) throws PtzSessionException;
+    public abstract void startFocusIn(int amount) throws PtzSessionException;
 
-    public abstract void stopFocusIn(int amount ) throws PtzSessionException;
+    public abstract void stopFocusIn(int amount) throws PtzSessionException;
 
-    public abstract void startFocusOut(int amount ) throws PtzSessionException;
+    public abstract void startFocusOut(int amount) throws PtzSessionException;
 
-    public abstract void stopFocusOut(int amount ) throws PtzSessionException;
+    public abstract void stopFocusOut(int amount) throws PtzSessionException;
 
     public abstract void startJoystick(PtzJoystickDirection direction, int speed1, int speed2) throws PtzSessionException;
 
