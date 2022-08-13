@@ -21,7 +21,6 @@ public class PtzSessionManagerService {
 
     private final static Logger logger = LoggerFactory.getLogger(PtzSessionManagerService.class);
 
-
     private final Config config;
 
     private final static HashMap<String, PtzSessionAbstract> sessionList = new HashMap<>();
