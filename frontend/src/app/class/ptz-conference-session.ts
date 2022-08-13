@@ -3,8 +3,12 @@ import { PtzAbstractSession } from './ptz-abstract-session';
 
 export class PtzConferenceSession extends PtzAbstractSession {
 
-    protected _post( page: string, body : any ): Promise<any> {
-      return super._post(page, body);
+    private _lastCallBody: any;
+
+    private _isConnected = false;
+
+    private isConnected() {
+      return this._isConnected;
     }
 
     private _szCmd(szPtzCmd: string, arg1 = null, arg2 = null, arg3 = null, arg4 = null, channel = null) : Promise<any> {

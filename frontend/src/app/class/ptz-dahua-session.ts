@@ -6,80 +6,11 @@ const faultylabs: DahuaFaultylabs = new DahuaFaultylabs();
 
 export class PtzDahuaSession extends PtzAbstractSession {
 
-    private _keepAliveInterval: number = 9000;
     private _sessionData : DahuaSessionData = new DahuaSessionData();
-
-    protected _post( page: string, body : any ): Promise<any> {
-      if(body.method == "ptz.start") this._lastCallBody = body;
-      return super._post(page, body);
-    }
-
-    /////// PRIVATE METHODS /////////////////////
-    
-    private _keepAlive() : Promise<any> {
-      if( !this.isConnected() )
-        return this._getPromiseRejectWithText(`_keepAlive: ${this._ptz} is not connected`);
-
-      return this._post("dahua/keepAlive", "").then( r => {
-        this._addLog(this._ptz, "keepAlive return: " + JSON.stringify(r));
-      });
-    }
-
-    private _keepAliveTimeout() {
-      this._sessionData.timer = setTimeout(() => {
-        this._keepAlive().then( () => { this._keepAliveTimeout(); })
-      }, this._keepAliveInterval);
-    }
-
-    /////// PUBLIC METHODS ///////////
-
-    public loadPreset(id: number) : Promise<any> {
-
-      let freezeFocus = false;
-
-      return super.loadPreset(id).then( () => {
-        if(freezeFocus)
-          setTimeout( () => {
-            this.startFocusOut().then(() => {
-              this.stopFocusOut() }) }, 5000);
-      });
-
-    }
-
-    public setZoomSpeed(value) : Promise<any> {
-      //
-      return this.setConfig([ "VideoInZoom" ], [ [
-            {
-              "DigitalZoom": false,
-              "Speed": value,
-              "ZoomLimit": 4
-            },
-            {
-              "DigitalZoom": false,
-              "Speed": value,
-              "ZoomLimit": 4
-            },
-            {
-              "DigitalZoom": false,
-              "Speed": value,
-              "ZoomLimit": 4
-            }
-          ] ]);
-      //
-    }
 
     ///////////// UNDER DEVELOPMENT //////////////
 
-    public specificPosition(horizontal: number, vertical: number, zoom: number) : Promise<any> {
-      //let degree = -18.99666 + 6.9773 * Math.log(horizontal);
-      // return this._ptzStart("PositionABS", horizontal, vertical, zoom);
-      return this._getPromiseRejectWithText(`under construction`); 
-    }
-
     public getConfig(list: any[]) : Promise<any> {
-      if( !this.isConnected() )
-        return this._getPromiseRejectWithText(`getConfig: ${this._ptz} is not connected`);
-
       var body = {
         "method": "system.multicall",
         "params": [ ],
@@ -109,9 +40,6 @@ export class PtzDahuaSession extends PtzAbstractSession {
     }
 
     public setVideoColor(videoColorTable: any[]) : Promise<any> {
-      if( !this.isConnected() )
-        return this._getPromiseRejectWithText(`setVideoColor: ${this._ptz} is not connected`);
-
       var body = {
         "method": "configManager.setTemporaryConfig",
         "params": {
@@ -131,9 +59,6 @@ export class PtzDahuaSession extends PtzAbstractSession {
     }
 
     public setVideoInMode(config: number) : Promise<any> {
-      if( !this.isConnected() )
-        return this._getPromiseRejectWithText(`setVideoInMode: ${this._ptz} is not connected`);
-
       var body = {
         "method": "configManager.setTemporaryConfig",
         "params": {
@@ -218,9 +143,6 @@ export class PtzDahuaSession extends PtzAbstractSession {
     }
 
     public setVideoInWhiteBalance(videoInWhiteBalanceTable: any[]) : Promise<any> {
-      if( !this.isConnected() )
-        return this._getPromiseRejectWithText(`setVideoInWhiteBalance: ${this._ptz} is not connected`);
-
       var body = {
         "method": "configManager.setTemporaryConfig",
         "params": {
@@ -242,9 +164,6 @@ export class PtzDahuaSession extends PtzAbstractSession {
     }
 
     public moveDirectly(coord: number[], speed: number) : Promise<any> {
-      if( !this.isConnected() )
-        return this._getPromiseRejectWithText(`moveDirectly: ${this._ptz} is not connected`);
-
       var body = {
         "method": "ptz.moveDirectly",
         "params": {

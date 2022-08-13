@@ -1,11 +1,12 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.controllers;
 
+import br.com.elissonsilva.ptzwebcontrol.backend.entity.JoystickRequest;
+import br.com.elissonsilva.ptzwebcontrol.backend.entity.SpecificPositionRequest;
+import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionManagerException;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzJoystickDirection;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzSessionAbstract;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetConfig;
-import br.com.elissonsilva.ptzwebcontrol.backend.entity.JoystickRequest;
 import br.com.elissonsilva.ptzwebcontrol.backend.services.PtzSessionManagerService;
-import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionManagerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,12 +62,12 @@ public class PtzOperateController {
         }
     }
 
-    @PostMapping("/{ptz}/preset/{id}")
-    public ResponseEntity<Void> setPreset(@PathVariable("ptz") String ptz, @PathVariable("id") int id) {
+    @PostMapping("/{ptz}/preset/{id}/{name}")
+    public ResponseEntity<Void> setPreset(@PathVariable("ptz") String ptz, @PathVariable("id") int id, @PathVariable("name") String name) {
         // SAVE
         try {
             PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
-            ptzSession.savePreset(id, "");
+            ptzSession.savePreset(id, name);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -226,14 +227,12 @@ public class PtzOperateController {
         }
     }
 
-    /////// UNDER DEVELOPMENT ////////////
-
     @PostMapping("/{ptz}/specificPosition")
-    public ResponseEntity<Void> specificPosition(@PathVariable("ptz") String ptz) {
+    public ResponseEntity<Void> specificPosition(@PathVariable("ptz") String ptz, @RequestBody SpecificPositionRequest payload) {
         // horizontal: number, vertical: number, zoom: number (json body)
-        int horizontal = 0;
-        int vertical = 0;
-        int zoom = 0;
+        int horizontal = payload.getHorizontal();
+        int vertical = payload.getVertical();
+        int zoom = payload.getZoom();
         try {
             PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
             ptzSession.specificPosition(horizontal, vertical, zoom);
@@ -244,6 +243,21 @@ public class PtzOperateController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping("/{ptz}/setZoomSpeed/{amount}")
+    public ResponseEntity<Void> setZoomSpeed(@PathVariable("ptz") String ptz, @PathVariable("amount") int amount) {
+        try {
+            PtzSessionAbstract ptzSession = ptzSessionManagerService.getPtz(ptz);
+            ptzSession.setZoomSpeed(amount);
+            return new ResponseEntity<>(null, HttpStatus.OK);
+        } catch (PtzSessionManagerException e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /////// UNDER DEVELOPMENT ////////////
 
     @GetMapping("/{ptz}/config")
     public ResponseEntity<Void> getConfig(@PathVariable("ptz") String ptz) {
