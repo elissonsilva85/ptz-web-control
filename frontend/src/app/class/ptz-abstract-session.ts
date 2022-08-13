@@ -2,8 +2,6 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 
 export abstract class PtzAbstractSession {
 
-  protected _isConnected : boolean = false;
-  protected _lastCallBody : any = {};
   protected _httpOptions = {
       headers: new HttpHeaders({
         'X-Requested-With': 'XMLHttpRequest',
@@ -50,37 +48,35 @@ export abstract class PtzAbstractSession {
 
   ////////// PUBLIC METHODS /////////////////
 
-  public isConnected() : boolean {
-    return this._isConnected;
-  }
-
   public connect() : Promise<any> {
 
     return this._post("connect", "").then( r => {
       this._addLog(this._ptz, "login return: " + JSON.stringify(r));
-      this._isConnected = true;
     }).catch( e => {
       this._addLog(this._ptz, "login return: " + JSON.stringify(e));
-      this._isConnected = false;
     });
 
   }
 
   public loadPreset(id: number) : Promise<any> {
-    if( !this.isConnected() )
-      return this._getPromiseRejectWithText(`loadPreset: ${this._ptz} is not connected`);
-
     return this._get("preset/" + id, "")
     .then( r => {
       this._addLog(this._ptz, "loadPreset return: " + JSON.stringify(r));
     });
   }
 
-  public savePreset(id: number) : Promise<any> {
-    return this._post("preset/" + id, "")
+  public savePreset(id: number, name: string) : Promise<any> {
+    return this._post("preset/" + id + "/" + name, "")
       .then( r => {
         this._addLog(this._ptz, "savePreset return: " + JSON.stringify(r));
       });
+  }
+
+  public setZoomSpeed(amount: number) : Promise<any> {
+    return this._post("setZoomSpeed/" + amount, "")
+    .then( r => {
+      this._addLog(this._ptz, "setZoomSpeed return: " + JSON.stringify(r));
+    });
   }
 
   public startZoomIn() : Promise<any> {
@@ -124,7 +120,6 @@ export abstract class PtzAbstractSession {
   }
 
   public startJoystick(direction: string, speed1: number, speed2: number) : Promise<any> {
-
     let body = {
       "direction": direction,
       "speed1": speed1,
@@ -135,7 +130,6 @@ export abstract class PtzAbstractSession {
   }
 
   public stopJoystick(direction: string, speed1: number, speed2: number) : Promise<any> {
-    
     let body = {
       "direction": direction,
       "speed1": speed1,
@@ -151,11 +145,20 @@ export abstract class PtzAbstractSession {
 
   }
 
-  public setConfig(list: any[], table: any[]) : Promise<any> {
-    if( !this.isConnected() )
-      return this._getPromiseRejectWithText(`setConfig: ${this._ptz} is not connected`);
+  public specificPosition(horizontal: number, vertical: number, zoom: number) : Promise<any> {
+    let body = {
+      "horizontal": horizontal,
+      "vertical": vertical,
+      "zoom": zoom
+    };
 
-    var body: any =  list.map( (name, i) => { 
+    return this._post("specificPosition", body);
+  };
+
+  /////// UNDER DEVELOPMENT ////////////
+
+  public setConfig(list: any[], table: any[]) : Promise<any> {
+    let body: any = list.map( (name, i) => { 
       return {
           "name": name,
           "table": [ table[i] ],
@@ -170,10 +173,6 @@ export abstract class PtzAbstractSession {
       return r; 
     });
   }
-
-  /////// UNDER DEVELOPMENT ////////////
-
-  public abstract specificPosition(horizontal: number, vertical: number, zoom: number) : Promise<any>;
 
   public abstract getConfig(list: any[]) : Promise<any>;
 

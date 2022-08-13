@@ -16,7 +16,6 @@ export class RcpService {
   keepAliveInterval: number = 9000;
   urlBase: string;
 
-  ptzBrand: string = "";
   ptzConnection: any = {};
   ptzSessionList = new Map();
   startStreamingCommands: string[] = [];
@@ -31,7 +30,6 @@ export class RcpService {
       .toPromise()
       .then( (data: any) => {
         this.urlBase = this._router.url + "api/ptz/operate/";
-        this.ptzBrand = data.ptz.brand;
         this.startStreamingCommands = data.startStreaming;
         this.stopStreamingCommands = data.stopStreaming;
         this.ptzConnection = data.ptz.connection;
@@ -46,7 +44,7 @@ export class RcpService {
 
   public getSession(ptz: string) : PtzAbstractSession {
     if(this.ptzSessionList.get(ptz) == null)
-      switch(this.ptzBrand) {
+      switch(this.ptzConnection[ptz].brand) {
         case "dahua": {
           this.ptzSessionList.set(ptz, new PtzDahuaSession(
             this._http,
@@ -82,7 +80,7 @@ export class RcpService {
         }
 
         default:
-          throw new Error(`Brand ${this.ptzBrand} not recognized`);
+          throw new Error(`Brand ${this.ptzConnection[ptz].brand} not recognized`);
 
       }
 
@@ -90,7 +88,7 @@ export class RcpService {
   }
 
   public getStatusSvg(ptz : string) : string {
-    let isConnected = this.getSession(ptz).isConnected();
+    let isConnected = true;
     return ( isConnected ? "led-green-black.svg" : "led-red-black.svg" );
   }
 

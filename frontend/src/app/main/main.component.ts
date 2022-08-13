@@ -417,8 +417,7 @@ export class MainComponent implements AfterViewInit {
   }
 
   setZoomSpeed(ptz, value) {
-    (this.rcp.getSession(ptz) as PtzDahuaSession)
-      .setZoomSpeed(value);
+    this.rcp.getSession(ptz).setZoomSpeed(value);
   }
 
   startStreaming() {

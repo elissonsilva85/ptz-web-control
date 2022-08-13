@@ -57,6 +57,10 @@
                   "maximumError": "10kb"
                 }
               ]
+            },
+            "dev": {
+              "optimization": false,
+              "sourceMap": true
             }
           }
         },
@@ -69,6 +73,9 @@
           "configurations": {
             "production": {
               "browserTarget": "app:build:production"
+            },
+            "dev": {
+              "browserTarget": "app:build:dev"
             }
           }
         },

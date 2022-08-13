@@ -126,7 +126,7 @@ public class TestsPtzSessionDahua {
     public void _011_setPresets() {
 
         try {
-            sessionDahua.setPreset(presetIndex, presetName);
+            sessionDahua.savePreset(presetIndex, presetName);
             Thread.sleep(500);
         } catch (Exception e) {
             e.printStackTrace();
