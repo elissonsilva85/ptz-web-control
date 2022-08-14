@@ -10,6 +10,23 @@ export class PtzDahuaSession extends PtzAbstractSession {
 
     ///////////// UNDER DEVELOPMENT //////////////
 
+    public setConfig(list: any[], table: any[]) : Promise<any> {
+      let body: any = list.map( (name, i) => { 
+        return {
+            "name": name,
+            "table": [ table[i] ],
+            "options": []
+          }
+      });
+  
+      //
+      this._addLog(this._ptz, "setConfig : " + JSON.stringify(body));
+      return this._post("config", body).then( r => {
+        this._addLog(this._ptz, "setConfig return: " + JSON.stringify(r));
+        return r; 
+      });
+    }
+    
     public getConfig(list: any[]) : Promise<any> {
       var body = {
         "method": "system.multicall",

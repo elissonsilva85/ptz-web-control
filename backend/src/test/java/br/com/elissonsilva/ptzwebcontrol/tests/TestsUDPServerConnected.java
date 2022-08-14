@@ -1,7 +1,7 @@
 package br.com.elissonsilva.ptzwebcontrol.tests;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.ApplicationBootstrap;
-import br.com.elissonsilva.ptzwebcontrol.backend.component.Config;
+import br.com.elissonsilva.ptzwebcontrol.backend.component.Configuration;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.PtzSessionDahua;
 import br.com.elissonsilva.ptzwebcontrol.backend.services.PtzSessionManagerService;
 import org.junit.Before;
@@ -25,7 +25,7 @@ public class TestsUDPServerConnected {
 
     @Spy
     @Autowired
-    private Config configSpy;
+    private Configuration configurationSpy;
 
     @Autowired
     private PtzSessionManagerService ptzSessionManagerService;

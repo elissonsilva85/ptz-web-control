@@ -1,6 +1,6 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.services;
 
-import br.com.elissonsilva.ptzwebcontrol.backend.component.Config;
+import br.com.elissonsilva.ptzwebcontrol.backend.component.Configuration;
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.ConfigPtzConnection;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionException;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionManagerBrandNotFoundException;
@@ -21,18 +21,18 @@ public class PtzSessionManagerService {
 
     private final static Logger logger = LoggerFactory.getLogger(PtzSessionManagerService.class);
 
-    private final Config config;
+    private final Configuration configuration;
 
     private final static HashMap<String, PtzSessionAbstract> sessionList = new HashMap<>();
 
-    public PtzSessionManagerService(Config config) {
-        this.config = config;
+    public PtzSessionManagerService(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     public PtzSessionAbstract getSession(String ptz) throws PtzSessionManagerException {
 
         if(!sessionList.containsKey(ptz)) {
-            ConfigPtzConnection ptzConfig = config.getPtz().getConnection().get(ptz);
+            ConfigPtzConnection ptzConfig = configuration.getPtz().getConnection().get(ptz);
 
             if (ptzConfig == null) {
                 throw new PtzSessionManagerPtzNotFoundException(ptz);

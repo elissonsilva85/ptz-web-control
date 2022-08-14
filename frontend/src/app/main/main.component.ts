@@ -302,8 +302,14 @@ export class MainComponent implements AfterViewInit {
         this.progressBatStatus = "CONECTANDO ..."
         return Promise.all(
           Object.keys(this.rcp.ptzConnection).map( (p) => this.rcp.getSession(p).connect()  )
-        ).then(_ => {
+        ).then( _ => {
           this.progressBarShow = false;
+        }).then( _ => {
+          //
+          this.rcp.getPresetNames().then( (result: any) => {
+            this.presetNames = result;
+          })
+          //
         });
 
       })
@@ -412,22 +418,11 @@ export class MainComponent implements AfterViewInit {
 
   }
 
-  limit(me, a, b): any {
-    return Math.min(b, Math.max(a, me));
-  }
-
   setZoomSpeed(ptz, value) {
     this.rcp.getSession(ptz).setZoomSpeed(value);
   }
 
   startStreaming() {
-    /*
-    this.rcp.simpleGet('vmix/API/', new URLSearchParams({
-      'Function': 'ScriptStart',
-      'Value': 'Teste'
-    }).toString());
-    */
-
     this.rcp.startStreamingCommands.forEach( action => {
       eval(action);
     });
@@ -441,6 +436,9 @@ export class MainComponent implements AfterViewInit {
 
   RegionChanged(ptz) {
     let coord = [3641, 4442, 4861, 6102];
+    let limit = function(me, a, b): any {
+      return Math.min(b, Math.max(a, me));
+    }
     //
     // [ Canto superior esquerdo ]
     // a = "RegionChanged", b = (4) [1350, 1192, 376, 0]
@@ -458,12 +456,12 @@ export class MainComponent implements AfterViewInit {
     //        8171 (y)
     //
 
-    var c = this.limit(((coord[0] + coord[2]) / 16384), -1, 1)
-      , d = this.limit(((coord[1] + coord[3]) / 16384), -1, 1)
+    var c = limit(((coord[0] + coord[2]) / 16384), -1, 1)
+      , d = limit(((coord[1] + coord[3]) / 16384), -1, 1)
       , e = Math.abs(coord[3] - coord[1]) > Math.abs(coord[2] - coord[0]) ? coord[3] - coord[1] : coord[2] - coord[0]
-      , g = this.limit((e / 8192), -1, 1)
+      , g = limit((e / 8192), -1, 1)
       , h = coord[2] > coord[0] ? g * g : -1 * g * g;
-    this.rcp.getSession(ptz).moveDirectly([c, d, h], null);
+    (this.rcp.getSession(ptz) as PtzDahuaSession).moveDirectly([c, d, h], null);
   }
 
 }

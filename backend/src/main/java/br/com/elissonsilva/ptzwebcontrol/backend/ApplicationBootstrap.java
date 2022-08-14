@@ -1,6 +1,6 @@
 package br.com.elissonsilva.ptzwebcontrol.backend;
 
-import br.com.elissonsilva.ptzwebcontrol.backend.component.Config;
+import br.com.elissonsilva.ptzwebcontrol.backend.component.Configuration;
 import br.com.elissonsilva.ptzwebcontrol.backend.filters.OkHttpRoutingFilter;
 import br.com.elissonsilva.ptzwebcontrol.backend.filters.RoutePtzZuulFilter;
 import br.com.elissonsilva.ptzwebcontrol.backend.filters.RouteVmixZuulFilter;
@@ -23,7 +23,7 @@ import java.util.Map;
 public class ApplicationBootstrap extends SpringBootServletInitializer {
 
     @Autowired
-    private Config config;
+    private Configuration configuration;
 
     @Autowired
     private PtzSessionManagerService ptzSessionManagerService;
@@ -50,7 +50,7 @@ public class ApplicationBootstrap extends SpringBootServletInitializer {
     @Bean
     public void processUniCastUdpMessage() {
         udpThreads = new HashMap<>();
-        config.getPtz().getConnection().forEach((ptz, conn) -> {
+        configuration.getPtz().getConnection().forEach((ptz, conn) -> {
             try {
                 udpThreads.put(ptz,new UDPServerService(ptzSessionManagerService, ptz,conn.getUdpPort()));
                 udpThreads.get(ptz).start();

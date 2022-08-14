@@ -108,4 +108,24 @@ export class RcpService {
       .toPromise();
   }
 
+  public getPresetNames() : Promise<any> {
+
+    let result = {};
+
+    let ptzList = [];
+    this.ptzSessionList.forEach( (session, ptz) => {
+      ptzList.push(session.getPresetNames().then(r => { 
+        result[ptz] = [];
+        [1,2,3,4,5,6,7,8,9,10,11,12].forEach( i => {
+          if(r[i]) result[ptz][i-1] = r[i];
+          else result[ptz][i-1] = "";
+        });
+      }));
+    });
+
+    return new Promise<any>( (resolve, reject) => {
+      Promise.all(ptzList).then( _ => resolve(result) );
+    });
+  }
+
 }

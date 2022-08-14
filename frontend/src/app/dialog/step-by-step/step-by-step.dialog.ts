@@ -11,6 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { StepByStepService } from 'src/app/service/step-by-step.service';
 import { PtzDahuaSession } from 'src/app/class/ptz-dahua-session';
 import { ConfirmDialog } from '../confirm/confirm.dialog';
+import { RcpService } from 'src/app/service/rcp.service';
 
 
 // https://stackblitz.com/edit/angular-material-drag-copy-y3p7zz?file=app%2Fapp.component.ts
@@ -26,12 +27,15 @@ export class StepByStepDialog implements OnInit {
   public timelineNameControl: FormControl = new FormControl();
   public waitingTimeControl: FormControl[] = [];
   public filteredOptions: Observable<any>;
+  public showCurrentPosition: boolean = false;
+  public currentPosition = [0,0,0];
 
   @ViewChild('availableActionsList') child: ElementRef;
 
   public step = -1;
   private _currentIndex;
   private _currentField;
+  private _showCurrentPositionTimeout;
 
   constructor(
     public dialogRef: MatDialogRef<StepByStepDialog>,
@@ -172,6 +176,21 @@ export class StepByStepDialog implements OnInit {
     this.stepByStepService.clearTimeline(this.data.ptz);
     this.timelineNameControl.setValue("");
     this.step = -1;
+  }
+
+  getCurrentPosition() {
+    this.data.session
+      .getCurrentPosition().then( r => {
+        this.currentPosition = r;
+        return this.data.session.getZoomValue()
+      }).then( r => {
+        this.currentPosition[2] = r;
+      }).then( () => {
+        this.showCurrentPosition = true;
+        this._showCurrentPositionTimeout = setTimeout( () => {
+            this.showCurrentPosition = false;
+        }, 5000 );  
+      });
   }
 
   runTimeline() {
