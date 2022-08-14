@@ -2,6 +2,8 @@ package br.com.elissonsilva.ptzwebcontrol.backend.utils;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.udp.UdpMessageBase;
 import org.reflections.Reflections;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
@@ -10,7 +12,9 @@ public class UdpMessageUtils {
 
     private final static byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
 
-    private final static Set<Class<? extends UdpMessageBase>> udpMessageClasses = (new Reflections("br.com.elissonsilva.ptzwebcontrol")).getSubTypesOf(UdpMessageBase.class);
+    private final static Set<Class<? extends UdpMessageBase>> udpMessageClasses = (new Reflections(new ConfigurationBuilder(){{
+                                                                                        setUrls(ClasspathHelper.forPackage(UdpMessageBase.class.getPackage().getName()));
+                                                                                    }})).getSubTypesOf(UdpMessageBase.class);
 
     public static String bytesToHex(byte[] bytes, int length) {
         byte[] hexChars = new byte[length * 2];
