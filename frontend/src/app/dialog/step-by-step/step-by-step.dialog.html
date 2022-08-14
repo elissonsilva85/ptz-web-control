@@ -114,5 +114,7 @@
   <button mat-raised-button [color]="stepByStepService.isTimelineRunning(data.ptz) ? 'warn' : 'primary'" (click)="runTimeline()">{{ stepByStepService.isTimelineRunning(data.ptz) ? 'INTERROMPER' : 'Executar' }}</button>
   <button mat-stroked-button (click)="clearTimeline()">Limpar</button>
   <button mat-stroked-button mat-dialog-close>Fechar</button>
+  <button mat-stroked-button (click)="getCurrentPosition()">Posição Atual</button>
+  <span class="currentTime" *ngIf="showCurrentPosition">Posição atual: H {{ currentPosition[0] }} V {{ currentPosition[1] }} Z {{ currentPosition[2] }}</span>
   <span class="currentTime" *ngIf="stepByStepService.isTimelineRunning(data.ptz)">Tempo de execução: {{ stepByStepService.getCurrentExecutionTime(data.ptz) | milisecondFormat }}</span>
 </mat-dialog-actions>

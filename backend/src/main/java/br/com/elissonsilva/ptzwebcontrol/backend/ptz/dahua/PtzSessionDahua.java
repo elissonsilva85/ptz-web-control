@@ -19,9 +19,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -371,6 +369,50 @@ public class PtzSessionDahua extends PtzSessionAbstract {
 
     }
 
+    private List<DahuaParamResponseGetPresetPresets> getPresets() throws PtzSessionDahuaException {
+
+        DahuaRequestGetPreset requestGetPreset = new DahuaRequestGetPreset();
+        requestGetPreset.setId(this.getSessionData().getNextId());
+        requestGetPreset.setSession(this.getSessionData().getSession());
+        requestGetPreset.setObject(this.getSessionData().getResult());
+        requestGetPreset.setSeq(this.getSeq());
+        //
+
+        String sessionReturn = null;
+        try(Response response = this._post( "RPC2", requestGetPreset)) {
+            if(response.body() != null)
+                sessionReturn = response.body().string();
+        } catch (IOException | PtzSessionException e) {
+            throw new PtzSessionDahuaException(e);
+        }
+
+        if(sessionReturn == null)
+            throw new PtzSessionDahuaException("sessionReturn could not be null");
+
+        DahuaResponseGetPreset responseStart = null;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            responseStart = mapper.readValue(sessionReturn, DahuaResponseGetPreset.class);
+        } catch (JsonProcessingException e) {
+            throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
+        }
+
+        if(responseStart.getError() != null) {
+            if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseStart.getError().getMessage()))
+                this._sessionData.setConnected(false);
+            throw new PtzSessionDahuaException(responseStart.getError().getMessage());
+        }
+
+        this.getSessionData()
+                .updateSession(
+                        responseStart.getId()
+                );
+
+        return responseStart.getParams().getPresets();
+
+    }
+
+
     /////// PUBLIC METHODS ///////////
 
     public void keepAlive() throws PtzSessionException {
@@ -570,47 +612,16 @@ public class PtzSessionDahua extends PtzSessionAbstract {
 
     }
 
-    public List<DahuaParamResponseGetPresetPresets> getPresets() throws PtzSessionDahuaException {
+    public Map<Integer, String> getPresetNames() throws PtzSessionException {
 
-        DahuaRequestGetPreset requestGetPreset = new DahuaRequestGetPreset();
-        requestGetPreset.setId(this.getSessionData().getNextId());
-        requestGetPreset.setSession(this.getSessionData().getSession());
-        requestGetPreset.setObject(this.getSessionData().getResult());
-        requestGetPreset.setSeq(this.getSeq());
-        //
+        List<DahuaParamResponseGetPresetPresets> presetNames = this.getPresets();
 
-        String sessionReturn = null;
-        try(Response response = this._post( "RPC2", requestGetPreset)) {
-            if(response.body() != null)
-                sessionReturn = response.body().string();
-        } catch (IOException | PtzSessionException e) {
-            throw new PtzSessionDahuaException(e);
+        Map<Integer, String> result = new HashMap<>();
+        for(DahuaParamResponseGetPresetPresets preset : presetNames) {
+            result.put(preset.getIndex(), preset.getName());
         }
 
-        if(sessionReturn == null)
-            throw new PtzSessionDahuaException("sessionReturn could not be null");
-
-        DahuaResponseGetPreset responseStart = null;
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            responseStart = mapper.readValue(sessionReturn, DahuaResponseGetPreset.class);
-        } catch (JsonProcessingException e) {
-            throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
-        }
-
-        if(responseStart.getError() != null) {
-            if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseStart.getError().getMessage()))
-                this._sessionData.setConnected(false);
-            throw new PtzSessionDahuaException(responseStart.getError().getMessage());
-        }
-
-        this.getSessionData()
-                .updateSession(
-                        responseStart.getId()
-                );
-
-        return responseStart.getParams().getPresets();
-
+        return result;
     }
 
     @Override

@@ -1,6 +1,6 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.controllers;
 
-import br.com.elissonsilva.ptzwebcontrol.backend.component.Config;
+import br.com.elissonsilva.ptzwebcontrol.backend.component.Configuration;
 import br.com.elissonsilva.ptzwebcontrol.backend.component.EnvUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,25 +25,19 @@ public class ConfigController {
     private EnvUtil envUtil;
 
     @Autowired
-    private Config config;
+    private Configuration configuration;
 
     @GetMapping
-    public ResponseEntity<Config> getConfig() throws UnknownHostException {
+    public ResponseEntity<Configuration> getConfig() throws UnknownHostException {
         String host = envUtil.getHostname();
         String port = envUtil.getPort();
         if(!"80".equals(port)) host += ":" + port;
         host = "http://" + host + "/";
 
         log.debug("UrlBase: " + host);
-        config.setUrlBase(host);
+        configuration.setUrlBase(host);
 
-        return new ResponseEntity<>(config, HttpStatus.OK);
+        return new ResponseEntity<>(configuration, HttpStatus.OK);
     }
 
-    /*
-    @GetMapping("/brand")
-    public String getBrand() throws UnknownHostException {
-        return config.getPtz().getBrand();
-    }
-    */
 }

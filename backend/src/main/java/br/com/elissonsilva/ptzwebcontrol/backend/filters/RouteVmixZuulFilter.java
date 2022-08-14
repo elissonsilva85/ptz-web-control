@@ -1,6 +1,6 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.filters;
 
-import br.com.elissonsilva.ptzwebcontrol.backend.component.Config;
+import br.com.elissonsilva.ptzwebcontrol.backend.component.Configuration;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import lombok.SneakyThrows;
@@ -15,7 +15,7 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 public class RouteVmixZuulFilter extends ZuulFilter {
 
     @Autowired
-    private Config config;
+    private Configuration configuration;
 
     private final static Logger log = LoggerFactory.getLogger(RouteVmixZuulFilter.class);
 
@@ -45,7 +45,7 @@ public class RouteVmixZuulFilter extends ZuulFilter {
         ctx.set(REQUEST_URI_KEY, requestURI );
 
         //
-        String routeUrl = config.getVmixUrl();
+        String routeUrl = configuration.getVmixUrl();
 
         //
         ctx.setRouteHost(new URL(routeUrl));

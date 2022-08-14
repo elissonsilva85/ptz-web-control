@@ -51,9 +51,9 @@ export abstract class PtzAbstractSession {
   public connect() : Promise<any> {
 
     return this._post("connect", "").then( r => {
-      this._addLog(this._ptz, "login return: " + JSON.stringify(r));
+      this._addLog(this._ptz, "login success: " + JSON.stringify(r));
     }).catch( e => {
-      this._addLog(this._ptz, "login return: " + JSON.stringify(e));
+      this._addLog(this._ptz, "login error: " + JSON.stringify(e));
     });
 
   }
@@ -70,6 +70,30 @@ export abstract class PtzAbstractSession {
       .then( r => {
         this._addLog(this._ptz, "savePreset return: " + JSON.stringify(r));
       });
+  }
+
+  public getPresetNames() : Promise<any> {
+    return this._get("preset", "")
+    .then( r => {
+      this._addLog(this._ptz, "getPresetNames return: " + JSON.stringify(r));
+      return r;
+    });
+  }
+
+  public getCurrentPosition() : Promise<any> {
+    return this._get("currentPostion", "")
+    .then( r => {
+      this._addLog(this._ptz, "currentPostion return: " + JSON.stringify(r));
+      return r;
+    });
+  }
+
+  public getZoomValue() : Promise<any> {
+    return this._get("zoomValue", "")
+    .then( r => {
+      this._addLog(this._ptz, "curregetZoomValuentPostion return: " + JSON.stringify(r));
+      return r;
+    });
   }
 
   public setZoomSpeed(amount: number) : Promise<any> {
@@ -140,9 +164,7 @@ export abstract class PtzAbstractSession {
   }
 
   public stopLastCall() : Promise<any> {
-
     return this._post("stopLastCall", "");
-
   }
 
   public specificPosition(horizontal: number, vertical: number, zoom: number) : Promise<any> {
@@ -154,28 +176,5 @@ export abstract class PtzAbstractSession {
 
     return this._post("specificPosition", body);
   };
-
-  /////// UNDER DEVELOPMENT ////////////
-
-  public setConfig(list: any[], table: any[]) : Promise<any> {
-    let body: any = list.map( (name, i) => { 
-      return {
-          "name": name,
-          "table": [ table[i] ],
-          "options": []
-        }
-    });
-
-    //
-    this._addLog(this._ptz, "setConfig : " + JSON.stringify(body));
-    return this._post("config", body).then( r => {
-      this._addLog(this._ptz, "setConfig return: " + JSON.stringify(r));
-      return r; 
-    });
-  }
-
-  public abstract getConfig(list: any[]) : Promise<any>;
-
-  public abstract moveDirectly(coord: number[], speed: number) : Promise<any>;
 
 }

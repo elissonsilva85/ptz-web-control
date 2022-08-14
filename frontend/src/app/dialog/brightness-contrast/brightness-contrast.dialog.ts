@@ -213,7 +213,7 @@ export class BrightnessContrastDialog implements OnInit {
 
   salvar() {
 
-    this.rcp.getSession(this.ptz)
+    (this.rcp.getSession(this.ptz) as PtzDahuaSession)
       .setConfig([ "VideoInMode" ], [
         {
           "Config": [ this.config ],
@@ -231,7 +231,7 @@ export class BrightnessContrastDialog implements OnInit {
       ])
       .then(() => {
 
-        return this.rcp.getSession(this.ptz)
+        return (this.rcp.getSession(this.ptz) as PtzDahuaSession)
           .setConfig([ "VideoInWhiteBalance", "VideoColor" ], [ this.PTZVideoInWhiteBalanceTable, this.PTZVideoColorTable ]);
 
       })

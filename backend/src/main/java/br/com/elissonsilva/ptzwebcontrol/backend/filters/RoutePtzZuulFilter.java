@@ -1,6 +1,6 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.filters;
 
-import br.com.elissonsilva.ptzwebcontrol.backend.component.Config;
+import br.com.elissonsilva.ptzwebcontrol.backend.component.Configuration;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
@@ -20,7 +20,7 @@ public class RoutePtzZuulFilter extends ZuulFilter {
     private static Logger log = LoggerFactory.getLogger(RoutePtzZuulFilter.class);
 
     @Autowired
-    private Config config;
+    private Configuration configuration;
 
     @Override
     public String filterType() {
@@ -57,7 +57,7 @@ public class RoutePtzZuulFilter extends ZuulFilter {
         ctx.set(REQUEST_URI_KEY, requestURI );
 
         //
-        String routeUrl = config.getPtz().getConnection().get(ptzCode).getUrl();
+        String routeUrl = configuration.getPtz().getConnection().get(ptzCode).getUrl();
 
         //
         ctx.setRouteHost(new URL(routeUrl));
