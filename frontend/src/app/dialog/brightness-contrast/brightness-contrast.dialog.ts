@@ -3,6 +3,9 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RcpService } from '../../service/rcp.service';
 import { PtzDahuaSession } from '../../class/ptz-dahua-session';
+import { DahuaParamRequestSetConfigVideoInMode } from 'src/app/class/dahua-param-request-setConfig-VideoInMode';
+import { DahuaParamRequestSetConfigVideoInWhiteBalance } from 'src/app/class/dahua-param-request-setConfig-VideoInWhiteBalance';
+import { DahuaParamRequestSetConfigVideoColorTable } from 'src/app/class/dahua-param-request-setConfig-VideoColorTable';
 
 @Component({
   selector: 'app-brightness-contrast',
@@ -12,8 +15,6 @@ import { PtzDahuaSession } from '../../class/ptz-dahua-session';
 export class BrightnessContrastDialog implements OnInit {
 
   configStr: string = "0";
-
-  config: number = 0;
 
   wb = {
     "mode": "Auto",
@@ -58,60 +59,18 @@ export class BrightnessContrastDialog implements OnInit {
     }
   };  
 
-  PTZVideoInWhiteBalanceTable: any[] = [
-    {
-      "ColorTemperatureLevel": 50,
-      "GainBlue": 50,
-      "GainGreen": 50,
-      "GainRed": 50,
-      "Mode": "Auto"
-    },
-    {
-      "ColorTemperatureLevel": 50,
-      "GainBlue": 50,
-      "GainGreen": 50,
-      "GainRed": 50,
-      "Mode": "Auto"
-    },
-    {
-      "ColorTemperatureLevel": 50,
-      "GainBlue": 50,
-      "GainGreen": 50,
-      "GainRed": 50,
-      "Mode": "Auto"
-    }
+  PTZVideoInMode: DahuaParamRequestSetConfigVideoInMode = new DahuaParamRequestSetConfigVideoInMode()
+
+  PTZVideoInWhiteBalanceTable: DahuaParamRequestSetConfigVideoInWhiteBalance[] = [
+    new DahuaParamRequestSetConfigVideoInWhiteBalance(),
+    new DahuaParamRequestSetConfigVideoInWhiteBalance(),
+    new DahuaParamRequestSetConfigVideoInWhiteBalance()
   ];
 
-  PTZVideoColorTable: any[] = [{
-      "Brightness": 50,
-      "ChromaSuppress": 50,
-      "Contrast": 50,
-      "Gamma": 50,
-      "Hue": 50,
-      "Saturation": 50,
-      "Style": "Standard",
-      "TimeSection": "0 00:00:00-24:00:00"
-    },
-    {
-      "Brightness": 50,
-      "ChromaSuppress": 50,
-      "Contrast": 50,
-      "Gamma": 50,
-      "Hue": 50,
-      "Saturation": 50,
-      "Style": "Standard",
-      "TimeSection": "0 00:00:00-24:00:00"
-    },
-    {
-      "Brightness": 50,
-      "ChromaSuppress": 50,
-      "Contrast": 50,
-      "Gamma": 50,
-      "Hue": 50,
-      "Saturation": 50,
-      "Style": "Standard",
-      "TimeSection": "1 00:00:00-24:00:00"
-    }
+  PTZVideoColorTable: DahuaParamRequestSetConfigVideoColorTable[] = [
+    new DahuaParamRequestSetConfigVideoColorTable(),
+    new DahuaParamRequestSetConfigVideoColorTable(),
+    new DahuaParamRequestSetConfigVideoColorTable()
   ];
 
   constructor(
@@ -131,6 +90,14 @@ export class BrightnessContrastDialog implements OnInit {
   ngOnInit() {
   }
 
+  private _getVideoInModeConfig(): number {
+    return this.PTZVideoInMode.Config[0];
+  }
+
+  private _setVideoInModeConfig(config: number) {
+    this.PTZVideoInMode.Config[0] = config;
+  }
+
   loadConf() {
     console.log(`loadConf [${this.ptz}]`);
     (this.rcp.getSession(this.ptz) as PtzDahuaSession)
@@ -143,13 +110,13 @@ export class BrightnessContrastDialog implements OnInit {
         let VideoInWhiteBalance = result.params[1];
         let VideoColor = result.params[2];
 
-        this.config = VideoInMode.params.table[0].Config[0];
+        this.PTZVideoInMode = VideoInMode.params.table[0];
         this.PTZVideoInWhiteBalanceTable = VideoInWhiteBalance.params.table[0];
         this.PTZVideoColorTable = VideoColor.params.table[0];
 
-        this.configStr = this.config + "";
+        this.configStr = this._getVideoInModeConfig() + "";
 
-        console.log("loadConf [config]", this.config);
+        console.log("loadConf [config]", this.configStr);
         console.log("loadConf [PTZVideoInWhiteBalanceTable]", this.PTZVideoInWhiteBalanceTable);
         console.log("loadConf [PTZVideoColorTable]", this.PTZVideoColorTable);
 
@@ -159,24 +126,24 @@ export class BrightnessContrastDialog implements OnInit {
   }
 
   loadWB() {
-    this.wb.blue.value = this.PTZVideoInWhiteBalanceTable[this.config]["GainBlue"];
-    this.wb.green.value = this.PTZVideoInWhiteBalanceTable[this.config]["GainGreen"];
-    this.wb.red.value = this.PTZVideoInWhiteBalanceTable[this.config]["GainRed"];
-    this.wb.mode = this.PTZVideoInWhiteBalanceTable[this.config]["Mode"];
+    this.wb.blue.value = this.PTZVideoInWhiteBalanceTable[this._getVideoInModeConfig()]["GainBlue"];
+    this.wb.green.value = this.PTZVideoInWhiteBalanceTable[this._getVideoInModeConfig()]["GainGreen"];
+    this.wb.red.value = this.PTZVideoInWhiteBalanceTable[this._getVideoInModeConfig()]["GainRed"];
+    this.wb.mode = this.PTZVideoInWhiteBalanceTable[this._getVideoInModeConfig()]["Mode"];
   }
 
   loadImagem() {
-    this.imagem.brilho.value = this.PTZVideoColorTable[this.config]["Brightness"];
-    this.imagem.contraste.value = this.PTZVideoColorTable[this.config]["Contrast"];
-    this.imagem.saturacao.value = this.PTZVideoColorTable[this.config]["Saturation"];
+    this.imagem.brilho.value = this.PTZVideoColorTable[this._getVideoInModeConfig()]["Brightness"];
+    this.imagem.contraste.value = this.PTZVideoColorTable[this._getVideoInModeConfig()]["Contrast"];
+    this.imagem.saturacao.value = this.PTZVideoColorTable[this._getVideoInModeConfig()]["Saturation"];
   }
   
   changeConf() {
-    this.config = parseInt(this.configStr);
-    console.log("changeConf [config]", this.config);
-    console.log(`changeConf [${this.ptz}] [${this.config}]`);
+    this._setVideoInModeConfig(parseInt(this.configStr));
+    console.log("changeConf [config]", this._getVideoInModeConfig());
+    console.log(`changeConf [${this.ptz}] [${this._getVideoInModeConfig()}]`);
     (this.rcp.getSession(this.ptz) as PtzDahuaSession)
-      .setVideoInMode(this.config)
+      .setVideoInMode(this.PTZVideoInMode)
       .then(() => {
         this.loadWB();
         this.loadImagem();
@@ -186,10 +153,10 @@ export class BrightnessContrastDialog implements OnInit {
 
   changeWB() {
     console.log(`changeWB [${this.ptz}]`);
-    this.PTZVideoInWhiteBalanceTable[this.config]["GainBlue"] = this.wb.blue.value;
-    this.PTZVideoInWhiteBalanceTable[this.config]["GainGreen"] = this.wb.green.value;
-    this.PTZVideoInWhiteBalanceTable[this.config]["GainRed"] = this.wb.red.value;
-    this.PTZVideoInWhiteBalanceTable[this.config]["Mode"] = this.wb.mode;
+    this.PTZVideoInWhiteBalanceTable[this._getVideoInModeConfig()]["GainBlue"] = this.wb.blue.value;
+    this.PTZVideoInWhiteBalanceTable[this._getVideoInModeConfig()]["GainGreen"] = this.wb.green.value;
+    this.PTZVideoInWhiteBalanceTable[this._getVideoInModeConfig()]["GainRed"] = this.wb.red.value;
+    this.PTZVideoInWhiteBalanceTable[this._getVideoInModeConfig()]["Mode"] = this.wb.mode;
 
     (this.rcp.getSession(this.ptz) as PtzDahuaSession)
       .setVideoInWhiteBalance(this.PTZVideoInWhiteBalanceTable)
@@ -200,9 +167,9 @@ export class BrightnessContrastDialog implements OnInit {
 
   changeImagem() {
     console.log(`changeImagem [${this.ptz}]`);
-    this.PTZVideoColorTable[this.config]["Brightness"] = this.imagem.brilho.value;
-    this.PTZVideoColorTable[this.config]["Contrast"] = this.imagem.contraste.value;
-    this.PTZVideoColorTable[this.config]["Saturation"] = this.imagem.saturacao.value;
+    this.PTZVideoColorTable[this._getVideoInModeConfig()]["Brightness"] = this.imagem.brilho.value;
+    this.PTZVideoColorTable[this._getVideoInModeConfig()]["Contrast"] = this.imagem.contraste.value;
+    this.PTZVideoColorTable[this._getVideoInModeConfig()]["Saturation"] = this.imagem.saturacao.value;
 
     (this.rcp.getSession(this.ptz) as PtzDahuaSession)
       .setVideoColor(this.PTZVideoColorTable)
@@ -214,27 +181,11 @@ export class BrightnessContrastDialog implements OnInit {
   salvar() {
 
     (this.rcp.getSession(this.ptz) as PtzDahuaSession)
-      .setConfig([ "VideoInMode" ], [
-        {
-          "Config": [ this.config ],
-          "Mode": 0,
-          "TimeSection": [
-            ["0 00:00:00-24:00:00", "0 00:00:00-23:59:59", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00" ],
-            ["0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00"],
-            ["0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00"],
-            ["0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00"],
-            ["0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00"],
-            ["0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00"],
-            ["0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00", "0 00:00:00-24:00:00"]
-          ]
-        }
+      .setConfig([ "VideoInMode", "VideoInWhiteBalance", "VideoColor" ], [
+        this.PTZVideoInMode,
+        this.PTZVideoInWhiteBalanceTable, 
+        this.PTZVideoColorTable
       ])
-      .then(() => {
-
-        return (this.rcp.getSession(this.ptz) as PtzDahuaSession)
-          .setConfig([ "VideoInWhiteBalance", "VideoColor" ], [ this.PTZVideoInWhiteBalanceTable, this.PTZVideoColorTable ]);
-
-      })
       .then(() => {
         this.dialogRef.close();
       });    

@@ -34,6 +34,11 @@
                     <mat-card-title>{{rcp.ptzConnection[ptz].label}} <img src="./assets/{{ this.rcp.getStatusSvg(ptz) }}" class="status-svg"></mat-card-title>
                 </td>
                 <td style="text-align: right">
+                    <!--
+                    <button mat-icon-button (click)="openBrightnessContrastDialog(ptz)" matTooltip="Parâmetros">
+                       <mat-icon>video_settings</mat-icon>
+                    </button>                    
+                    -->
                     <button mat-icon-button (click)="changeNumpadMode(ptz)" [color]="numpadMode[ptz] == 'load' ? '' : 'warn'" matTooltip="Modo: {{ numpadMode[ptz] == 'load' ? 'CARREGAR' : 'SALVAR' }}">
                         <mat-icon>{{ numpadMode[ptz] == 'load' ? 'launch' : 'save' }}</mat-icon>
                     </button>

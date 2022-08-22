@@ -22,14 +22,13 @@ export class RcpService {
   stopStreamingCommands: string[] = [];
   customShortcuts: any[] = [];
 
-  constructor(private _http: HttpClient,
-    private _router: Router) {  }
+  constructor(private _http: HttpClient) {  }
 
   public loadAppConfig() {
     return this._http.get('/api/config/')
       .toPromise()
       .then( (data: any) => {
-        this.urlBase = this._router.url + "api/ptz/operate/";
+        this.urlBase = window.location.href;
         this.startStreamingCommands = data.startStreaming;
         this.stopStreamingCommands = data.stopStreaming;
         this.ptzConnection = data.ptz.connection;
@@ -49,7 +48,7 @@ export class RcpService {
           this.ptzSessionList.set(ptz, new PtzDahuaSession(
             this._http,
             ptz,
-            this.urlBase,
+            this.urlBase + "api/ptz/operate/",
             this.ptzConnection[ptz].user,
             this.ptzConnection[ptz].password,
             (ptz : string, text : string) => {
@@ -104,7 +103,7 @@ export class RcpService {
 
   public simpleGet( page: string, params : string ): Promise<any> {
     return this._http
-      .get<any>(this.urlBase + page + "?" + params)
+      .get(this.urlBase + page + "?" + params, {responseType: 'text'})
       .toPromise();
   }
 
