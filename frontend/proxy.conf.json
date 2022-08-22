@@ -4,7 +4,7 @@
     "secure": false,
     "logLevel": "debug"
   },
-  "/ptz": {
+  "/vmix": {
     "target": "http://localhost/",
     "secure": false,
     "logLevel": "debug"
