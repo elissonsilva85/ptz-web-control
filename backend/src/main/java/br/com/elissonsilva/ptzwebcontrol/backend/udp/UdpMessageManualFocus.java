@@ -2,7 +2,7 @@ package br.com.elissonsilva.ptzwebcontrol.backend.udp;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzSessionAbstract;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.PtzSessionDahua;
-import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamRequestSetConfigVideoInFocus.Mode;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamConfigVideoInFocus.Mode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

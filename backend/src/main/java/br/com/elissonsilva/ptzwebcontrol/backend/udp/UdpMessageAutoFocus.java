@@ -2,7 +2,7 @@ package br.com.elissonsilva.ptzwebcontrol.backend.udp;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzSessionAbstract;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.PtzSessionDahua;
-import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamRequestSetConfigVideoInFocus;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamConfigVideoInFocus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +24,7 @@ public class UdpMessageAutoFocus extends UdpMessageBase {
             this.logger.info("Setting Automatic Focus");
             if(session.isConnected()) {
                 if("PtzSessionDahua".equals(session.getClass().getSimpleName()))
-                    ((PtzSessionDahua) session).setVideoInFocus(DahuaParamRequestSetConfigVideoInFocus.Mode.Automatico.getValue(), false);
+                    ((PtzSessionDahua) session).setVideoInFocus(DahuaParamConfigVideoInFocus.Mode.Automatico.getValue(), false);
             }
 
         } catch (Exception e) {

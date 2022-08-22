@@ -59,21 +59,21 @@ export abstract class PtzAbstractSession {
   }
 
   public loadPreset(id: number) : Promise<any> {
-    return this._get("preset/" + id, "")
+    return this._get("preset", "id=" + id)
     .then( r => {
       this._addLog(this._ptz, "loadPreset return: " + JSON.stringify(r));
     });
   }
 
   public savePreset(id: number, name: string) : Promise<any> {
-    return this._post("preset/" + id + "/" + name, "")
+    return this._post("preset", { id: id, name: name })
       .then( r => {
         this._addLog(this._ptz, "savePreset return: " + JSON.stringify(r));
       });
   }
 
   public getPresetNames() : Promise<any> {
-    return this._get("preset", "")
+    return this._get("presetNames", "")
     .then( r => {
       this._addLog(this._ptz, "getPresetNames return: " + JSON.stringify(r));
       return r;
@@ -91,56 +91,69 @@ export abstract class PtzAbstractSession {
   public getZoomValue() : Promise<any> {
     return this._get("zoomValue", "")
     .then( r => {
-      this._addLog(this._ptz, "curregetZoomValuentPostion return: " + JSON.stringify(r));
+      this._addLog(this._ptz, "getZoomValue return: " + JSON.stringify(r));
       return r;
-    });
-  }
-
-  public setZoomSpeed(amount: number) : Promise<any> {
-    return this._post("setZoomSpeed/" + amount, "")
-    .then( r => {
-      this._addLog(this._ptz, "setZoomSpeed return: " + JSON.stringify(r));
     });
   }
 
   public startZoomIn() : Promise<any> {
     let amount = 5;
-    return this._post("zoomIn/start/" + amount, "");
+    return this._post("zoomInStart", { amount: amount })
   }
 
   public stopZoomIn() : Promise<any> {
     let amount = 5;
-    return this._post("zoomIn/stop/" + amount, "");
+    return this._post("zoomInStop", { amount: amount })
   }
 
   public startZoomOut() : Promise<any> {
     let amount = 5;
-    return this._post("zoomOut/start/" + amount, "");
+    return this._post("zoomOutStart", { amount: amount })
   }
 
   public stopZoomOut() : Promise<any> {
     let amount = 5;
-    return this._post("zoomOut/stop/" + amount, "");
+    return this._post("zoomOutStop", { amount: amount })
   }
 
   public startFocusIn() : Promise<any> {
     let amount = 5;
-    return this._post("focusIn/start/" + amount, "");
+    return this._post("focusInStart", { amount: amount })
   }
 
   public stopFocusIn() : Promise<any> {
     let amount = 5;
-    return this._post("focusIn/stop/" + amount, "");
+    return this._post("focusInStop", { amount: amount })
   }
 
   public startFocusOut() : Promise<any> {
     let amount = 5;
-    return this._post("focusOut/start/" + amount, "");
+    return this._post("focusOutStart", { amount: amount })
   }
 
   public stopFocusOut() : Promise<any> {
     let amount = 5;
-    return this._post("focusOut/stop/" + amount, "");
+    return this._post("focusOutStop", { amount: amount })
+  }
+
+  public startIrisLarge() : Promise<any> {
+    let amount = 5;
+    return this._post("irisLargeStart", { amount: amount })
+  }
+
+  public stopIrisLarge() : Promise<any> {
+    let amount = 5;
+    return this._post("irisLargeStop", { amount: amount })
+  }
+
+  public startIrisSmall() : Promise<any> {
+    let amount = 5;
+    return this._post("irisSmallStart", { amount: amount })
+  }
+
+  public stopIrisSmall() : Promise<any> {
+    let amount = 5;
+    return this._post("irisSmallStop", { amount: amount })
   }
 
   public startJoystick(direction: string, speed1: number, speed2: number) : Promise<any> {
@@ -150,7 +163,7 @@ export abstract class PtzAbstractSession {
       "speed2": speed2
     };
 
-    return this._post("joystick/start", body);
+    return this._post("joystickStart", body);
   }
 
   public stopJoystick(direction: string, speed1: number, speed2: number) : Promise<any> {
@@ -160,7 +173,7 @@ export abstract class PtzAbstractSession {
       "speed2": speed2
     };
 
-    return this._post("joystick/stop", body);
+    return this._post("joystickStop", body);
   }
 
   public stopLastCall() : Promise<any> {
@@ -176,5 +189,12 @@ export abstract class PtzAbstractSession {
 
     return this._post("specificPosition", body);
   };
+
+  public setZoomSpeed(amount: number) : Promise<any> {
+    return this._post("setZoomSpeed", { amount: amount })
+    .then( r => {
+      this._addLog(this._ptz, "setZoomSpeed return: " + JSON.stringify(r));
+    });
+  }
 
 }

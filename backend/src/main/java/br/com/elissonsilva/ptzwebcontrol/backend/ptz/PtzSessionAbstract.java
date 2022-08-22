@@ -2,7 +2,6 @@ package br.com.elissonsilva.ptzwebcontrol.backend.ptz;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.JoystickQueueData;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionException;
-import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetConfig;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.exception.PtzSessionDahuaException;
 import okhttp3.*;
 
@@ -102,20 +101,21 @@ public abstract class PtzSessionAbstract {
 
     public abstract void stopFocusOut(int amount) throws PtzSessionException;
 
+    public abstract void startIrisLarge(int amount) throws PtzSessionException;
+
+    public abstract void stopIrisLarge(int amount) throws PtzSessionException;
+
+    public abstract void startIrisSmall(int amount) throws PtzSessionException;
+
+    public abstract void stopIrisSmall(int amount) throws PtzSessionException;
+
     public abstract void startJoystick(PtzJoystickDirection direction, int speed1, int speed2) throws PtzSessionException;
 
     public abstract void stopJoystick(PtzJoystickDirection direction, int speed1, int speed2) throws PtzSessionException;
 
     public abstract void stopLastCall() throws PtzSessionException;
 
-    /////// UNDER DEVELOPMENT ////////////
-
     public abstract void specificPosition(int horizontal, int vertical, int zoom) throws PtzSessionException;
 
-    public abstract void getConfig() throws PtzSessionException; // list: any[]
-
-    public abstract void setConfig(List<DahuaParamRequestSetConfig> setConfigList) throws PtzSessionException; // list: any[], table: any[]
-
-    public abstract void moveDirectly(int[] coord) throws PtzSessionException;
 
 }
