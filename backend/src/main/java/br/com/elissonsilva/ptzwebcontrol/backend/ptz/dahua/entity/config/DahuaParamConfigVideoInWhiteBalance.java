@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class DahuaParamRequestSetConfigVideoInWhiteBalance {
+public class DahuaParamConfigVideoInWhiteBalance extends DahuaParamConfigAbstract {
 
     @JsonProperty("ColorTemperatureLevel")
     private int colorTemperatureLevel;

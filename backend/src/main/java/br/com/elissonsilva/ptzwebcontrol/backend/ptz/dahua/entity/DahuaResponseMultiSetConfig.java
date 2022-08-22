@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class DahuaResponseMultiConfig extends DahuaResponseBase<List<DahuaResponseSetConfig>> {
+public class DahuaResponseMultiSetConfig extends DahuaResponseBase<List<DahuaResponseSetConfig>> {
 
-    public DahuaResponseMultiConfig() {
+    public DahuaResponseMultiSetConfig() {
         this.setParams(new ArrayList<>());
     }
 

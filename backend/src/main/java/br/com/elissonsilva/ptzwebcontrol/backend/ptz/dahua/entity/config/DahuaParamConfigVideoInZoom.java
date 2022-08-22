@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class DahuaParamRequestSetConfigVideoInZoom {
+public class DahuaParamConfigVideoInZoom extends DahuaParamConfigAbstract {
 
     @JsonProperty("DigitalZoom")
     private boolean digitalZoom = false;

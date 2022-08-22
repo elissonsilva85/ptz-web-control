@@ -11,7 +11,7 @@ import java.util.List;
 public class DahuaParamRequestSetConfig extends DahuaParamBase {
 
     private String name = "";
-    private List table = new ArrayList<>();
+    private List table;
     private List<String> options = new ArrayList<>();
 
 }
