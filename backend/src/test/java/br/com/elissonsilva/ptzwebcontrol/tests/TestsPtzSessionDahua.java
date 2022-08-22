@@ -8,11 +8,10 @@ import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionException;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionManagerException;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzJoystickDirection;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.PtzSessionDahua;
-import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamRequestSetConfigVideoColorTable;
-import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamRequestSetConfigVideoInWhiteBalance;
-import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamRequestSetConfigVideoInZoom;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamConfigVideoColorTable;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamConfigVideoInWhiteBalance;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamConfigVideoInZoom;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetConfig;
-import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetTemporaryConfig;
 import br.com.elissonsilva.ptzwebcontrol.backend.services.PtzSessionManagerService;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -216,15 +215,15 @@ public class TestsPtzSessionDahua {
 
             int zoomSpeed = 10;
 
-            List<List<DahuaParamRequestSetConfigVideoInZoom>> list = Arrays.asList(
+            List<List<DahuaParamConfigVideoInZoom>> list = Arrays.asList(
                     Arrays.asList(
-                            new DahuaParamRequestSetConfigVideoInZoom() {{
+                            new DahuaParamConfigVideoInZoom() {{
                                 setSpeed(zoomSpeed);
                             }},
-                            new DahuaParamRequestSetConfigVideoInZoom() {{
+                            new DahuaParamConfigVideoInZoom() {{
                                 setSpeed(zoomSpeed);
                             }},
-                            new DahuaParamRequestSetConfigVideoInZoom() {{
+                            new DahuaParamConfigVideoInZoom() {{
                                 setSpeed(zoomSpeed);
                             }}
                     )
@@ -277,15 +276,15 @@ public class TestsPtzSessionDahua {
 
             int zoomSpeed = 10;
 
-            List<List<DahuaParamRequestSetConfigVideoColorTable>> list = Arrays.asList(
+            List<List<DahuaParamConfigVideoColorTable>> list = Arrays.asList(
                     Arrays.asList(
-                            new DahuaParamRequestSetConfigVideoColorTable(),
-                            new DahuaParamRequestSetConfigVideoColorTable(),
-                            new DahuaParamRequestSetConfigVideoColorTable()
+                            new DahuaParamConfigVideoColorTable(),
+                            new DahuaParamConfigVideoColorTable(),
+                            new DahuaParamConfigVideoColorTable()
                     )
             );
 
-            DahuaParamRequestSetTemporaryConfig<List<DahuaParamRequestSetConfigVideoColorTable>> setConfig = new DahuaParamRequestSetTemporaryConfig<>();
+            DahuaParamRequestSetConfig setConfig = new DahuaParamRequestSetConfig();
             setConfig.setName("VideoColor");
             setConfig.setTable(list);
 
@@ -304,37 +303,37 @@ public class TestsPtzSessionDahua {
 
             int zoomSpeed = 100;
 
-            List<List<DahuaParamRequestSetConfigVideoInZoom>> list1 = Arrays.asList(
+            List<List<DahuaParamConfigVideoInZoom>> list1 = Arrays.asList(
                     Arrays.asList(
-                            new DahuaParamRequestSetConfigVideoInZoom() {{
+                            new DahuaParamConfigVideoInZoom() {{
                                 setSpeed(zoomSpeed);
                             }},
-                            new DahuaParamRequestSetConfigVideoInZoom() {{
+                            new DahuaParamConfigVideoInZoom() {{
                                 setSpeed(zoomSpeed);
                             }},
-                            new DahuaParamRequestSetConfigVideoInZoom() {{
+                            new DahuaParamConfigVideoInZoom() {{
                                 setSpeed(zoomSpeed);
                             }}
                     )
             );
 
-            List<List<DahuaParamRequestSetConfigVideoInWhiteBalance>> list2 = Arrays.asList(
+            List<List<DahuaParamConfigVideoInWhiteBalance>> list2 = Arrays.asList(
                     Arrays.asList(
-                            new DahuaParamRequestSetConfigVideoInWhiteBalance() {{
+                            new DahuaParamConfigVideoInWhiteBalance() {{
                                 setColorTemperatureLevel(50);
                                 setGainBlue(50);
                                 setGainGreen(50);
                                 setGainRed(50);
                                 setMode("Auto");
                             }},
-                            new DahuaParamRequestSetConfigVideoInWhiteBalance() {{
+                            new DahuaParamConfigVideoInWhiteBalance() {{
                                 setColorTemperatureLevel(50);
                                 setGainBlue(50);
                                 setGainGreen(50);
                                 setGainRed(50);
                                 setMode("Auto");
                             }},
-                            new DahuaParamRequestSetConfigVideoInWhiteBalance() {{
+                            new DahuaParamConfigVideoInWhiteBalance() {{
                                 setColorTemperatureLevel(50);
                                 setGainBlue(50);
                                 setGainGreen(50);

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class DahuaParamRequestSetConfigVideoColorTable {
+public class DahuaParamConfigVideoColorTable extends DahuaParamConfigAbstract {
 
     @JsonProperty("Brightness")
     int brightness = 50;

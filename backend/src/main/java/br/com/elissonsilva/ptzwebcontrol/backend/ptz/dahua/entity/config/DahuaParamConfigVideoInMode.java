@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Data
-public class DahuaParamRequestSetConfigVideoInMode {
+public class DahuaParamConfigVideoInMode extends DahuaParamConfigAbstract {
 
     @JsonProperty("Config")
     private int[] config;
@@ -18,7 +18,7 @@ public class DahuaParamRequestSetConfigVideoInMode {
     @JsonProperty("TimeSection")
     private List<List<String>> timeSection;
 
-    public DahuaParamRequestSetConfigVideoInMode() {
+    public DahuaParamConfigVideoInMode() {
         this.timeSection = Arrays.asList(
                 Arrays.asList(
                         "0 00:00:00-24:00:00",
