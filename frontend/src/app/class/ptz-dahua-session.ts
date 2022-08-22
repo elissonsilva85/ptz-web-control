@@ -1,4 +1,8 @@
 import { DahuaFaultylabs } from './dahua-faultylabs';
+import { DahuaParamRequestSetConfig } from './dahua-param-request-setConfig';
+import { DahuaParamRequestSetConfigVideoColorTable } from './dahua-param-request-setConfig-VideoColorTable';
+import { DahuaParamRequestSetConfigVideoInMode } from './dahua-param-request-setConfig-VideoInMode';
+import { DahuaParamRequestSetConfigVideoInWhiteBalance } from './dahua-param-request-setConfig-VideoInWhiteBalance';
 import { DahuaSessionData } from './dahua-session-data';
 import { PtzAbstractSession } from './ptz-abstract-session';
 
@@ -6,80 +10,43 @@ const faultylabs: DahuaFaultylabs = new DahuaFaultylabs();
 
 export class PtzDahuaSession extends PtzAbstractSession {
 
-    private _keepAliveInterval: number = 9000;
     private _sessionData : DahuaSessionData = new DahuaSessionData();
-
-    protected _post( page: string, body : any ): Promise<any> {
-      if(body.method == "ptz.start") this._lastCallBody = body;
-      return super._post(page, body);
-    }
-
-    /////// PRIVATE METHODS /////////////////////
-    
-    private _keepAlive() : Promise<any> {
-      if( !this.isConnected() )
-        return this._getPromiseRejectWithText(`_keepAlive: ${this._ptz} is not connected`);
-
-      return this._post("dahua/keepAlive", "").then( r => {
-        this._addLog(this._ptz, "keepAlive return: " + JSON.stringify(r));
-      });
-    }
-
-    private _keepAliveTimeout() {
-      this._sessionData.timer = setTimeout(() => {
-        this._keepAlive().then( () => { this._keepAliveTimeout(); })
-      }, this._keepAliveInterval);
-    }
-
-    /////// PUBLIC METHODS ///////////
-
-    public loadPreset(id: number) : Promise<any> {
-
-      let freezeFocus = false;
-
-      return super.loadPreset(id).then( () => {
-        if(freezeFocus)
-          setTimeout( () => {
-            this.startFocusOut().then(() => {
-              this.stopFocusOut() }) }, 5000);
-      });
-
-    }
-
-    public setZoomSpeed(value) : Promise<any> {
-      //
-      return this.setConfig([ "VideoInZoom" ], [ [
-            {
-              "DigitalZoom": false,
-              "Speed": value,
-              "ZoomLimit": 4
-            },
-            {
-              "DigitalZoom": false,
-              "Speed": value,
-              "ZoomLimit": 4
-            },
-            {
-              "DigitalZoom": false,
-              "Speed": value,
-              "ZoomLimit": 4
-            }
-          ] ]);
-      //
-    }
 
     ///////////// UNDER DEVELOPMENT //////////////
 
-    public specificPosition(horizontal: number, vertical: number, zoom: number) : Promise<any> {
-      //let degree = -18.99666 + 6.9773 * Math.log(horizontal);
-      // return this._ptzStart("PositionABS", horizontal, vertical, zoom);
-      return this._getPromiseRejectWithText(`under construction`); 
+    public setConfig(list: any[], table: any[]) : Promise<any> {
+      let body: DahuaParamRequestSetConfig[] = list.map( (name, i) => { 
+        return new DahuaParamRequestSetConfig(name, table[i]);
+      });
+  
+      //
+      this._addLog(this._ptz, "setConfig : " + JSON.stringify(body));
+      return this._post("dahua/setConfig", body).then( r => {
+        this._addLog(this._ptz, "setConfig return: " + JSON.stringify(r));
+        return r; 
+      });
     }
 
+    public setTemporaryConfig(name: string, table: any) : Promise<any> {
+      let body: DahuaParamRequestSetConfig = new DahuaParamRequestSetConfig(name, table);
+  
+      //
+      this._addLog(this._ptz, "setTemporaryConfig : " + JSON.stringify(body));
+      return this._post("dahua/setTemporaryConfig", body).then( r => {
+        this._addLog(this._ptz, "setTemporaryConfig return: " + JSON.stringify(r));
+        return r; 
+      });
+    }
+    
     public getConfig(list: any[]) : Promise<any> {
-      if( !this.isConnected() )
-        return this._getPromiseRejectWithText(`getConfig: ${this._ptz} is not connected`);
+      //
+      this._addLog(this._ptz, "getConfig : " + list.join(","));
+      return this._get("dahua/getConfig/" + list.join(","), "").then( r => {
+        this._addLog(this._ptz, "getConfig return: " + JSON.stringify(r));
+        return r; 
+      });
 
+      /*
       var body = {
         "method": "system.multicall",
         "params": [ ],
@@ -106,145 +73,22 @@ export class PtzDahuaSession extends PtzAbstractSession {
         this._sessionData.id = r.id;
         return r; 
       });
+      */
     }
 
-    public setVideoColor(videoColorTable: any[]) : Promise<any> {
-      if( !this.isConnected() )
-        return this._getPromiseRejectWithText(`setVideoColor: ${this._ptz} is not connected`);
-
-      var body = {
-        "method": "configManager.setTemporaryConfig",
-        "params": {
-          "name": "VideoColor",
-          "table": videoColorTable,
-          "options": []
-        },
-        "id": this._sessionData.id + 1,
-        "session": this._sessionData.session
-      };
-      //
-      this._addLog(this._ptz, "setVideoColor : " + JSON.stringify(body));
-      return this._post("RPC2", body).then( r => {
-        this._addLog(this._ptz, "setVideoColor return: " + JSON.stringify(r));
-        this._sessionData.id = r.id;
-      });
+    public setVideoColor(videoColorTable: DahuaParamRequestSetConfigVideoColorTable[]) : Promise<any> {
+      return this.setTemporaryConfig("VideoColor", videoColorTable);
     }
 
-    public setVideoInMode(config: number) : Promise<any> {
-      if( !this.isConnected() )
-        return this._getPromiseRejectWithText(`setVideoInMode: ${this._ptz} is not connected`);
-
-      var body = {
-        "method": "configManager.setTemporaryConfig",
-        "params": {
-          "name": "VideoInMode",
-          "table": [
-            {
-              "Config": [
-                config
-              ],
-              "Mode": 0,
-              "TimeSection": [
-                [
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00"
-                ],
-                [
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00"
-                ],
-                [
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00"
-                ],
-                [
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00"
-                ],
-                [
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00"
-                ],
-                [
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00"
-                ],
-                [
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00",
-                  "0 00:00:00-24:00:00"
-                ]
-              ]
-            }
-          ],
-          "options": []
-        },
-        "id": this._sessionData.id + 1,
-        "session": this._sessionData.session
-      };
-      //
-      this._addLog(this._ptz, "setVideoInMode : " + JSON.stringify(body));
-      return this._post("RPC2", body).then( r => {
-        this._addLog(this._ptz, "setVideoInMode return: " + JSON.stringify(r));
-        this._sessionData.id = r.id;
-      });
+    public setVideoInWhiteBalance(videoInWhiteBalanceTable: DahuaParamRequestSetConfigVideoInWhiteBalance[]) : Promise<any> {
+      return this.setTemporaryConfig("VideoInWhiteBalance", videoInWhiteBalanceTable);
     }
 
-    public setVideoInWhiteBalance(videoInWhiteBalanceTable: any[]) : Promise<any> {
-      if( !this.isConnected() )
-        return this._getPromiseRejectWithText(`setVideoInWhiteBalance: ${this._ptz} is not connected`);
-
-      var body = {
-        "method": "configManager.setTemporaryConfig",
-        "params": {
-          "name": "VideoInWhiteBalance",
-          "table": [
-            videoInWhiteBalanceTable
-          ],
-          "options": []
-        },
-        "id": this._sessionData.id + 1,
-        "session": this._sessionData.session
-      };
-      //
-      this._addLog(this._ptz, "setVideoInWhiteBalance : " + JSON.stringify(body));
-      return this._post("RPC2", body).then( r => {
-        this._addLog(this._ptz, "setVideoInWhiteBalance return: " + JSON.stringify(r));
-        this._sessionData.id = r.id;
-      });
+    public setVideoInMode(videoInMode: DahuaParamRequestSetConfigVideoInMode) : Promise<any> {
+      return this.setTemporaryConfig("VideoInMode", videoInMode);
     }
 
     public moveDirectly(coord: number[], speed: number) : Promise<any> {
-      if( !this.isConnected() )
-        return this._getPromiseRejectWithText(`moveDirectly: ${this._ptz} is not connected`);
-
       var body = {
         "method": "ptz.moveDirectly",
         "params": {

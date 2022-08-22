@@ -16,22 +16,19 @@ export class RcpService {
   keepAliveInterval: number = 9000;
   urlBase: string;
 
-  ptzBrand: string = "";
   ptzConnection: any = {};
   ptzSessionList = new Map();
   startStreamingCommands: string[] = [];
   stopStreamingCommands: string[] = [];
   customShortcuts: any[] = [];
 
-  constructor(private _http: HttpClient,
-    private _router: Router) {  }
+  constructor(private _http: HttpClient) {  }
 
   public loadAppConfig() {
     return this._http.get('/api/config/')
       .toPromise()
       .then( (data: any) => {
-        this.urlBase = this._router.url + "api/ptz/operate/";
-        this.ptzBrand = data.ptz.brand;
+        this.urlBase = window.location.href;
         this.startStreamingCommands = data.startStreaming;
         this.stopStreamingCommands = data.stopStreaming;
         this.ptzConnection = data.ptz.connection;
@@ -46,12 +43,12 @@ export class RcpService {
 
   public getSession(ptz: string) : PtzAbstractSession {
     if(this.ptzSessionList.get(ptz) == null)
-      switch(this.ptzBrand) {
+      switch(this.ptzConnection[ptz].brand) {
         case "dahua": {
           this.ptzSessionList.set(ptz, new PtzDahuaSession(
             this._http,
             ptz,
-            this.urlBase,
+            this.urlBase + "api/ptz/operate/",
             this.ptzConnection[ptz].user,
             this.ptzConnection[ptz].password,
             (ptz : string, text : string) => {
@@ -82,7 +79,7 @@ export class RcpService {
         }
 
         default:
-          throw new Error(`Brand ${this.ptzBrand} not recognized`);
+          throw new Error(`Brand ${this.ptzConnection[ptz].brand} not recognized`);
 
       }
 
@@ -90,7 +87,7 @@ export class RcpService {
   }
 
   public getStatusSvg(ptz : string) : string {
-    let isConnected = this.getSession(ptz).isConnected();
+    let isConnected = true;
     return ( isConnected ? "led-green-black.svg" : "led-red-black.svg" );
   }
 
@@ -106,8 +103,28 @@ export class RcpService {
 
   public simpleGet( page: string, params : string ): Promise<any> {
     return this._http
-      .get<any>(this.urlBase + page + "?" + params)
+      .get(this.urlBase + page + "?" + params, {responseType: 'text'})
       .toPromise();
+  }
+
+  public getPresetNames() : Promise<any> {
+
+    let result = {};
+
+    let ptzList = [];
+    this.ptzSessionList.forEach( (session, ptz) => {
+      ptzList.push(session.getPresetNames().then(r => { 
+        result[ptz] = [];
+        [1,2,3,4,5,6,7,8,9,10,11,12].forEach( i => {
+          if(r[i]) result[ptz][i-1] = r[i];
+          else result[ptz][i-1] = "";
+        });
+      }));
+    });
+
+    return new Promise<any>( (resolve, reject) => {
+      Promise.all(ptzList).then( _ => resolve(result) );
+    });
   }
 
 }

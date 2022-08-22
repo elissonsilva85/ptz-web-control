@@ -2,12 +2,15 @@ package br.com.elissonsilva.ptzwebcontrol.backend.controllers;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionManagerException;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.PtzSessionDahua;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetConfig;
 import br.com.elissonsilva.ptzwebcontrol.backend.services.PtzSessionManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @ResponseBody
@@ -17,11 +20,12 @@ public class PtzOperateDahuaController {
     @Autowired
     private PtzSessionManagerService ptzSessionManagerService;
 
-    @GetMapping("/{ptz}/dahua/keepAlive")
-    public ResponseEntity<Void> keepAlive(@PathVariable("ptz") String ptz) {
+    @PostMapping("/{ptz}/dahua/setConfig")
+    public ResponseEntity<Void> setConfig(@PathVariable("ptz") String ptz, @RequestBody List<DahuaParamRequestSetConfig> body) {
         try {
+            //
             PtzSessionDahua ptzSession = (PtzSessionDahua) ptzSessionManagerService.getPtz(ptz);
-            ptzSession.keepAlive();
+            ptzSession.setConfig(body);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -30,12 +34,14 @@ public class PtzOperateDahuaController {
         }
     }
 
-    @PostMapping("/{ptz}/dahua/videoColor")
-    public ResponseEntity<Void> setVideoColor(@PathVariable("ptz") String ptz) {
+    @GetMapping("/{ptz}/dahua/getConfig/{namesList}")
+    public ResponseEntity<String> getConfig(@PathVariable("ptz") String ptz, @PathVariable("namesList") String namesList) {
         try {
+            //
+            List<String> list = List.of(namesList.split(","));
+            //
             PtzSessionDahua ptzSession = (PtzSessionDahua) ptzSessionManagerService.getPtz(ptz);
-            ptzSession.setVideoColor(false);
-            return new ResponseEntity<>(null, HttpStatus.OK);
+            return new ResponseEntity<>(ptzSession.getConfig(list), HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
@@ -43,27 +49,11 @@ public class PtzOperateDahuaController {
         }
     }
 
-    @PostMapping("/{ptz}/dahua/videoInMode/{id}")
-    public ResponseEntity<Void> setVideoInMode(@PathVariable("ptz") String ptz, @PathVariable("id") int id) {
+    @PostMapping("/{ptz}/dahua/setTemporaryConfig")
+    public ResponseEntity<Void> setTemporaryConfig(@PathVariable("ptz") String ptz, @RequestBody DahuaParamRequestSetConfig body) {
         try {
             PtzSessionDahua ptzSession = (PtzSessionDahua) ptzSessionManagerService.getPtz(ptz);
-            ptzSession.setVideoInMode(id, false);
-            return new ResponseEntity<>(null, HttpStatus.OK);
-        } catch (PtzSessionManagerException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @PostMapping("/{ptz}/dahua/videoInWhiteBalance")
-    public ResponseEntity<Void> setVideoInWhiteBalance(@PathVariable("ptz") String ptz) {
-        //
-
-        //
-        try {
-            PtzSessionDahua ptzSession = (PtzSessionDahua) ptzSessionManagerService.getPtz(ptz);
-            ptzSession.setVideoInWhiteBalance(false);
+            ptzSession.setTemporaryConfig(body);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (PtzSessionManagerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);

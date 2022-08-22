@@ -72,7 +72,7 @@ export class NumpadComponent implements OnInit {
       // ---------------------------------------------------------
       if(this.mode == "save")
         this.rcp.getSession(this.ptz)
-          .savePreset(id + 1)
+          .savePreset(id + 1, this.labels[id])
           .then( () => {
             this.labelsDisabled[id] = false;
           })

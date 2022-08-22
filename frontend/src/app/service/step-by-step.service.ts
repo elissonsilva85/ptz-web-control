@@ -113,18 +113,16 @@ export class StepByStepService {
         new StepByStepActionParam( "Velocidade Left/Right", "L-R", "slider", [ 0, 8, 1 ] ),
       ]));
 
-    /*
     this.availableActions.push(new StepByStepAction(
       "Posição Específica",
-      "Defina um valor de 0 a 100 para a posição horizontal, vertical e zoom",
+      "Defina um valor de 0 a 3600 para a posição horizontal, 0 a 900 para vertical e 0 a 128 para zoom",
       "specificPosition",
       200,
       [
-        new StepByStepActionParam( "Horizontal", "Horiz", "slider", [ 0, 360, 1 ] ),
-        new StepByStepActionParam( "Vertical", "Vert", "slider", [ 0, 90, 1 ] ),
-        new StepByStepActionParam( "Zoom", null, "slider", [ 0, 100, 1 ] )
+        new StepByStepActionParam( "Horizontal", "Horiz", "slider", [ 0, 3600, 1 ] ),
+        new StepByStepActionParam( "Vertical", "Vert", "slider", [ 0, 900, 1 ] ),
+        new StepByStepActionParam( "Zoom", null, "slider", [ 1, 128, 1 ] )
       ]));
-    */
 
     this.availableActions.push(new StepByStepAction(
       "Carregar Preset",
@@ -145,14 +143,14 @@ export class StepByStepService {
         new StepByStepActionParam( "Nome", null, "input", null )
       ]));
 
-      this.availableActions.push(new StepByStepAction(
-        "Interrompe",
-        "Interrompe ultimo comando executado",
-        "stopLastCall",
-        200,
-        [
-          new StepByStepActionParam( "Sem parametros de configuração", null, "label", null )
-        ]));
+    this.availableActions.push(new StepByStepAction(
+      "Interrompe",
+      "Interrompe ultimo comando executado",
+      "stopLastCall",
+      200,
+      [
+        new StepByStepActionParam( "Sem parametros de configuração", null, "label", null )
+      ]));
   }
 
   public initialize(ptz: string) {

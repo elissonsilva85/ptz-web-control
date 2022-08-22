@@ -2,8 +2,6 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 
 export abstract class PtzAbstractSession {
 
-  protected _isConnected : boolean = false;
-  protected _lastCallBody : any = {};
   protected _httpOptions = {
       headers: new HttpHeaders({
         'X-Requested-With': 'XMLHttpRequest',
@@ -50,133 +48,153 @@ export abstract class PtzAbstractSession {
 
   ////////// PUBLIC METHODS /////////////////
 
-  public isConnected() : boolean {
-    return this._isConnected;
-  }
-
   public connect() : Promise<any> {
 
     return this._post("connect", "").then( r => {
-      this._addLog(this._ptz, "login return: " + JSON.stringify(r));
-      this._isConnected = true;
+      this._addLog(this._ptz, "login success: " + JSON.stringify(r));
     }).catch( e => {
-      this._addLog(this._ptz, "login return: " + JSON.stringify(e));
-      this._isConnected = false;
+      this._addLog(this._ptz, "login error: " + JSON.stringify(e));
     });
 
   }
 
   public loadPreset(id: number) : Promise<any> {
-    if( !this.isConnected() )
-      return this._getPromiseRejectWithText(`loadPreset: ${this._ptz} is not connected`);
-
-    return this._get("preset/" + id, "")
+    return this._get("preset", "id=" + id)
     .then( r => {
       this._addLog(this._ptz, "loadPreset return: " + JSON.stringify(r));
     });
   }
 
-  public savePreset(id: number) : Promise<any> {
-    return this._post("preset/" + id, "")
+  public savePreset(id: number, name: string) : Promise<any> {
+    return this._post("preset", { id: id, name: name })
       .then( r => {
         this._addLog(this._ptz, "savePreset return: " + JSON.stringify(r));
       });
   }
 
+  public getPresetNames() : Promise<any> {
+    return this._get("presetNames", "")
+    .then( r => {
+      this._addLog(this._ptz, "getPresetNames return: " + JSON.stringify(r));
+      return r;
+    });
+  }
+
+  public getCurrentPosition() : Promise<any> {
+    return this._get("currentPostion", "")
+    .then( r => {
+      this._addLog(this._ptz, "currentPostion return: " + JSON.stringify(r));
+      return r;
+    });
+  }
+
+  public getZoomValue() : Promise<any> {
+    return this._get("zoomValue", "")
+    .then( r => {
+      this._addLog(this._ptz, "getZoomValue return: " + JSON.stringify(r));
+      return r;
+    });
+  }
+
   public startZoomIn() : Promise<any> {
     let amount = 5;
-    return this._post("zoomIn/start/" + amount, "");
+    return this._post("zoomInStart", { amount: amount })
   }
 
   public stopZoomIn() : Promise<any> {
     let amount = 5;
-    return this._post("zoomIn/stop/" + amount, "");
+    return this._post("zoomInStop", { amount: amount })
   }
 
   public startZoomOut() : Promise<any> {
     let amount = 5;
-    return this._post("zoomOut/start/" + amount, "");
+    return this._post("zoomOutStart", { amount: amount })
   }
 
   public stopZoomOut() : Promise<any> {
     let amount = 5;
-    return this._post("zoomOut/stop/" + amount, "");
+    return this._post("zoomOutStop", { amount: amount })
   }
 
   public startFocusIn() : Promise<any> {
     let amount = 5;
-    return this._post("focusIn/start/" + amount, "");
+    return this._post("focusInStart", { amount: amount })
   }
 
   public stopFocusIn() : Promise<any> {
     let amount = 5;
-    return this._post("focusIn/stop/" + amount, "");
+    return this._post("focusInStop", { amount: amount })
   }
 
   public startFocusOut() : Promise<any> {
     let amount = 5;
-    return this._post("focusOut/start/" + amount, "");
+    return this._post("focusOutStart", { amount: amount })
   }
 
   public stopFocusOut() : Promise<any> {
     let amount = 5;
-    return this._post("focusOut/stop/" + amount, "");
+    return this._post("focusOutStop", { amount: amount })
+  }
+
+  public startIrisLarge() : Promise<any> {
+    let amount = 5;
+    return this._post("irisLargeStart", { amount: amount })
+  }
+
+  public stopIrisLarge() : Promise<any> {
+    let amount = 5;
+    return this._post("irisLargeStop", { amount: amount })
+  }
+
+  public startIrisSmall() : Promise<any> {
+    let amount = 5;
+    return this._post("irisSmallStart", { amount: amount })
+  }
+
+  public stopIrisSmall() : Promise<any> {
+    let amount = 5;
+    return this._post("irisSmallStop", { amount: amount })
   }
 
   public startJoystick(direction: string, speed1: number, speed2: number) : Promise<any> {
-
     let body = {
       "direction": direction,
       "speed1": speed1,
       "speed2": speed2
     };
 
-    return this._post("joystick/start", body);
+    return this._post("joystickStart", body);
   }
 
   public stopJoystick(direction: string, speed1: number, speed2: number) : Promise<any> {
-    
     let body = {
       "direction": direction,
       "speed1": speed1,
       "speed2": speed2
     };
 
-    return this._post("joystick/stop", body);
+    return this._post("joystickStop", body);
   }
 
   public stopLastCall() : Promise<any> {
-
     return this._post("stopLastCall", "");
-
   }
 
-  public setConfig(list: any[], table: any[]) : Promise<any> {
-    if( !this.isConnected() )
-      return this._getPromiseRejectWithText(`setConfig: ${this._ptz} is not connected`);
+  public specificPosition(horizontal: number, vertical: number, zoom: number) : Promise<any> {
+    let body = {
+      "horizontal": horizontal,
+      "vertical": vertical,
+      "zoom": zoom
+    };
 
-    var body: any =  list.map( (name, i) => { 
-      return {
-          "name": name,
-          "table": [ table[i] ],
-          "options": []
-        }
-    });
+    return this._post("specificPosition", body);
+  };
 
-    //
-    this._addLog(this._ptz, "setConfig : " + JSON.stringify(body));
-    return this._post("config", body).then( r => {
-      this._addLog(this._ptz, "setConfig return: " + JSON.stringify(r));
-      return r; 
+  public setZoomSpeed(amount: number) : Promise<any> {
+    return this._post("setZoomSpeed", { amount: amount })
+    .then( r => {
+      this._addLog(this._ptz, "setZoomSpeed return: " + JSON.stringify(r));
     });
   }
-
-  /////// UNDER DEVELOPMENT ////////////
-
-  public abstract specificPosition(horizontal: number, vertical: number, zoom: number) : Promise<any>;
-
-  public abstract getConfig(list: any[]) : Promise<any>;
-
-  public abstract moveDirectly(coord: number[], speed: number) : Promise<any>;
 
 }

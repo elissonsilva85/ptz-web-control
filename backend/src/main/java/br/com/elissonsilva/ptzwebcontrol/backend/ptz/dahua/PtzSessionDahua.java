@@ -6,8 +6,10 @@ import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzJoystickDirection;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzSessionAbstract;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.*;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.*;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestGetConfig;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetConfig;
-import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetTemporaryConfig;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamResponseGetPresetPresets;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamResponseGetViewRangeStatus;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.exception.PtzSessionDahuaException;
 import br.com.elissonsilva.ptzwebcontrol.backend.utils.PtzWebControlUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -19,25 +21,29 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class PtzSessionDahua extends PtzSessionAbstract {
 
+    private Semaphore mutex;
+
     private DahuaSessionData _sessionData;
 
     private DahuaRequestStart lastCall;
+
+    private PtzSessionDahuaKeepAlive ptzSessionDahuaKeepAliveThread;
 
     private final String INVALID_SESSION_IN_REQUEST_DATA = "Invalid session in request data!";
 
     public PtzSessionDahua(String ptz, String user, String pass, String url) {
         super(ptz, user, pass, url);
+        mutex = new Semaphore(1);
     }
 
-    protected Response _post(String page, DahuaRequestBase requestBase ) throws PtzSessionException {
+    private Response _post(String page, DahuaRequestBase requestBase ) throws PtzSessionException {
         if(requestBase instanceof DahuaRequestStart)
             this.lastCall = (DahuaRequestStart) requestBase;
 
@@ -56,15 +62,15 @@ public class PtzSessionDahua extends PtzSessionAbstract {
 
     /////// PRIVATE METHODS /////////////////////
 
-    protected DahuaSessionData getSessionData() {
+    private DahuaSessionData getSessionData() {
         return _sessionData;
     }
 
-    protected void setSessionData(DahuaSessionData _sessionData) {
+    private void setSessionData(DahuaSessionData _sessionData) {
         this._sessionData = _sessionData;
     }
 
-    protected long getSeq() {
+    private long getSeq() {
         // pega só os numeros
         String session = this._sessionData.getSession();
         String onlyNumbers = session.replaceAll("[^0-9]", "");
@@ -91,7 +97,7 @@ public class PtzSessionDahua extends PtzSessionAbstract {
         return Long.parseLong(plusZeroByte, 2);
     }
 
-    protected String getHashPassword() throws PtzSessionException {
+    private String getHashPassword() throws PtzSessionException {
         return this.hexMD5(
                     this._user + ":" +
                         this._sessionData.getRandom() + ":" +
@@ -100,7 +106,7 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                             this._pass)).toUpperCase();
     }
 
-    protected String hexMD5(String text) throws PtzSessionException {
+    private String hexMD5(String text) throws PtzSessionException {
 
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -114,7 +120,13 @@ public class PtzSessionDahua extends PtzSessionAbstract {
 
     }
 
-    protected void startSession() throws PtzSessionException {
+    private void startSession() throws PtzSessionException {
+
+        try {
+            mutex.acquire();
+        } catch (InterruptedException e) {
+            throw new PtzSessionDahuaException("mutex.acquire() error: " + e.getMessage(), e);
+        }
 
         DahuaRequestLogin requestLogin = new DahuaRequestLogin();
         requestLogin.getParams().setUserName(this._user);
@@ -125,17 +137,21 @@ public class PtzSessionDahua extends PtzSessionAbstract {
             if(response.body() != null)
                 sessionReturn = response.body().string();
         } catch (IOException e) {
+            mutex.release();
             throw new PtzSessionDahuaException(e);
         }
 
-        if(sessionReturn == null)
+        if(sessionReturn == null) {
+            mutex.release();
             throw new PtzSessionDahuaException("sessionReturn could not be null");
+        }
 
         DahuaResponseLogin responseLogin = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
             responseLogin = mapper.readValue(sessionReturn, DahuaResponseLogin.class);
         } catch (JsonProcessingException e) {
+            mutex.release();
             throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
         }
 
@@ -151,9 +167,16 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                         responseLogin.getSession(),
                         true));
 
+        mutex.release();
     }
 
-    protected void login() throws PtzSessionException {
+    private void login() throws PtzSessionException {
+
+        try {
+            mutex.acquire();
+        } catch (InterruptedException e) {
+            throw new PtzSessionDahuaException("mutex.acquire() error: " + e.getMessage(), e);
+        }
 
         String hashPass = this.getHashPassword();
 
@@ -169,11 +192,14 @@ public class PtzSessionDahua extends PtzSessionAbstract {
             if(response.body() != null)
                 sessionReturn = response.body().string();
         } catch (IOException e) {
+            mutex.release();
             throw new PtzSessionDahuaException(e);
         }
 
-        if(sessionReturn == null)
+        if(sessionReturn == null) {
+            mutex.release();
             throw new PtzSessionDahuaException("sessionReturn could not be null");
+        }
 
         DahuaResponseLogin responseLogin = null;
         try {
@@ -186,6 +212,7 @@ public class PtzSessionDahua extends PtzSessionAbstract {
         if(responseLogin.getError() != null) {
             if ("Invalid session in request data!".equals(responseLogin.getError().getMessage()))
                 this._sessionData.setConnected(false);
+            mutex.release();
             throw new PtzSessionDahuaException(responseLogin.getError().getMessage());
         }
 
@@ -194,9 +221,17 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                         responseLogin.getSession(),
                         responseLogin.getId()
                 );
+
+        mutex.release();
     }
 
-    protected void factoryInstance() throws PtzSessionException {
+    private void factoryInstance() throws PtzSessionException {
+
+        try {
+            mutex.acquire();
+        } catch (InterruptedException e) {
+            throw new PtzSessionDahuaException("mutex.acquire() error: " + e.getMessage(), e);
+        }
 
         DahuaRequestFactoryInstance factoryInstance = new DahuaRequestFactoryInstance();
         factoryInstance.setId(3);
@@ -207,23 +242,28 @@ public class PtzSessionDahua extends PtzSessionAbstract {
             if(response.body() != null)
                 sessionReturn = response.body().string();
         } catch (IOException e) {
+            mutex.release();
             throw new PtzSessionDahuaException(e);
         }
 
-        if(sessionReturn == null)
+        if(sessionReturn == null) {
+            mutex.release();
             throw new PtzSessionDahuaException("sessionReturn could not be null");
+        }
 
         DahuaResponseFactoryInstance responseFactoryInstance = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
             responseFactoryInstance = mapper.readValue(sessionReturn, DahuaResponseFactoryInstance.class);
         } catch (JsonProcessingException e) {
+            mutex.release();
             throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
         }
 
         if(responseFactoryInstance.getError() != null) {
             if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseFactoryInstance.getError().getMessage()))
                 this._sessionData.setConnected(false);
+            mutex.release();
             throw new PtzSessionDahuaException(responseFactoryInstance.getError().getMessage());
         }
 
@@ -233,46 +273,16 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                         responseFactoryInstance.getResult()
                 );
 
+        mutex.release();
     }
 
-    public void keepAlive() throws PtzSessionException {
+    private void ptzStart(String code, int arg1, int arg2, int arg3, int arg4, String channel) throws PtzSessionException {
 
-        DahuaRequestKeepAlive keepAlive = new DahuaRequestKeepAlive();
-        keepAlive.setId(this.getSessionData().getNextId());
-        keepAlive.setSession(this.getSessionData().getSession());
-
-        String sessionReturn = "";
-        try(Response response = this._post( "RPC2", keepAlive)) {
-            if(response.body() != null)
-                sessionReturn = response.body().string();
-        } catch (IOException e) {
-            throw new PtzSessionDahuaException(e);
-        }
-
-        if(sessionReturn == null)
-            throw new PtzSessionDahuaException("sessionReturn could not be null");
-
-        DahuaResponseKeepAlive responseKeepAlive = null;
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            responseKeepAlive = mapper.readValue(sessionReturn, DahuaResponseKeepAlive.class);
-        } catch (JsonProcessingException e) {
-            throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
+            mutex.acquire();
+        } catch (InterruptedException e) {
+            throw new PtzSessionDahuaException("mutex.acquire() error: " + e.getMessage(), e);
         }
-
-        if(responseKeepAlive.getError() != null) {
-            if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseKeepAlive.getError().getMessage()))
-                this._sessionData.setConnected(false);
-            throw new PtzSessionDahuaException(responseKeepAlive.getError().getMessage());
-        }
-
-        this.getSessionData()
-                .updateSession(
-                        responseKeepAlive.getId()
-                );
-    }
-
-    protected void ptzStart(String code, int arg1, int arg2, int arg3, int arg4, String channel) throws PtzSessionException {
 
         DahuaRequestStart requestStart = new DahuaRequestStart();
         requestStart.getParams().setCode(code);
@@ -291,23 +301,28 @@ public class PtzSessionDahua extends PtzSessionAbstract {
             if(response.body() != null)
                 sessionReturn = response.body().string();
         } catch (IOException e) {
+            mutex.release();
             throw new PtzSessionDahuaException(e);
         }
 
-        if(sessionReturn == null)
+        if(sessionReturn == null) {
+            mutex.release();
             throw new PtzSessionDahuaException("sessionReturn could not be null");
+        }
 
         DahuaResponseStartStop responseStart = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
             responseStart = mapper.readValue(sessionReturn, DahuaResponseStartStop.class);
         } catch (JsonProcessingException e) {
+            mutex.release();
             throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
         }
 
         if(responseStart.getError() != null) {
             if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseStart.getError().getMessage()))
                 this._sessionData.setConnected(false);
+            mutex.release();
             throw new PtzSessionDahuaException(responseStart.getError().getMessage());
         }
 
@@ -315,9 +330,17 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                 .updateSession(
                         responseStart.getId()
                 );
+
+        mutex.release();
     }
 
-    protected void ptzStop(String code, int arg1, int arg2, int arg3, int arg4, String channel) throws PtzSessionException {
+    private void ptzStop(String code, int arg1, int arg2, int arg3, int arg4, String channel) throws PtzSessionException {
+
+        try {
+            mutex.acquire();
+        } catch (InterruptedException e) {
+            throw new PtzSessionDahuaException("mutex.acquire() error: " + e.getMessage(), e);
+        }
 
         DahuaRequestStop requestStop = new DahuaRequestStop();
         requestStop.getParams().setCode(code);
@@ -336,23 +359,28 @@ public class PtzSessionDahua extends PtzSessionAbstract {
             if(response.body() != null)
                 sessionReturn = response.body().string();
         } catch (IOException e) {
+            mutex.release();
             throw new PtzSessionDahuaException(e);
         }
 
-        if(sessionReturn == null)
+        if(sessionReturn == null) {
+            mutex.release();
             throw new PtzSessionDahuaException("sessionReturn could not be null");
+        }
 
         DahuaResponseStartStop responseStop = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
             responseStop = mapper.readValue(sessionReturn, DahuaResponseStartStop.class);
         } catch (JsonProcessingException e) {
+            mutex.release();
             throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
         }
 
         if(responseStop.getError() != null) {
             if(INVALID_SESSION_IN_REQUEST_DATA.equals(responseStop.getError().getMessage()))
                 this._sessionData.setConnected(false);
+            mutex.release();
             throw new PtzSessionDahuaException(responseStop.getError().getMessage());
         }
 
@@ -360,9 +388,173 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                 .updateSession(
                         responseStop.getId()
                 );
+
+        mutex.release();
     }
 
+    private void setPreset(int preset, String name) throws PtzSessionDahuaException {
+
+        try {
+            mutex.acquire();
+        } catch (InterruptedException e) {
+            throw new PtzSessionDahuaException("mutex.acquire() error: " + e.getMessage(), e);
+        }
+
+        DahuaRequestSetPreset requestSetPreset = new DahuaRequestSetPreset();
+        requestSetPreset.setId(this.getSessionData().getNextId());
+        requestSetPreset.setSession(this.getSessionData().getSession());
+        requestSetPreset.setObject(this.getSessionData().getResult());
+        requestSetPreset.setSeq(this.getSeq());
+        //
+        requestSetPreset.getParams().setIndex(preset);
+        requestSetPreset.getParams().setName(name);
+        //
+
+        String sessionReturn = null;
+        try(Response response = this._post( "RPC2", requestSetPreset)) {
+            if(response.body() != null)
+                sessionReturn = response.body().string();
+        } catch (IOException | PtzSessionException e) {
+            mutex.release();
+            throw new PtzSessionDahuaException(e);
+        }
+
+        if(sessionReturn == null) {
+            mutex.release();
+            throw new PtzSessionDahuaException("sessionReturn could not be null");
+        }
+
+        DahuaResponseGetPreset responseStart = null;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            responseStart = mapper.readValue(sessionReturn, DahuaResponseGetPreset.class);
+        } catch (JsonProcessingException e) {
+            mutex.release();
+            throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
+        }
+
+        if(responseStart.getError() != null) {
+            if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseStart.getError().getMessage()))
+                this._sessionData.setConnected(false);
+            mutex.release();
+            throw new PtzSessionDahuaException(responseStart.getError().getMessage());
+        }
+
+        this.getSessionData()
+                .updateSession(
+                        responseStart.getId()
+                );
+
+        mutex.release();
+    }
+
+    private List<DahuaParamResponseGetPresetPresets> getPresets() throws PtzSessionDahuaException {
+
+        try {
+            mutex.acquire();
+        } catch (InterruptedException e) {
+            throw new PtzSessionDahuaException("mutex.acquire() error: " + e.getMessage(), e);
+        }
+
+        DahuaRequestGetPreset requestGetPreset = new DahuaRequestGetPreset();
+        requestGetPreset.setId(this.getSessionData().getNextId());
+        requestGetPreset.setSession(this.getSessionData().getSession());
+        requestGetPreset.setObject(this.getSessionData().getResult());
+        requestGetPreset.setSeq(this.getSeq());
+        //
+
+        String sessionReturn = null;
+        try(Response response = this._post( "RPC2", requestGetPreset)) {
+            if(response.body() != null)
+                sessionReturn = response.body().string();
+        } catch (IOException | PtzSessionException e) {
+            mutex.release();
+            throw new PtzSessionDahuaException(e);
+        }
+
+        if(sessionReturn == null) {
+            mutex.release();
+            throw new PtzSessionDahuaException("sessionReturn could not be null");
+        }
+
+        DahuaResponseGetPreset responseStart = null;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            responseStart = mapper.readValue(sessionReturn, DahuaResponseGetPreset.class);
+        } catch (JsonProcessingException e) {
+            mutex.release();
+            throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
+        }
+
+        if(responseStart.getError() != null) {
+            if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseStart.getError().getMessage()))
+                this._sessionData.setConnected(false);
+            mutex.release();
+            throw new PtzSessionDahuaException(responseStart.getError().getMessage());
+        }
+
+        this.getSessionData()
+                .updateSession(
+                        responseStart.getId()
+                );
+
+        mutex.release();
+
+        return responseStart.getParams().getPresets();
+    }
+
+
     /////// PUBLIC METHODS ///////////
+
+    public void keepAlive() throws PtzSessionException {
+
+        try {
+            mutex.acquire();
+        } catch (InterruptedException e) {
+            throw new PtzSessionDahuaException("mutex.acquire() error: " + e.getMessage(), e);
+        }
+
+        DahuaRequestKeepAlive keepAlive = new DahuaRequestKeepAlive();
+        keepAlive.setId(this.getSessionData().getNextId());
+        keepAlive.setSession(this.getSessionData().getSession());
+
+        String sessionReturn = "";
+        try(Response response = this._post( "RPC2", keepAlive)) {
+            if(response.body() != null)
+                sessionReturn = response.body().string();
+        } catch (IOException e) {
+            mutex.release();
+            throw new PtzSessionDahuaException(e);
+        }
+
+        if(sessionReturn == null) {
+            mutex.release();
+            throw new PtzSessionDahuaException("sessionReturn could not be null");
+        }
+
+        DahuaResponseKeepAlive responseKeepAlive = null;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            responseKeepAlive = mapper.readValue(sessionReturn, DahuaResponseKeepAlive.class);
+        } catch (JsonProcessingException e) {
+            mutex.release();
+            throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
+        }
+
+        if(responseKeepAlive.getError() != null) {
+            if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseKeepAlive.getError().getMessage()))
+                this._sessionData.setConnected(false);
+            mutex.release();
+            throw new PtzSessionDahuaException(responseKeepAlive.getError().getMessage());
+        }
+
+        this.getSessionData()
+                .updateSession(
+                        responseKeepAlive.getId()
+                );
+
+        mutex.release();
+    }
 
     @Override
     public boolean isConnected() {
@@ -376,6 +568,15 @@ public class PtzSessionDahua extends PtzSessionAbstract {
             this.startSession();
             this.login();
             this.factoryInstance();
+        }
+
+        if(ptzSessionDahuaKeepAliveThread == null) {
+            ptzSessionDahuaKeepAliveThread = new PtzSessionDahuaKeepAlive();
+            ptzSessionDahuaKeepAliveThread.setSession(this);
+        }
+
+        if(!ptzSessionDahuaKeepAliveThread.isAlive()) {
+            ptzSessionDahuaKeepAliveThread.start();
         }
     }
 
@@ -395,17 +596,18 @@ public class PtzSessionDahua extends PtzSessionAbstract {
         this.setPreset(id, name);
     }
 
+    @Override
     public void setZoomSpeed(int value) throws PtzSessionDahuaException {
 
-        List<List<DahuaParamRequestSetConfigVideoInZoom>> list = Arrays.asList(
+        List<List<DahuaParamConfigVideoInZoom>> list = Arrays.asList(
                 Arrays.asList(
-                        new DahuaParamRequestSetConfigVideoInZoom() {{
+                        new DahuaParamConfigVideoInZoom() {{
                             setSpeed(value);
                         }},
-                        new DahuaParamRequestSetConfigVideoInZoom() {{
+                        new DahuaParamConfigVideoInZoom() {{
                             setSpeed(value);
                         }},
-                        new DahuaParamRequestSetConfigVideoInZoom() {{
+                        new DahuaParamConfigVideoInZoom() {{
                             setSpeed(value);
                         }}
                 )
@@ -421,6 +623,12 @@ public class PtzSessionDahua extends PtzSessionAbstract {
     @Override
     public int getZoomValue() throws PtzSessionDahuaException {
 
+        try {
+            mutex.acquire();
+        } catch (InterruptedException e) {
+            throw new PtzSessionDahuaException("mutex.acquire() error: " + e.getMessage(), e);
+        }
+
         DahuaRequestGetZoom requestGetZoom = new DahuaRequestGetZoom();
         requestGetZoom.setId(this.getSessionData().getNextId());
         requestGetZoom.setSession(this.getSessionData().getSession());
@@ -433,11 +641,14 @@ public class PtzSessionDahua extends PtzSessionAbstract {
             if(response.body() != null)
                 sessionReturn = response.body().string();
         } catch (IOException | PtzSessionException e) {
+            mutex.release();
             throw new PtzSessionDahuaException(e);
         }
 
-        if(sessionReturn == null)
+        if(sessionReturn == null) {
+            mutex.release();
             throw new PtzSessionDahuaException("sessionReturn could not be null");
+        }
 
         int zoomValueConverted = 0;
         DahuaResponseGetZoom responseStart = null;
@@ -446,12 +657,14 @@ public class PtzSessionDahua extends PtzSessionAbstract {
             responseStart = mapper.readValue(sessionReturn, DahuaResponseGetZoom.class);
             zoomValueConverted = PtzWebControlUtils.speedConverter(responseStart.getParams().getValue(), 10, 300, 1, 128);
         } catch (Exception e) {
+            mutex.release();
             throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
         }
 
         if(responseStart.getError() != null) {
             if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseStart.getError().getMessage()))
                 this._sessionData.setConnected(false);
+            mutex.release();
             throw new PtzSessionDahuaException(responseStart.getError().getMessage());
         }
 
@@ -460,11 +673,18 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                         responseStart.getId()
                 );
 
+        mutex.release();
         return zoomValueConverted;
     }
 
     @Override
     public int[] getViewAngles() throws PtzSessionDahuaException {
+
+        try {
+            mutex.acquire();
+        } catch (InterruptedException e) {
+            throw new PtzSessionDahuaException("mutex.acquire() error: " + e.getMessage(), e);
+        }
 
         DahuaRequestGetViewRange requestGetZoom = new DahuaRequestGetViewRange();
         requestGetZoom.setId(this.getSessionData().getNextId());
@@ -478,23 +698,28 @@ public class PtzSessionDahua extends PtzSessionAbstract {
             if(response.body() != null)
                 sessionReturn = response.body().string();
         } catch (IOException | PtzSessionException e) {
+            mutex.release();
             throw new PtzSessionDahuaException(e);
         }
 
-        if(sessionReturn == null)
+        if(sessionReturn == null) {
+            mutex.release();
             throw new PtzSessionDahuaException("sessionReturn could not be null");
+        }
 
         DahuaResponseGetViewRange responseStart = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
             responseStart = mapper.readValue(sessionReturn, DahuaResponseGetViewRange.class);
         } catch (JsonProcessingException e) {
+            mutex.release();
             throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
         }
 
         if(responseStart.getError() != null) {
             if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseStart.getError().getMessage()))
                 this._sessionData.setConnected(false);
+            mutex.release();
             throw new PtzSessionDahuaException(responseStart.getError().getMessage());
         }
 
@@ -502,6 +727,8 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                 .updateSession(
                         responseStart.getId()
                 );
+
+        mutex.release();
 
         DahuaParamResponseGetViewRangeStatus status = responseStart.getParams().getStatus();
         int horizontal = Math.round(( status.getAzimuthH() >= 0.5 ?
@@ -514,91 +741,16 @@ public class PtzSessionDahua extends PtzSessionAbstract {
 
     }
 
-    public List<DahuaParamResponseGetPresetPresets> getPresets() throws PtzSessionDahuaException {
+    public Map<Integer, String> getPresetNames() throws PtzSessionException {
 
-        DahuaRequestGetPreset requestGetPreset = new DahuaRequestGetPreset();
-        requestGetPreset.setId(this.getSessionData().getNextId());
-        requestGetPreset.setSession(this.getSessionData().getSession());
-        requestGetPreset.setObject(this.getSessionData().getResult());
-        requestGetPreset.setSeq(this.getSeq());
-        //
+        List<DahuaParamResponseGetPresetPresets> presetNames = this.getPresets();
 
-        String sessionReturn = null;
-        try(Response response = this._post( "RPC2", requestGetPreset)) {
-            if(response.body() != null)
-                sessionReturn = response.body().string();
-        } catch (IOException | PtzSessionException e) {
-            throw new PtzSessionDahuaException(e);
+        Map<Integer, String> result = new HashMap<>();
+        for(DahuaParamResponseGetPresetPresets preset : presetNames) {
+            result.put(preset.getIndex(), preset.getName());
         }
 
-        if(sessionReturn == null)
-            throw new PtzSessionDahuaException("sessionReturn could not be null");
-
-        DahuaResponseGetPreset responseStart = null;
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            responseStart = mapper.readValue(sessionReturn, DahuaResponseGetPreset.class);
-        } catch (JsonProcessingException e) {
-            throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
-        }
-
-        if(responseStart.getError() != null) {
-            if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseStart.getError().getMessage()))
-                this._sessionData.setConnected(false);
-            throw new PtzSessionDahuaException(responseStart.getError().getMessage());
-        }
-
-        this.getSessionData()
-                .updateSession(
-                        responseStart.getId()
-                );
-
-        return responseStart.getParams().getPresets();
-
-    }
-
-    public void setPreset(int preset, String name) throws PtzSessionDahuaException {
-
-        DahuaRequestSetPreset requestSetPreset = new DahuaRequestSetPreset();
-        requestSetPreset.setId(this.getSessionData().getNextId());
-        requestSetPreset.setSession(this.getSessionData().getSession());
-        requestSetPreset.setObject(this.getSessionData().getResult());
-        requestSetPreset.setSeq(this.getSeq());
-        //
-        requestSetPreset.getParams().setIndex(preset);
-        requestSetPreset.getParams().setName(name);
-        //
-
-        String sessionReturn = null;
-        try(Response response = this._post( "RPC2", requestSetPreset)) {
-            if(response.body() != null)
-                sessionReturn = response.body().string();
-        } catch (IOException | PtzSessionException e) {
-            throw new PtzSessionDahuaException(e);
-        }
-
-        if(sessionReturn == null)
-            throw new PtzSessionDahuaException("sessionReturn could not be null");
-
-        DahuaResponseGetPreset responseStart = null;
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            responseStart = mapper.readValue(sessionReturn, DahuaResponseGetPreset.class);
-        } catch (JsonProcessingException e) {
-            throw new PtzSessionDahuaException(e.getMessage() + " -> sessionReturn: " + sessionReturn, e);
-        }
-
-        if(responseStart.getError() != null) {
-            if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseStart.getError().getMessage()))
-                this._sessionData.setConnected(false);
-            throw new PtzSessionDahuaException(responseStart.getError().getMessage());
-        }
-
-        this.getSessionData()
-                .updateSession(
-                        responseStart.getId()
-                );
-
+        return result;
     }
 
     @Override
@@ -690,6 +842,50 @@ public class PtzSessionDahua extends PtzSessionAbstract {
     }
 
     @Override
+    public void startIrisLarge(int amount) throws PtzSessionException {
+        this.ptzStart(
+                "IrisLarge",
+                amount,
+                0,
+                0,
+                0,
+                null);
+    }
+
+    @Override
+    public void stopIrisLarge(int amount) throws PtzSessionException {
+        this.ptzStop(
+                "IrisLarge",
+                amount,
+                0,
+                0,
+                0,
+                null);
+    }
+
+    @Override
+    public void startIrisSmall(int amount) throws PtzSessionException {
+        this.ptzStart(
+                "IrisSmall",
+                amount,
+                0,
+                0,
+                0,
+                null);
+    }
+
+    @Override
+    public void stopIrisSmall(int amount) throws PtzSessionException {
+        this.ptzStop(
+                "IrisSmall",
+                amount,
+                0,
+                0,
+                0,
+                null);
+    }
+
+    @Override
     public void startJoystick(PtzJoystickDirection direction, int speed1, int speed2) throws PtzSessionException {
         this.ptzStart(
                 direction.toString(),
@@ -716,6 +912,12 @@ public class PtzSessionDahua extends PtzSessionAbstract {
 
         if(this.lastCall != null) {
 
+            try {
+                mutex.acquire();
+            } catch (InterruptedException e) {
+                throw new PtzSessionDahuaException("mutex.acquire() error: " + e.getMessage(), e);
+            }
+
             DahuaRequestStop requestStop = new DahuaRequestStop();
             requestStop.setParams(this.lastCall.getParams());
             //
@@ -729,6 +931,7 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                 if(response.body() != null)
                     sessionReturn = response.body().string();
             } catch (Exception e) {
+                mutex.release();
                 throw new PtzSessionDahuaException(e);
             }
 
@@ -737,12 +940,14 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                 ObjectMapper mapper = new ObjectMapper();
                 responseStop = mapper.readValue(sessionReturn, DahuaResponseStartStop.class);
             } catch (JsonProcessingException e) {
+                mutex.release();
                 throw new PtzSessionDahuaException(e);
             }
 
             if(responseStop.getError() != null) {
                 if(INVALID_SESSION_IN_REQUEST_DATA.equals(responseStop.getError().getMessage()))
                     this._sessionData.setConnected(false);
+                mutex.release();
                 throw new PtzSessionDahuaException(responseStop.getError().getMessage());
             }
 
@@ -750,6 +955,8 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                     .updateSession(
                             responseStop.getId()
                     );
+
+            mutex.release();
         }
 
     }
@@ -769,45 +976,62 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                 null);
     }
 
-    @Override
-    public void getConfig() {
-        // list: any[]
-        /*
-        if( !this.isConnected() )
-            return this._getPromiseRejectWithText(`getConfig: ${this._ptz} is not connected`);
+    public String getConfig(List<String> getConfigList) throws PtzSessionDahuaException {
 
-        var body = {
-                "method": "system.multicall",
-                "params": [ ],
-        "id": 0,
-                "session": this._sessionData.session
-      };
-
-        body.params = list.map( (name, i) => { return {
-                "method": "configManager.getConfig",
-                "params": {
-            "name": name
-        },
-            "id": this._sessionData.id + 1 + i,
-                    "session": this._sessionData.session
+        try {
+            mutex.acquire();
+        } catch (InterruptedException e) {
+            throw new PtzSessionDahuaException("mutex.acquire() error: " + e.getMessage(), e);
         }
-        });
 
-        body.id = this._sessionData.id + 1 + list.length;
+        DahuaResponseMultiGetConfig responseGetConfig = null;
+        AtomicInteger id = new AtomicInteger(this.getSessionData().getNextId());
+        String session = this.getSessionData().getSession();
 
+        DahuaRequestMultiConfig requestMultiConfig = new DahuaRequestMultiConfig();
+        requestMultiConfig.setParams(getConfigList
+                .stream()
+                .map(getConfigItem -> {
+                    return new DahuaRequestGetConfig(){{
+                        setParams(new DahuaParamRequestGetConfig(){{
+                            setName(getConfigItem);
+                        }});
+                        setId(id.getAndIncrement());
+                        setSession(session);
+                    }};
+                })
+                .collect(Collectors.toCollection(ArrayList<DahuaRequestBase>::new))
+        );
         //
-        this._addLog(this._ptz, "getConfig : " + JSON.stringify(body));
-        return this._post("RPC2", body).then( r => {
-                this._addLog(this._ptz, "getConfig return: " + JSON.stringify(r));
-        this._sessionData.id = r.id;
-        return r;
-      });
+        requestMultiConfig.setId(id.getAndIncrement());
+        requestMultiConfig.setSession(session);
 
-         */
+        String sessionReturn = "";
+        try(Response response = this._post( "RPC2", requestMultiConfig)) {
+            if(response.body() != null)
+                sessionReturn = response.body().string();
+        } catch (Exception e) {
+            mutex.release();
+            throw new PtzSessionDahuaException(e);
+        }
+
+        this.getSessionData()
+                .updateSession(
+                        id.get()
+                );
+
+        mutex.release();
+
+        return sessionReturn;
     }
 
-    @Override
     public void setConfig(List<DahuaParamRequestSetConfig> setConfigList) throws PtzSessionDahuaException {
+
+        try {
+            mutex.acquire();
+        } catch (InterruptedException e) {
+            throw new PtzSessionDahuaException("mutex.acquire() error: " + e.getMessage(), e);
+        }
 
         DahuaResponseBase responseSetConfig = null;
 
@@ -825,6 +1049,7 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                 if(response.body() != null)
                     sessionReturn = response.body().string();
             } catch (Exception e) {
+                mutex.release();
                 throw new PtzSessionDahuaException(e);
             }
 
@@ -832,6 +1057,7 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                 ObjectMapper mapper = new ObjectMapper();
                 responseSetConfig = mapper.readValue(sessionReturn, DahuaResponseSetConfig.class);
             } catch (JsonProcessingException e) {
+                mutex.release();
                 throw new PtzSessionDahuaException(e);
             }
 
@@ -862,13 +1088,15 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                 if(response.body() != null)
                     sessionReturn = response.body().string();
             } catch (Exception e) {
+                mutex.release();
                 throw new PtzSessionDahuaException(e);
             }
 
             try {
                 ObjectMapper mapper = new ObjectMapper();
-                responseSetConfig = mapper.readValue(sessionReturn, DahuaResponseMultiConfig.class);
+                responseSetConfig = mapper.readValue(sessionReturn, DahuaResponseMultiSetConfig.class);
             } catch (JsonProcessingException e) {
+                mutex.release();
                 throw new PtzSessionDahuaException(e);
             }
         }
@@ -879,6 +1107,7 @@ public class PtzSessionDahua extends PtzSessionAbstract {
             if(responseSetConfig.getError() != null) {
                 if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseSetConfig.getError().getMessage()))
                     this._sessionData.setConnected(false);
+                mutex.release();
                 throw new PtzSessionDahuaException(responseSetConfig.getError().getMessage());
             }
 
@@ -887,9 +1116,17 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                             responseSetConfig.getId()
                     );
         }
+
+        mutex.release();
     }
 
-    public void setTemporaryConfig(DahuaParamRequestSetTemporaryConfig setConfigList) throws PtzSessionDahuaException {
+    public void setTemporaryConfig(DahuaParamRequestSetConfig setConfigList) throws PtzSessionDahuaException {
+
+        try {
+            mutex.acquire();
+        } catch (InterruptedException e) {
+            throw new PtzSessionDahuaException("mutex.acquire() error: " + e.getMessage(), e);
+        }
 
         DahuaRequestSetTemporaryConfig requestSetConfig = new DahuaRequestSetTemporaryConfig();
         requestSetConfig.setParams(setConfigList);
@@ -902,6 +1139,7 @@ public class PtzSessionDahua extends PtzSessionAbstract {
             if(response.body() != null)
                 sessionReturn = response.body().string();
         } catch (Exception e) {
+            mutex.release();
             throw new PtzSessionDahuaException(e);
         }
 
@@ -912,6 +1150,7 @@ public class PtzSessionDahua extends PtzSessionAbstract {
             if(responseSetConfig.getError() != null) {
                 if (INVALID_SESSION_IN_REQUEST_DATA.equals(responseSetConfig.getError().getMessage()))
                     this._sessionData.setConnected(false);
+                mutex.release();
                 throw new PtzSessionDahuaException(responseSetConfig.getError().getMessage());
             }
 
@@ -920,7 +1159,10 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                             responseSetConfig.getId()
                     );
 
+            mutex.release();
+
         } catch (JsonProcessingException e) {
+            mutex.release();
             throw new PtzSessionDahuaException(e);
         }
 
@@ -928,53 +1170,49 @@ public class PtzSessionDahua extends PtzSessionAbstract {
 
     public void setVideoInFocus(int mode, boolean temporary) throws PtzSessionDahuaException {
 
-        List<List<DahuaParamRequestSetConfigVideoInFocus>> list = Arrays.asList(
+        List<List<DahuaParamConfigVideoInFocus>> list = Arrays.asList(
                 Arrays.asList(
-                        new DahuaParamRequestSetConfigVideoInFocus() {{
+                        new DahuaParamConfigVideoInFocus() {{
                             setMode(mode);
                         }},
-                        new DahuaParamRequestSetConfigVideoInFocus() {{
+                        new DahuaParamConfigVideoInFocus() {{
                             setMode(mode);
                         }},
-                        new DahuaParamRequestSetConfigVideoInFocus() {{
+                        new DahuaParamConfigVideoInFocus() {{
                             setMode(mode);
                         }}
                 )
         );
 
+        DahuaParamRequestSetConfig setConfig = new DahuaParamRequestSetConfig();
+        setConfig.setName("VideoInFocus");
+        setConfig.setTable(list);
+
         if(temporary) {
-            DahuaParamRequestSetTemporaryConfig<List<DahuaParamRequestSetConfigVideoInFocus>> setConfig = new DahuaParamRequestSetTemporaryConfig<>();
-            setConfig.setName("VideoInFocus");
-            setConfig.setTable(list);
             this.setTemporaryConfig(setConfig);
         }
         else {
-            DahuaParamRequestSetConfig setConfig = new DahuaParamRequestSetConfig();
-            setConfig.setName("VideoInFocus");
-            setConfig.setTable(list);
             this.setConfig(Arrays.asList(setConfig));
         }
     }
 
     public void setVideoColor(boolean temporary) throws PtzSessionDahuaException {
-        List<List<DahuaParamRequestSetConfigVideoColorTable>> list = Arrays.asList(
+        List<List<DahuaParamConfigVideoColorTable>> list = Arrays.asList(
                 Arrays.asList(
-                        new DahuaParamRequestSetConfigVideoColorTable(),
-                        new DahuaParamRequestSetConfigVideoColorTable(),
-                        new DahuaParamRequestSetConfigVideoColorTable()
+                        new DahuaParamConfigVideoColorTable(),
+                        new DahuaParamConfigVideoColorTable(),
+                        new DahuaParamConfigVideoColorTable()
                 )
         );
 
+        DahuaParamRequestSetConfig setConfig = new DahuaParamRequestSetConfig();
+        setConfig.setName("VideoColor");
+        setConfig.setTable(list);
+
         if(temporary) {
-            DahuaParamRequestSetTemporaryConfig<List<DahuaParamRequestSetConfigVideoColorTable>> setConfig = new DahuaParamRequestSetTemporaryConfig<>();
-            setConfig.setName("VideoColor");
-            setConfig.setTable(list);
             this.setTemporaryConfig(setConfig);
         }
         else {
-            DahuaParamRequestSetConfig setConfig = new DahuaParamRequestSetConfig();
-            setConfig.setName("VideoColor");
-            setConfig.setTable(list);
             this.setConfig(Arrays.asList(setConfig));
         }
 
@@ -982,22 +1220,20 @@ public class PtzSessionDahua extends PtzSessionAbstract {
 
     public void setVideoInMode(int config, boolean temporary) throws PtzSessionDahuaException {
 
-        List<DahuaParamRequestSetConfigVideoInMode> list = Arrays.asList(
-                new DahuaParamRequestSetConfigVideoInMode(){{
+        List<DahuaParamConfigVideoInMode> list = Arrays.asList(
+                new DahuaParamConfigVideoInMode(){{
                     setConfig(new int[]{ config });
                 }}
         );
 
+        DahuaParamRequestSetConfig setConfig = new DahuaParamRequestSetConfig();
+        setConfig.setName("VideoInMode");
+        setConfig.setTable(list);
+
         if(temporary) {
-            DahuaParamRequestSetTemporaryConfig<DahuaParamRequestSetConfigVideoInMode> setConfig = new DahuaParamRequestSetTemporaryConfig<>();
-            setConfig.setName("VideoInMode");
-            setConfig.setTable(list);
             this.setTemporaryConfig(setConfig);
         }
         else {
-            DahuaParamRequestSetConfig setConfig = new DahuaParamRequestSetConfig();
-            setConfig.setName("VideoInMode");
-            setConfig.setTable(list);
             this.setConfig(Arrays.asList(setConfig));
         }
 
@@ -1005,23 +1241,23 @@ public class PtzSessionDahua extends PtzSessionAbstract {
 
     public void setVideoInWhiteBalance(boolean temporary) throws PtzSessionDahuaException {
 
-        List<List<DahuaParamRequestSetConfigVideoInWhiteBalance>> list = Arrays.asList(
+        List<List<DahuaParamConfigVideoInWhiteBalance>> list = Arrays.asList(
                 Arrays.asList(
-                        new DahuaParamRequestSetConfigVideoInWhiteBalance() {{
+                        new DahuaParamConfigVideoInWhiteBalance() {{
                             setColorTemperatureLevel(50);
                             setGainBlue(50);
                             setGainGreen(50);
                             setGainRed(50);
                             setMode("Auto");
                         }},
-                        new DahuaParamRequestSetConfigVideoInWhiteBalance() {{
+                        new DahuaParamConfigVideoInWhiteBalance() {{
                             setColorTemperatureLevel(50);
                             setGainBlue(50);
                             setGainGreen(50);
                             setGainRed(50);
                             setMode("Auto");
                         }},
-                        new DahuaParamRequestSetConfigVideoInWhiteBalance() {{
+                        new DahuaParamConfigVideoInWhiteBalance() {{
                             setColorTemperatureLevel(50);
                             setGainBlue(50);
                             setGainGreen(50);
@@ -1031,21 +1267,18 @@ public class PtzSessionDahua extends PtzSessionAbstract {
                 )
         );
 
+        DahuaParamRequestSetConfig setConfig = new DahuaParamRequestSetConfig();
+        setConfig.setName("VideoInWhiteBalance");
+        setConfig.setTable(list);
+
         if(temporary) {
-            DahuaParamRequestSetTemporaryConfig<List<DahuaParamRequestSetConfigVideoInWhiteBalance>> setConfig = new DahuaParamRequestSetTemporaryConfig<>();
-            setConfig.setName("VideoInWhiteBalance");
-            setConfig.setTable(list);
             this.setTemporaryConfig(setConfig);
         }
         else {
-            DahuaParamRequestSetConfig setConfig = new DahuaParamRequestSetConfig();
-            setConfig.setName("VideoInWhiteBalance");
-            setConfig.setTable(list);
             this.setConfig(Arrays.asList(setConfig));
         }
     }
 
-    @Override
     public void moveDirectly(int[] coord) {
 
         /*

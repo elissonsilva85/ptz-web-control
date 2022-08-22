@@ -1,13 +1,14 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.ptz;
 
-import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetConfig;
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.JoystickQueueData;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionException;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.exception.PtzSessionDahuaException;
 import okhttp3.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public abstract class PtzSessionAbstract {
 
@@ -41,31 +42,6 @@ public abstract class PtzSessionAbstract {
         headers.add("Content-Type", "application/x-www-form-urlencoded");
         //log.debug("---------------------------------------");
     }
-
-    //protected _addLog = (p:string, t:string) => {}) {
-
-    /*
-protected _lastCallBody : any = {};
-protected _httpOptions = {
-        headers: new HttpHeaders({
-        'X-Requested-With': 'XMLHttpRequest',
-        'Accept-Language': 'pt-PT,pt;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        }),
-        withCredentials: false,
-        params: null
-        };
-
-        constructor(
-protected _http: HttpClient,
-protected _ptz : string,
-protected _urlBase : string,
-protected _user : string,
-protected _pass : string,
-protected _addLog = (p:string, t:string) => {}) {
-        }
-
-*/
 
     protected Response _post( String page, String postBody ) throws IOException {
         RequestBody requestBody = RequestBody.create(postBody, MediaType.parse("application/json; charset=utf-8"));
@@ -101,25 +77,37 @@ protected _addLog = (p:string, t:string) => {}) {
 
     public abstract void savePreset(int id, String name) throws PtzSessionException;
 
+    public abstract void setZoomSpeed(int value) throws PtzSessionDahuaException;
+
     public abstract int getZoomValue() throws PtzSessionException;
 
     public abstract int[] getViewAngles() throws PtzSessionException;
 
-    public abstract void startZoomIn(int amount ) throws PtzSessionException;
+    public abstract Map<Integer, String> getPresetNames() throws PtzSessionException;
 
-    public abstract void stopZoomIn(int amount ) throws PtzSessionException;
+    public abstract void startZoomIn(int amount) throws PtzSessionException;
 
-    public abstract void startZoomOut(int amount ) throws PtzSessionException;
+    public abstract void stopZoomIn(int amount) throws PtzSessionException;
 
-    public abstract void stopZoomOut(int amount ) throws PtzSessionException;
+    public abstract void startZoomOut(int amount) throws PtzSessionException;
 
-    public abstract void startFocusIn(int amount ) throws PtzSessionException;
+    public abstract void stopZoomOut(int amount) throws PtzSessionException;
 
-    public abstract void stopFocusIn(int amount ) throws PtzSessionException;
+    public abstract void startFocusIn(int amount) throws PtzSessionException;
 
-    public abstract void startFocusOut(int amount ) throws PtzSessionException;
+    public abstract void stopFocusIn(int amount) throws PtzSessionException;
 
-    public abstract void stopFocusOut(int amount ) throws PtzSessionException;
+    public abstract void startFocusOut(int amount) throws PtzSessionException;
+
+    public abstract void stopFocusOut(int amount) throws PtzSessionException;
+
+    public abstract void startIrisLarge(int amount) throws PtzSessionException;
+
+    public abstract void stopIrisLarge(int amount) throws PtzSessionException;
+
+    public abstract void startIrisSmall(int amount) throws PtzSessionException;
+
+    public abstract void stopIrisSmall(int amount) throws PtzSessionException;
 
     public abstract void startJoystick(PtzJoystickDirection direction, int speed1, int speed2) throws PtzSessionException;
 
@@ -127,14 +115,7 @@ protected _addLog = (p:string, t:string) => {}) {
 
     public abstract void stopLastCall() throws PtzSessionException;
 
-    /////// UNDER DEVELOPMENT ////////////
-
     public abstract void specificPosition(int horizontal, int vertical, int zoom) throws PtzSessionException;
 
-    public abstract void getConfig() throws PtzSessionException; // list: any[]
-
-    public abstract void setConfig(List<DahuaParamRequestSetConfig> setConfigList) throws PtzSessionException; // list: any[], table: any[]
-
-    public abstract void moveDirectly(int[] coord) throws PtzSessionException;
 
 }

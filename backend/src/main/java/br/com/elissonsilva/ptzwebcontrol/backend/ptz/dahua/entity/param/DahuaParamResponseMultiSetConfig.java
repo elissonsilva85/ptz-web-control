@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class DahuaParamResponseMultiConfig extends DahuaParamBase {
+public class DahuaParamResponseMultiSetConfig extends DahuaParamBase {
 
     private String options;
 

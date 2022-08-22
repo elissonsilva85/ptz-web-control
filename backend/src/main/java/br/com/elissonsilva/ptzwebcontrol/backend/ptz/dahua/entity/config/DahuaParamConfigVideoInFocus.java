@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class DahuaParamRequestSetConfigVideoInFocus {
+public class DahuaParamConfigVideoInFocus extends DahuaParamConfigAbstract {
 
     public enum Mode {
         Automatico(2),

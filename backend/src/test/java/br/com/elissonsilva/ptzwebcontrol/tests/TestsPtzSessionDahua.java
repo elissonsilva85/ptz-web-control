@@ -1,19 +1,17 @@
 package br.com.elissonsilva.ptzwebcontrol.tests;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.ApplicationBootstrap;
-import br.com.elissonsilva.ptzwebcontrol.backend.component.Config;
+import br.com.elissonsilva.ptzwebcontrol.backend.component.Configuration;
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.ConfigPtz;
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.ConfigPtzConnection;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionException;
 import br.com.elissonsilva.ptzwebcontrol.backend.exception.PtzSessionManagerException;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.PtzJoystickDirection;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.PtzSessionDahua;
-import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamRequestSetConfigVideoColorTable;
-import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamRequestSetConfigVideoInWhiteBalance;
-import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamRequestSetConfigVideoInZoom;
-import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamResponseGetPresetPresets;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamConfigVideoColorTable;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamConfigVideoInWhiteBalance;
+import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamConfigVideoInZoom;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetConfig;
-import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetTemporaryConfig;
 import br.com.elissonsilva.ptzwebcontrol.backend.services.PtzSessionManagerService;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -31,6 +29,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -45,7 +44,7 @@ public class TestsPtzSessionDahua {
 
     @Spy
     @Autowired
-    private Config configSpy;
+    private Configuration configurationSpy;
 
     @Autowired
     private PtzSessionManagerService ptzSessionManagerService;
@@ -63,10 +62,10 @@ public class TestsPtzSessionDahua {
     public void setup() {
 
         // Prepare Mock
-        configSpy = Mockito.spy(new Config());
+        configurationSpy = Mockito.spy(new Configuration());
 
         // Mock Config data
-        when(configSpy.getPtz())
+        when(configurationSpy.getPtz())
                 .thenReturn(new ConfigPtz() {{
                     setConnection(new HashMap<>() {{
                         put("PTZ1", new ConfigPtzConnection() {{
@@ -79,7 +78,7 @@ public class TestsPtzSessionDahua {
                     }});
                 }});
 
-        ptzSessionManagerService = new PtzSessionManagerService(configSpy);
+        ptzSessionManagerService = new PtzSessionManagerService(configurationSpy);
 
     }
 
@@ -126,7 +125,7 @@ public class TestsPtzSessionDahua {
     public void _011_setPresets() {
 
         try {
-            sessionDahua.setPreset(presetIndex, presetName);
+            sessionDahua.savePreset(presetIndex, presetName);
             Thread.sleep(500);
         } catch (Exception e) {
             e.printStackTrace();
@@ -138,9 +137,9 @@ public class TestsPtzSessionDahua {
     public void _012_getPresets() {
 
         try {
-            List<DahuaParamResponseGetPresetPresets> list = sessionDahua.getPresets();
-            list.forEach( p -> System.out.println(p) );
-            assertEquals(presetName, list.get(presetIndex - 1).getName(), "PtzSessionDahua.getPresets[" + (presetIndex-1) + "] with wrong value");
+            Map<Integer, String> list = sessionDahua.getPresetNames();
+            list.forEach( (k,v) -> System.out.println(k + ": " + v) );
+            assertEquals(presetName, list.get(presetIndex - 1), "PtzSessionDahua.getPresets[" + (presetIndex-1) + "] with wrong value");
             Thread.sleep(500);
         } catch (PtzSessionException | InterruptedException e) {
             e.printStackTrace();
@@ -216,15 +215,15 @@ public class TestsPtzSessionDahua {
 
             int zoomSpeed = 10;
 
-            List<List<DahuaParamRequestSetConfigVideoInZoom>> list = Arrays.asList(
+            List<List<DahuaParamConfigVideoInZoom>> list = Arrays.asList(
                     Arrays.asList(
-                            new DahuaParamRequestSetConfigVideoInZoom() {{
+                            new DahuaParamConfigVideoInZoom() {{
                                 setSpeed(zoomSpeed);
                             }},
-                            new DahuaParamRequestSetConfigVideoInZoom() {{
+                            new DahuaParamConfigVideoInZoom() {{
                                 setSpeed(zoomSpeed);
                             }},
-                            new DahuaParamRequestSetConfigVideoInZoom() {{
+                            new DahuaParamConfigVideoInZoom() {{
                                 setSpeed(zoomSpeed);
                             }}
                     )
@@ -277,15 +276,15 @@ public class TestsPtzSessionDahua {
 
             int zoomSpeed = 10;
 
-            List<List<DahuaParamRequestSetConfigVideoColorTable>> list = Arrays.asList(
+            List<List<DahuaParamConfigVideoColorTable>> list = Arrays.asList(
                     Arrays.asList(
-                            new DahuaParamRequestSetConfigVideoColorTable(),
-                            new DahuaParamRequestSetConfigVideoColorTable(),
-                            new DahuaParamRequestSetConfigVideoColorTable()
+                            new DahuaParamConfigVideoColorTable(),
+                            new DahuaParamConfigVideoColorTable(),
+                            new DahuaParamConfigVideoColorTable()
                     )
             );
 
-            DahuaParamRequestSetTemporaryConfig<List<DahuaParamRequestSetConfigVideoColorTable>> setConfig = new DahuaParamRequestSetTemporaryConfig<>();
+            DahuaParamRequestSetConfig setConfig = new DahuaParamRequestSetConfig();
             setConfig.setName("VideoColor");
             setConfig.setTable(list);
 
@@ -304,37 +303,37 @@ public class TestsPtzSessionDahua {
 
             int zoomSpeed = 100;
 
-            List<List<DahuaParamRequestSetConfigVideoInZoom>> list1 = Arrays.asList(
+            List<List<DahuaParamConfigVideoInZoom>> list1 = Arrays.asList(
                     Arrays.asList(
-                            new DahuaParamRequestSetConfigVideoInZoom() {{
+                            new DahuaParamConfigVideoInZoom() {{
                                 setSpeed(zoomSpeed);
                             }},
-                            new DahuaParamRequestSetConfigVideoInZoom() {{
+                            new DahuaParamConfigVideoInZoom() {{
                                 setSpeed(zoomSpeed);
                             }},
-                            new DahuaParamRequestSetConfigVideoInZoom() {{
+                            new DahuaParamConfigVideoInZoom() {{
                                 setSpeed(zoomSpeed);
                             }}
                     )
             );
 
-            List<List<DahuaParamRequestSetConfigVideoInWhiteBalance>> list2 = Arrays.asList(
+            List<List<DahuaParamConfigVideoInWhiteBalance>> list2 = Arrays.asList(
                     Arrays.asList(
-                            new DahuaParamRequestSetConfigVideoInWhiteBalance() {{
+                            new DahuaParamConfigVideoInWhiteBalance() {{
                                 setColorTemperatureLevel(50);
                                 setGainBlue(50);
                                 setGainGreen(50);
                                 setGainRed(50);
                                 setMode("Auto");
                             }},
-                            new DahuaParamRequestSetConfigVideoInWhiteBalance() {{
+                            new DahuaParamConfigVideoInWhiteBalance() {{
                                 setColorTemperatureLevel(50);
                                 setGainBlue(50);
                                 setGainGreen(50);
                                 setGainRed(50);
                                 setMode("Auto");
                             }},
-                            new DahuaParamRequestSetConfigVideoInWhiteBalance() {{
+                            new DahuaParamConfigVideoInWhiteBalance() {{
                                 setColorTemperatureLevel(50);
                                 setGainBlue(50);
                                 setGainGreen(50);
