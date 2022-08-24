@@ -7,6 +7,7 @@ package br.com.elissonsilva.ptzwebcontrol.backend.services;
 
 // https://developers.google.com/youtube/v3/docs/channels/list?apix=true#common-use-cases
 
+import br.com.elissonsilva.ptzwebcontrol.backend.component.Configuration;
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.YoutubeLiveBroadcast;
 import br.com.elissonsilva.ptzwebcontrol.backend.entity.YoutubeSession;
 import br.com.elissonsilva.ptzwebcontrol.backend.component.Secrets;
@@ -37,12 +38,20 @@ public class YoutubeService {
     @Autowired
     private Secrets secrets;
 
+    private final Configuration configuration;
+
     private static final Collection<String> SCOPES = Arrays.asList("https://www.googleapis.com/auth/youtube");
     private static final String APPLICATION_NAME = "PTZ Web Control";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
     private static GoogleCredential credential;
     private static YouTube youtubeGoogleService;
+
+    private static final String REDIRECT_URI = "callback/";
+
+    public YoutubeService(Configuration configuration) {
+        this.configuration = configuration;
+    }
 
     private YouTube getService() throws GeneralSecurityException, IOException {
         if(youtubeGoogleService == null)
@@ -53,6 +62,10 @@ public class YoutubeService {
                     .build();
         }
         return youtubeGoogleService;
+    }
+
+    public String getRedirectUri(String page) {
+        return configuration.getUrlBase() + "api/youtube/" + page;
     }
 
     public void setCredential(YoutubeSession session)  {
@@ -68,8 +81,7 @@ public class YoutubeService {
     public String getClientRequestUrl(String redirectUrl) {
         return new GoogleBrowserClientRequestUrl(
                 secrets.getYoutube().getClientId(),
-                redirectUrl,
-                SCOPES).setResponseTypes(Arrays.asList("code")).build();
+                redirectUrl, SCOPES).setResponseTypes(Arrays.asList("code")).build();
     }
 
     public GoogleTokenResponse getAuthorizationCodeToken(String code, String redirectUrl) throws IOException, GeneralSecurityException {
@@ -80,7 +92,7 @@ public class YoutubeService {
                 secrets.getYoutube().getClientId(),
                 secrets.getYoutube().getClientSecret(),
                 code,
-                "http://localhost/api/youtube/callback/").execute();
+                redirectUrl).execute();
     }
 
     public ChannelListResponse getChannelInfo() throws IOException, GeneralSecurityException {

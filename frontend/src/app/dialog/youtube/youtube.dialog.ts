@@ -42,4 +42,12 @@ export class YoutubeDialog implements OnInit, OnDestroy {
     this.exists = false;
   }
 
+  connect() {
+    this.youtube.connect();
+  }
+
+  disconnect() {
+    this.youtube.disconnect().then(_ => this.checkYoutubeIsConnected());
+  }
+
 }

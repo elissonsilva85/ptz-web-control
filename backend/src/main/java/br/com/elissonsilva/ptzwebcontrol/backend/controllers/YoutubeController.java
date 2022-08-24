@@ -32,8 +32,6 @@ import java.util.List;
 @RequestMapping("/api/youtube")
 public class YoutubeController {
 
-    private static final String REDIRECT_URI = "http://localhost/api/youtube/callback/";
-
     @Autowired
     private YoutubeSessionRepository youtubeRepository;
 
@@ -64,37 +62,37 @@ public class YoutubeController {
     }
 
     @GetMapping("/connect")
-    public ResponseEntity<Void> getConnect() throws IOException {
+    public ResponseEntity<String> getConnect() throws IOException {
         isConnected();
 
         if(youtubeSession != null && youtubeSession.getAccessToken() != null)
         {
             log.info("Ja esta conectado");
             youtubeService.setCredential(youtubeSession);
-            return new ResponseEntity<>(null, HttpStatus.OK);
+            return new ResponseEntity<>("<script>window.close()</script>", HttpStatus.OK);
         }
         else if(youtubeSession != null && youtubeSession.getCode() != null)
         {
             log.info("Tem apenas o code (falta access_token)");
-            String url = REDIRECT_URI + "?code=" + youtubeSession.getCode();
+            String url = youtubeService.getRedirectUri("callback") + "?code=" + youtubeSession.getCode();
             return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(url)).build();
         }
         else
         {
             log.info("Ainda nao esta conectado ... redirecionando para login");
-            String url = youtubeService.getClientRequestUrl(REDIRECT_URI);
+            String url = youtubeService.getClientRequestUrl(youtubeService.getRedirectUri("callback"));
             return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(url)).build();
         }
     }
 
     @GetMapping("/callback")
-    public ResponseEntity<Void> getCallback(YoutubeSession ytSession) throws IOException {
+    public ResponseEntity<String> getCallback(YoutubeSession ytSession) throws IOException {
         String code = ytSession.getCode();
         if(code != null) {
             log.info("code: " + code);
             //
             try {
-                GoogleTokenResponse token = youtubeService.getAuthorizationCodeToken(code, REDIRECT_URI);
+                GoogleTokenResponse token = youtubeService.getAuthorizationCodeToken(code, youtubeService.getRedirectUri("callback"));
                 //
                 ytSession.setTokenResponse(token);
                 //
@@ -103,7 +101,7 @@ public class YoutubeController {
                 if(e.getStatusCode() == 400)
                 {
                     youtubeRepository.delete(ytSession);
-                    String url = "http://localhost/api/youtube/connect";
+                    String url = youtubeService.getRedirectUri("connect");
                     return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(url)).build();
                 }
                 return ResponseEntity.status(e.getStatusCode()).build();
@@ -119,7 +117,7 @@ public class YoutubeController {
             //
         }
 
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        return new ResponseEntity<>("<script>window.close()</script>", HttpStatus.OK);
     }
 
     @GetMapping("/channelInfo")
