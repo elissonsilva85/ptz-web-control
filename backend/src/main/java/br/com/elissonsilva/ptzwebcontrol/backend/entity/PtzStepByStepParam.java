@@ -19,7 +19,10 @@ public class PtzStepByStepParam implements Serializable {
     private int actionId;
     private String label;
     private String shortLabel;
-    private String type;
+    private String value;
+
+    @Enumerated(EnumType.STRING)
+    private PtzStepByStepParamType type;
 
     @OneToMany
     @JoinColumn(name = "paramId", insertable = false, updatable = false)

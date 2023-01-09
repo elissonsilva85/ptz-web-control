@@ -18,6 +18,9 @@ public class PtzStepByStepAction implements Serializable {
 
     private int timelineId;
     private int executionTime;
+
+    @Column(columnDefinition = "int default 0")
+    private int executionOrder;
     private String label;
     private String description;
     private String functionName;
