@@ -1,10 +1,14 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -16,16 +20,22 @@ public class PtzStepByStepAction implements Serializable {
     @GeneratedValue
     private long actionId;
 
-    private int timelineId;
     private int executionTime;
-
-    @Column(columnDefinition = "int default 0")
-    private int executionOrder;
     private String label;
     private String description;
     private String functionName;
 
-    @OneToMany
-    @JoinColumn(name = "actionId", insertable = false, updatable = false)
-    Set<PtzStepByStepParam> params = new LinkedHashSet<>();
+    @Column(columnDefinition = "int default 0")
+    private int executionOrder;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "actionId")
+    @JsonManagedReference
+    private List<PtzStepByStepParam> params;
+
+    @ManyToOne
+    @JoinColumn(name = "timelineId")
+    @JsonBackReference
+    private PtzStepByStepTimeline timeline;
+
 }

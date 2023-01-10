@@ -1,10 +1,12 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -18,11 +20,12 @@ public class PtzStepByStepTimeline implements Serializable {
 
     private String ptz;
     private String label;
-    //private int order;
 
-    @OneToMany
-    @JoinColumn(name = "timelineId", insertable = false, updatable = false)
-    Set<PtzStepByStepAction> actions = new LinkedHashSet<>();
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "timelineId")
+    @OrderBy("executionOrder ASC")
+    @JsonManagedReference
+    private List<PtzStepByStepAction> actions;
 
     /*
     PtzStepByStepTimeline
