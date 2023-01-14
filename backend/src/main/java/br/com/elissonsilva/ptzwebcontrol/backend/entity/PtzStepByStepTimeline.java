@@ -5,9 +5,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Data
@@ -25,7 +23,7 @@ public class PtzStepByStepTimeline implements Serializable {
     @JoinColumn(name = "timelineId")
     @OrderBy("executionOrder ASC")
     @JsonManagedReference
-    private List<PtzStepByStepAction> actions;
+    private List<PtzStepByStepTimelineAction> actions;
 
     /*
     PtzStepByStepTimeline

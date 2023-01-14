@@ -10,20 +10,29 @@ import java.util.List;
 
 @Entity
 @Data
-@Table(name = "PtzSbsAction")
-public class PtzStepByStepAction implements Serializable {
+@Table(name = "PtzSbsTimelineAction")
+public class PtzStepByStepTimelineAction implements Serializable {
 
     @Id
     @GeneratedValue
     private long actionId;
 
+    private int executionTime;
     private String label;
     private String description;
     private String functionName;
 
+    @Column(columnDefinition = "int default 0")
+    private int executionOrder;
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "actionId")
     @JsonManagedReference
-    private List<PtzStepByStepActionParam> params;
+    private List<PtzStepByStepTimelineActionParam> params;
+
+    @ManyToOne
+    @JoinColumn(name = "timelineId")
+    @JsonBackReference
+    private PtzStepByStepTimeline timeline;
 
 }

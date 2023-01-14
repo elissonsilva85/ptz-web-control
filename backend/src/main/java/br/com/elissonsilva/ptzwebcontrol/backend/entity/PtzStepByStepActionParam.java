@@ -1,19 +1,15 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 
 @Entity
 @Data
 @Table(name = "PtzSbsActionParam")
-public class PtzStepByStepParam implements Serializable {
+public class PtzStepByStepActionParam implements Serializable {
 
     @Id
     @GeneratedValue
@@ -21,7 +17,7 @@ public class PtzStepByStepParam implements Serializable {
     private String value;
 
     @ManyToOne
-    @JoinColumn(name = "optionId", insertable = false, updatable = false)
+    @JoinColumn(name = "optionId")
     private PtzStepByStepOption option;
 
     @ManyToOne
