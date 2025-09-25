@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { PtzAbstractSession } from '../class/ptz-abstract-session';
 import { PtzDahuaSession } from '../class/ptz-dahua-session';
 import { StepByStepAction } from '../class/step-by-step-action';
