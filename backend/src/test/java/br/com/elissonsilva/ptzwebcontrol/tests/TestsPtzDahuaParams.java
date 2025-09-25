@@ -3,11 +3,11 @@ package br.com.elissonsilva.ptzwebcontrol.tests;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+// Removed RunWith for JUnit 5
 import org.mockito.junit.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
+// Removed RunWith annotation for JUnit 5
 public class TestsPtzDahuaParams {
 
     @Test

@@ -1,26 +1,25 @@
 package br.com.elissonsilva.ptzwebcontrol.backend;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.component.Configuration;
-import br.com.elissonsilva.ptzwebcontrol.backend.filters.OkHttpRoutingFilter;
-import br.com.elissonsilva.ptzwebcontrol.backend.filters.RoutePtzZuulFilter;
-import br.com.elissonsilva.ptzwebcontrol.backend.filters.RouteVmixZuulFilter;
 import br.com.elissonsilva.ptzwebcontrol.backend.services.PtzSessionManagerService;
 import br.com.elissonsilva.ptzwebcontrol.backend.services.UDPServerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.Bean;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
 
-@EnableZuulProxy
 @SpringBootApplication
 public class ApplicationBootstrap extends SpringBootServletInitializer {
+
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationBootstrap.class);
 
     @Autowired
     private Configuration configuration;
@@ -34,18 +33,7 @@ public class ApplicationBootstrap extends SpringBootServletInitializer {
         SpringApplication.run(ApplicationBootstrap.class, args);
     }
 
-    @Bean
-    public RoutePtzZuulFilter routePtzZuulFilter() {
-        return new RoutePtzZuulFilter();
-    }
 
-    @Bean
-    public RouteVmixZuulFilter routeVmixZuulFilter() {
-        return new RouteVmixZuulFilter();
-    }
-
-    @Bean
-    public OkHttpRoutingFilter okHttpRoutingFilter() { return new OkHttpRoutingFilter(); }
 
     @Bean
     public void processUniCastUdpMessage() {

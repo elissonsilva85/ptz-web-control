@@ -1,7 +1,7 @@
 package br.com.elissonsilva.ptzwebcontrol.backend.entity;
 
 import lombok.Data;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 
 @Embeddable

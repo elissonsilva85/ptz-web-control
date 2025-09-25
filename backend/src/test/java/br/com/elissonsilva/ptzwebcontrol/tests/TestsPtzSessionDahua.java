@@ -13,12 +13,12 @@ import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaPa
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.config.DahuaParamConfigVideoInZoom;
 import br.com.elissonsilva.ptzwebcontrol.backend.ptz.dahua.entity.param.DahuaParamRequestSetConfig;
 import br.com.elissonsilva.ptzwebcontrol.backend.services.PtzSessionManagerService;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+// Removed RunWith for JUnit 5
+// Removed runners import for JUnit 5 MethodSorters;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -35,11 +35,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.AssertionErrors.fail;
 
-@RunWith(MockitoJUnitRunner.class)
+// Removed RunWith annotation for JUnit 5
 @SpringBootTest(classes = ApplicationBootstrap.class)
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(org.junit.jupiter.api.MethodOrderer.OrderAnnotation.class)
 @WebAppConfiguration
-@Ignore
+@Disabled
 public class TestsPtzSessionDahua {
 
     @Spy
@@ -58,7 +58,7 @@ public class TestsPtzSessionDahua {
     private static final int presetIndex = 4;
     private static final String presetName = "Teste";
 
-    @Before
+    @BeforeEach
     public void setup() {
 
         // Prepare Mock

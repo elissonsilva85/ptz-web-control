@@ -84,7 +84,7 @@ public class YoutubeService {
         // https://developers.google.com/youtube/v3/docs/channels/list
         //
         return getService().channels()
-                .list("snippet,contentDetails,statistics")
+                .list(Arrays.asList("snippet", "contentDetails", "statistics"))
                 .setMine(true)
                 .execute();
     }
@@ -94,7 +94,7 @@ public class YoutubeService {
         // https://developers.google.com/youtube/v3/live/docs/liveBroadcasts/list
         //
         return getService().liveBroadcasts()
-                .list("snippet,contentDetails,status")
+                .list(Arrays.asList("snippet", "contentDetails", "status"))
                 .setBroadcastType("event")
                 .setBroadcastStatus("upcoming")
                 .execute();
@@ -105,9 +105,9 @@ public class YoutubeService {
         // https://developers.google.com/youtube/v3/live/docs/liveBroadcasts/list
         //
         return getService().liveBroadcasts()
-                .list("snippet,contentDetails,status")
+                .list(Arrays.asList("snippet", "contentDetails", "status"))
                 .setBroadcastType("event")
-                .setId(broadcastId)
+                .setId(Arrays.asList(broadcastId))
                 .execute();
     }
 
@@ -116,7 +116,7 @@ public class YoutubeService {
         // https://developers.google.com/youtube/v3/live/docs/liveStreams/list
         //
         return getService().liveStreams()
-                .list("snippet,cdn,contentDetails,status")
+                .list(Arrays.asList("snippet", "cdn", "contentDetails", "status"))
                 .setMine(true)
                 .execute();
     }
@@ -141,7 +141,7 @@ public class YoutubeService {
         // https://developers.google.com/youtube/v3/docs/playlistItems/insert
         //
         return getService().playlistItems()
-                .insert("snippet", new PlaylistItem()
+                .insert(Arrays.asList("snippet"), new PlaylistItem()
                         .setSnippet(new PlaylistItemSnippet()
                                 .setPlaylistId(playlistId)
                                 .setResourceId(new ResourceId()
@@ -155,7 +155,7 @@ public class YoutubeService {
         // https://developers.google.com/youtube/v3/live/docs/liveBroadcasts/insert
         //
         return getService().liveBroadcasts()
-                .insert("snippet,contentDetails,status", new LiveBroadcast()
+                .insert(Arrays.asList("snippet", "contentDetails", "status"), new LiveBroadcast()
                         .setSnippet(new LiveBroadcastSnippet()
                                 .setTitle(title)
                                 .setDescription(description)

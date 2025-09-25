@@ -3,7 +3,7 @@ package br.com.elissonsilva.ptzwebcontrol.backend.entity;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import lombok.Data;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 

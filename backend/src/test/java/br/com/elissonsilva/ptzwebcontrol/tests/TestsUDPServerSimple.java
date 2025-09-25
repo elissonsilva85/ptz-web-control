@@ -2,9 +2,9 @@ package br.com.elissonsilva.ptzwebcontrol.tests;
 
 import br.com.elissonsilva.ptzwebcontrol.backend.services.UDPServerService;
 import br.com.elissonsilva.ptzwebcontrol.backend.utils.UdpMessageUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.*;
@@ -60,7 +60,7 @@ public class TestsUDPServerSimple {
 
     EchoClient client;
 
-    @Before
+    @BeforeEach
     public void setup() throws SocketException, UnknownHostException {
         new UDPServerService(null,"PTZ", 4445).start();
         client = new EchoClient();
@@ -76,7 +76,7 @@ public class TestsUDPServerSimple {
         assertEquals("", echo);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         client.sendEcho("FF");
         client.close();
