@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { StepByStepAction } from 'src/app/class/step-by-step-action';
 
 @Component({
@@ -11,9 +11,9 @@ export class StepByStepActionComponent implements OnInit {
 
   @Input() action: StepByStepAction;
 
-  public actionFormGorup: FormGroup;
+  public actionFormGorup: UntypedFormGroup;
 
-  constructor(private fb: FormBuilder) { }
+  constructor(private fb: UntypedFormBuilder) { }
 
   ngOnInit(): void {
 

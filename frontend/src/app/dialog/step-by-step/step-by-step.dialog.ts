@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit, ElementRef } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 
 import { StepByStepAction } from 'src/app/class/step-by-step-action';
@@ -24,8 +24,8 @@ import { RcpService } from 'src/app/service/rcp.service';
 })
 export class StepByStepDialog implements OnInit {
 
-  public timelineNameControl: FormControl = new FormControl();
-  public waitingTimeControl: FormControl[] = [];
+  public timelineNameControl: UntypedFormControl = new UntypedFormControl();
+  public waitingTimeControl: UntypedFormControl[] = [];
   public filteredOptions: Observable<any>;
   public showCurrentPosition: boolean = false;
   public currentPosition = [0,0,0];
@@ -80,7 +80,7 @@ export class StepByStepDialog implements OnInit {
 
   private _loadDatabase() {
     this.stepByStepService.getTimelineCurrentAction(this.data.ptz).forEach( (a,i) => {
-      this.waitingTimeControl[i] = new FormControl(a.getWaitingTime());
+      this.waitingTimeControl[i] = new UntypedFormControl(a.getWaitingTime());
       this.waitingTimeControl[i].valueChanges.subscribe((value) => {
         a.setWaitingTime( parseInt(value) );
         this.stepByStepService.updateActionTimes(this.data.ptz);
@@ -99,7 +99,7 @@ export class StepByStepDialog implements OnInit {
 
     if(this.stepByStepService.loadTimelineByNameIntoCurrentAction(this.data.ptz,name)) {
       this.stepByStepService.getTimelineCurrentAction(this.data.ptz).forEach( (a,i) => {
-        this.waitingTimeControl[i] = new FormControl(a.getWaitingTime());
+        this.waitingTimeControl[i] = new UntypedFormControl(a.getWaitingTime());
         this.waitingTimeControl[i].valueChanges.subscribe((value) => {
           a.setWaitingTime( parseInt(value) );
           this.stepByStepService.updateActionTimes(this.data.ptz);
@@ -257,7 +257,7 @@ export class StepByStepDialog implements OnInit {
 
   addField(action: StepByStepAction, index: number) {
     this.stepByStepService.getTimelineCurrentAction(this.data.ptz).splice(index, 0, action.clone() );
-    this.waitingTimeControl.splice(index, 0, new FormControl('0') );
+    this.waitingTimeControl.splice(index, 0, new UntypedFormControl('0') );
     this.waitingTimeControl[index].valueChanges.subscribe((value) => {
       this.stepByStepService.getTimelineCurrentAction(this.data.ptz)[index].setWaitingTime( parseInt(value) );
       this.stepByStepService.updateActionTimes(this.data.ptz);
