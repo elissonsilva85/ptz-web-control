@@ -23,10 +23,10 @@
                 [min]="param.getOptions()[0]"
                 [max]="param.getOptions()[1]"
                 [step]="param.getOptions()[2]"
-                thumbLabel="true"
-                tickInterval="auto"
-                [value]="param.getValue()"
-                (change)="actionFormGorup.get(i.toString()).setValue($event.value)"></mat-slider>
+                discrete
+                tickInterval="auto">
+                <input matSliderThumb [value]="param.getValue()" (ngModelChange)="actionFormGorup.get(i.toString()).setValue($event)">
+            </mat-slider>
         </mat-form-field>        
     </div>
 

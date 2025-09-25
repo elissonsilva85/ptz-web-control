@@ -27,9 +27,8 @@
                         [max]="wb.red.max"
                         [min]="wb.red.min"
                         [step]="wb.red.step"
-                        [thumbLabel]="true"
-                        (change)="changeWB()"
-                        [(ngModel)]="wb.red.value">
+                        discrete>
+                        <input matSliderThumb [(ngModel)]="wb.red.value" (ngModelChange)="changeWB()">
                     </mat-slider></td>
                 </tr>
                 <tr>
@@ -40,9 +39,8 @@
                         [max]="wb.blue.max"
                         [min]="wb.blue.min"
                         [step]="wb.blue.step"
-                        [thumbLabel]="true"
-                        (change)="changeWB()"
-                        [(ngModel)]="wb.blue.value">
+                        discrete>
+                        <input matSliderThumb [(ngModel)]="wb.blue.value" (ngModelChange)="changeWB()">
                     </mat-slider></td>
                 </tr>
                 <tr>
@@ -53,9 +51,8 @@
                         [max]="wb.green.max"
                         [min]="wb.green.min"
                         [step]="wb.green.step"
-                        [thumbLabel]="true"
-                        (change)="changeWB()"
-                        [(ngModel)]="wb.green.value">
+                        discrete>
+                        <input matSliderThumb [(ngModel)]="wb.green.value" (ngModelChange)="changeWB()">
                     </mat-slider></td>
                 </tr>
             </table>  
@@ -70,9 +67,8 @@
                         [max]="imagem.brilho.max"
                         [min]="imagem.brilho.min"
                         [step]="imagem.brilho.step"
-                        [thumbLabel]="true"
-                        (change)="changeImagem()"
-                        [(ngModel)]="imagem.brilho.value">
+                        discrete>
+                        <input matSliderThumb [(ngModel)]="imagem.brilho.value" (ngModelChange)="changeImagem()">
                     </mat-slider></td>
                 </tr>
                 <tr>
@@ -83,9 +79,8 @@
                         [max]="imagem.contraste.max"
                         [min]="imagem.contraste.min"
                         [step]="imagem.contraste.step"
-                        [thumbLabel]="true"
-                        (change)="changeImagem()"
-                        [(ngModel)]="imagem.contraste.value">
+                        discrete>
+                        <input matSliderThumb [(ngModel)]="imagem.contraste.value" (ngModelChange)="changeImagem()">
                     </mat-slider></td>
                 </tr>
                 <tr>
@@ -96,9 +91,8 @@
                         [max]="imagem.saturacao.max"
                         [min]="imagem.saturacao.min"
                         [step]="imagem.saturacao.step"
-                        [thumbLabel]="true"
-                        (change)="changeImagem()"
-                        [(ngModel)]="imagem.saturacao.value">
+                        discrete>
+                        <input matSliderThumb [(ngModel)]="imagem.saturacao.value" (ngModelChange)="changeImagem()">
                     </mat-slider></td>
                 </tr>
             </table>  

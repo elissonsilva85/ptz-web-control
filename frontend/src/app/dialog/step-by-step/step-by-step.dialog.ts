@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit, ElementRef } from '@angular/core';
-import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { UntypedFormControl } from '@angular/forms';
 import { Observable, of } from 'rxjs';
@@ -7,7 +7,7 @@ import { Observable, of } from 'rxjs';
 import { StepByStepAction } from 'src/app/class/step-by-step-action';
 import { CdkDragStart, CdkDragMove, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ViewChild } from '@angular/core';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { StepByStepService } from 'src/app/service/step-by-step.service';
 import { PtzDahuaSession } from 'src/app/class/ptz-dahua-session';
 import { ConfirmDialog } from '../confirm/confirm.dialog';
