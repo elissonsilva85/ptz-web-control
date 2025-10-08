@@ -36,16 +36,18 @@ public class ApplicationBootstrap extends SpringBootServletInitializer {
 
 
     @Bean
-    public void processUniCastUdpMessage() {
+    public Map<String, UDPServerService> processUniCastUdpMessage() {
         udpThreads = new HashMap<>();
         configuration.getPtz().getConnection().forEach((ptz, conn) -> {
             try {
-                udpThreads.put(ptz,new UDPServerService(ptzSessionManagerService, ptz,conn.getUdpPort()));
+                UDPServerService server = new UDPServerService(ptzSessionManagerService, ptz, conn.getUdpPort());
+                udpThreads.put(ptz, server);
                 udpThreads.get(ptz).start();
             } catch (SocketException e) {
                 logger.warn(ptz + " processUniCastUdpMessage: " + e.getMessage(), e);
             }
         });
+        return udpThreads;
     }
 
     @PreDestroy

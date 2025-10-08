@@ -25,7 +25,7 @@ export class RcpService {
   constructor(private _http: HttpClient) {  }
 
   public loadAppConfig() {
-    return this._http.get('/api/config/')
+    return this._http.get('/api/config')
       .toPromise()
       .then( (data: any) => {
         this.urlBase = window.location.href;

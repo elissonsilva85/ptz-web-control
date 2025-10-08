@@ -9,19 +9,27 @@ import java.util.Set;
 
 @Entity
 @Data
-@Table(name = "PtzSbsActionParam")
+@Table(name = "ptz_sbs_action_param")
 public class PtzStepByStepParam implements Serializable {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "param_id")
     private long paramId;
 
+    @Column(name = "action_id")
     private int actionId;
+
+    @Column(name = "label")
     private String label;
+
+    @Column(name = "short_label")
     private String shortLabel;
+
+    @Column(name = "type")
     private String type;
 
     @OneToMany
-    @JoinColumn(name = "paramId", insertable = false, updatable = false)
+    @JoinColumn(name = "param_id", insertable = false, updatable = false)
     Set<PtzStepByStepParamOption> options = new LinkedHashSet<>();
 }

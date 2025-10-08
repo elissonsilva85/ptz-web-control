@@ -6,16 +6,19 @@ import java.io.Serializable;
 
 @Entity
 @Data
-@Table(name = "PtzName")
+@Table(name = "ptz_name")
 @IdClass(PtzNameId.class)
 public class PtzName implements Serializable {
 
     @Id
+    @Column(name = "ptz")
     private String ptz;
 
     @Id
+    @Column(name = "position")
     private int position;
 
+    @Column(name = "name")
     private String name;
 
 }
